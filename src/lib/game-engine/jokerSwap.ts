@@ -111,8 +111,15 @@ export function executeJokerSwap(
   const newHand = player.hand.filter((t) => t.id !== handTileId)
   newHand.push(jokerTile)
 
-  // Update players
+  // Update players — handle self-swap case (player swaps their own exposed group)
   const updatedPlayers = state.gameState.players.map((p) => {
+    if (p.id === playerId && playerId === targetPlayerId) {
+      // Self-swap: update both hand AND exposed on the same player
+      const newExposed = p.exposed.map((g, i) =>
+        i === groupIndex ? { ...g, tiles: newGroupTiles } : g
+      )
+      return { ...p, hand: newHand, exposed: newExposed }
+    }
     if (p.id === playerId) {
       return { ...p, hand: newHand }
     }

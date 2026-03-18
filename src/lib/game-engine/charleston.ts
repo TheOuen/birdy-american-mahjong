@@ -116,10 +116,10 @@ export function executeCharlestonPass(
       const candidates = player.hand.filter((t) => t.type.kind !== 'joker')
       const shuffled = [...candidates].sort(() => Math.random() - 0.5)
       selectedIds = shuffled.slice(0, 3).map((t) => t.id)
-      // Fallback if not enough non-jokers (shouldn't happen, but safe)
+      // Fallback if not enough non-jokers — still exclude jokers (rules say no jokers in Charleston)
       if (selectedIds.length < 3) {
         const remaining = player.hand
-          .filter((t) => !selectedIds.includes(t.id))
+          .filter((t) => !selectedIds.includes(t.id) && t.type.kind !== 'joker')
           .sort(() => Math.random() - 0.5)
         while (selectedIds.length < 3 && remaining.length > 0) {
           selectedIds.push(remaining.pop()!.id)

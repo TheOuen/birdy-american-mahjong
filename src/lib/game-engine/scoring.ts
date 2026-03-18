@@ -1,6 +1,6 @@
-// Scoring for American Mahjong
+// Scoring for American Mahjong (per NMJL/RULES.md)
 // Self-draw: all 3 opponents pay 2x hand value
-// Discard win: discarder pays 2x, other two pay 1x
+// Discard win: ONLY the discarder pays, at 2x hand value (others pay nothing)
 // Wall game: no points exchanged
 
 import type { GameState, PlayerState, WinningMethod } from './types'
@@ -33,20 +33,16 @@ export function calculateScore(
     }
     payments.set(winnerId, winnerTotal)
   } else if (winningMethod === 'discard' && discarderId) {
-    // Discard win: discarder pays 2x, other two pay 1x
-    let winnerTotal = 0
+    // Discard win: ONLY the discarder pays at 2x (per RULES.md §5)
+    const discardPayment = handValue * 2
+    payments.set(discarderId, -discardPayment)
+    payments.set(winnerId, discardPayment)
 
+    // Other players pay nothing
     for (const p of gameState.players) {
-      if (p.id === winnerId) continue
-      if (p.id === discarderId) {
-        payments.set(p.id, -(handValue * 2))
-        winnerTotal += handValue * 2
-      } else {
-        payments.set(p.id, -handValue)
-        winnerTotal += handValue
-      }
+      if (p.id === winnerId || p.id === discarderId) continue
+      payments.set(p.id, 0)
     }
-    payments.set(winnerId, winnerTotal)
   }
 
   return { winnerId, winningMethod, handValue, payments }
@@ -62,7 +58,6 @@ export function applyScores(
     return {
       ...p,
       score: p.score + payment,
-      ...(p.id === scoreResult.winnerId ? { gamesWon: 1 } : {}),
     }
   })
 }

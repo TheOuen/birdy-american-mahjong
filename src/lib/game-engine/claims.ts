@@ -37,14 +37,17 @@ export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimT
   // Need N-1 from hand (discard provides 1)
   const claims: ClaimType[] = []
 
-  // Pung: 3 total → need 2 from hand
-  if (exact + jokers >= 2 && exact >= 1) claims.push('pung')
+  // The discard itself counts as 1 real tile, so the "at least 1 real" requirement
+  // for groups of 3+ is always satisfied by the discard. We only need enough
+  // tiles from hand (exact matches + jokers) to fill the remaining slots.
+  // Pung: 3 total → need 2 from hand (exact + jokers)
+  if (exact + jokers >= 2) claims.push('pung')
   // Kong: 4 total → need 3 from hand
-  if (exact + jokers >= 3 && exact >= 1) claims.push('kong')
+  if (exact + jokers >= 3) claims.push('kong')
   // Quint: 5 total → need 4 from hand
-  if (exact + jokers >= 4 && exact >= 1) claims.push('quint')
+  if (exact + jokers >= 4) claims.push('quint')
   // Sextet: 6 total → need 5 from hand
-  if (exact + jokers >= 5 && exact >= 1) claims.push('sextet')
+  if (exact + jokers >= 5) claims.push('sextet')
 
   // Mahjong: check if this tile would complete a winning hand
   const matchingHand = wouldCompleteHand(player.hand, player.exposed, discardedTile)
