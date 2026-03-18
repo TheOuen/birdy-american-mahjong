@@ -52,6 +52,7 @@ export function GameBoard() {
   const [botsProcessing, setBotsProcessing] = useState(false)
   const [showCard, setShowCard] = useState(false)
   const [charleston, setCharleston] = useState<CharlestonState | null>(null)
+  const [canDeclareMahjong, setCanDeclareMahjong] = useState(false)
 
   // Turn timer state
   const [turnTimer, setTurnTimer] = useState(TURN_TIMER_SEC)
@@ -252,9 +253,49 @@ export function GameBoard() {
 
     setGame(result.state)
     setHasDrawn(true)
-    setTurnTimer(TURN_TIMER_SEC) // Reset timer after drawing
-    setMessage('You drew a tile. Tap a tile to discard.')
+    setTurnTimer(TURN_TIMER_SEC)
+
+    // Check if player now has a winning hand (self-draw Mahjong)
+    const playerState = result.state.gameState.players.find((p) => p.id === 'player')!
+    if (hasWinningHand(playerState.hand, playerState.exposed)) {
+      setCanDeclareMahjong(true)
+      setMessage('You have a winning hand! Declare Mahjong or discard to continue.')
+    } else {
+      setCanDeclareMahjong(false)
+      setMessage('You drew a tile. Tap a tile to discard.')
+    }
   }, [game, isPlayerTurn, hasDrawn])
+
+  // Handle declaring Mahjong
+  const handleDeclareMahjong = useCallback(
+    (method: 'self_draw' | 'discard', discarderId?: string) => {
+      if (!game) return
+      const player = game.gameState.players.find((p) => p.id === 'player')!
+      const matches = findMatchingHands(player.hand, player.exposed)
+      if (matches.length === 0) {
+        setMessage('Your hand does not match any NMJL pattern.')
+        setCanDeclareMahjong(false)
+        return
+      }
+      const winningHand = matches[0]
+      const scoreResult = calculateScore(game.gameState, 'player', method, winningHand.points, discarderId)
+      const updatedPlayers = applyScores(game.gameState.players, scoreResult)
+      setGame({
+        ...game,
+        gameState: {
+          ...game.gameState,
+          status: 'finished',
+          winnerId: 'player',
+          winningMethod: method,
+          winningHandId: winningHand.id,
+          players: updatedPlayers,
+        },
+      })
+      setCanDeclareMahjong(false)
+      setMessage(`Mahjong! You won with "${winningHand.pattern}" for ${winningHand.points} points!`)
+    },
+    [game]
+  )
 
   // After a discard, check if player can claim
   const checkPlayerClaims = useCallback(
@@ -287,6 +328,14 @@ export function GameBoard() {
       if (!game || !claimPhase) return
 
       const discard = game.gameState.discardPile[claimPhase.discardIndex]
+
+      // Mahjong claim — declare win from discard
+      if (claimType === 'mahjong') {
+        setClaimPhase(null)
+        handleDeclareMahjong('discard', discard.discardedBy)
+        return
+      }
+
       const player = game.gameState.players.find((p) => p.id === 'player')!
       const tileIds = getClaimTileIds(player.hand, discard.tile, claimType)
       if (!tileIds) return
@@ -641,6 +690,14 @@ export function GameBoard() {
                 }}
               >
                 Discard Selected
+              </button>
+            )}
+            {canDeclareMahjong && (
+              <button
+                onClick={() => handleDeclareMahjong('self_draw')}
+                className="btn-gold text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 animate-pulse"
+              >
+                Declare Mahjong!
               </button>
             )}
           </div>
