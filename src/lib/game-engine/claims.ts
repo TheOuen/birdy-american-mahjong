@@ -49,8 +49,11 @@ export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimT
   // Mahjong: check if this tile would complete a winning hand
   const matchingHand = wouldCompleteHand(player.hand, player.exposed, discardedTile)
   if (matchingHand) {
-    // For concealed hands, this is the ONLY valid claim type
-    claims.length = 0 // clear other claims — Mahjong takes absolute priority
+    // Add mahjong as an option — player can still choose pung/kong instead
+    // (unless it's a concealed hand, where only mahjong is valid)
+    if (matchingHand.concealed && player.exposed.length === 0) {
+      claims.length = 0
+    }
     claims.push('mahjong')
   }
 
@@ -170,8 +173,8 @@ export function evaluateBotClaim(
   if (claims.length === 0) return null
 
   // Bots always claim the highest available group
-  // Priority: sextet > quint > kong > pung
-  const priority: ClaimType[] = ['sextet', 'quint', 'kong', 'pung']
+  // Priority: mahjong > sextet > quint > kong > pung
+  const priority: ClaimType[] = ['mahjong', 'sextet', 'quint', 'kong', 'pung']
   for (const claim of priority) {
     if (claims.includes(claim)) return claim
   }

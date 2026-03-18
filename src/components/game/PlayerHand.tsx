@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import type { Tile, TileId } from '@/lib/tiles/constants'
 import { TileRenderer } from '@/components/tiles/TileRenderer'
 import { sortHand } from '@/lib/tiles/sorting'
@@ -12,7 +13,7 @@ type PlayerHandProps = {
 }
 
 export function PlayerHand({ tiles, selectedTileId, onTileClick, canDiscard }: PlayerHandProps) {
-  const sorted = sortHand(tiles)
+  const sorted = useMemo(() => sortHand(tiles), [tiles])
 
   return (
     <div className="flex flex-col items-center gap-2 sm:gap-3">

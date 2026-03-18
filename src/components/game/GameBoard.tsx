@@ -116,6 +116,8 @@ export function GameBoard() {
   // Auto-play when timer reaches 0 — separate effect so it fires once, not every tick
   useEffect(() => {
     if (turnTimer !== 0) return
+    // Immediately set to -1 to prevent double-fire on re-render
+    setTurnTimer(-1)
     if (!gameRef.current) return
     if (gameRef.current.gameState.currentTurn !== 'player') return
     if (gameRef.current.gameState.status !== 'playing') return
@@ -386,6 +388,7 @@ export function GameBoard() {
         setGame(result)
         setSelectedTile(null)
         setHasDrawn(false)
+        setCanDeclareMahjong(false)
         setMessage('Bots are playing...')
 
         // Check if any bot wants to claim
@@ -440,9 +443,19 @@ export function GameBoard() {
               tileIds
             )
             if (result) {
+              // Bot claimed Mahjong — end the game
+              if (claim === 'mahjong') {
+                setBotsProcessing(false)
+                setGame(result)
+                setMessage(`${bot.displayName} declared Mahjong!`)
+                return
+              }
+
               // Bot claimed — they need to discard
+              setBotsProcessing(true)
               setMessage(`${bot.displayName} claimed a ${claim}!`)
               setTimeout(() => {
+                setBotsProcessing(false)
                 // Bot auto-discards after claiming
                 const botPlayer = result.gameState.players.find((p) => p.id === bot.id)!
                 const nonJokers = botPlayer.hand.filter((t) => t.type.kind !== 'joker')

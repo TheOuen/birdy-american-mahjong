@@ -2,6 +2,8 @@
 
 import { createTileSet } from '../tiles/constants'
 import type { Tile, TileId } from '../tiles/constants'
+import { hasWinningHand, findMatchingHands } from '../nmjl/matcher'
+import { calculateScore, applyScores } from './scoring'
 import type {
   GameState,
   GameStatus,
@@ -195,7 +197,7 @@ export function discardTile(
   }
 }
 
-// Bot AI: draw a tile, then discard a random non-joker tile
+// Bot AI: draw a tile, check for Mahjong, then discard a random non-joker tile
 export function botTurn(state: DemoGameState): DemoGameState | null {
   // Draw
   const drawResult = drawTile(state)
@@ -207,10 +209,31 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
     }
   }
 
-  let current = drawResult.state
+  const current = drawResult.state
   const botId = current.gameState.currentTurn
   const bot = current.gameState.players.find((p) => p.id === botId)
   if (!bot || bot.hand.length === 0) return current
+
+  // Check if bot has a winning hand (self-draw Mahjong)
+  if (hasWinningHand(bot.hand, bot.exposed)) {
+    const matches = findMatchingHands(bot.hand, bot.exposed)
+    if (matches.length > 0) {
+      const winningHand = matches[0]
+      const scoreResult = calculateScore(current.gameState, botId, 'self_draw', winningHand.points)
+      const updatedPlayers = applyScores(current.gameState.players, scoreResult)
+      return {
+        wall: current.wall,
+        gameState: {
+          ...current.gameState,
+          status: 'finished' as GameStatus,
+          winnerId: botId,
+          winningMethod: 'self_draw',
+          winningHandId: winningHand.id,
+          players: updatedPlayers,
+        },
+      }
+    }
+  }
 
   // Simple strategy: discard a random tile, preferring non-jokers
   const nonJokers = bot.hand.filter((t) => t.type.kind !== 'joker')
