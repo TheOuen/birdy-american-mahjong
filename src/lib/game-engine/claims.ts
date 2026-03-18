@@ -4,6 +4,7 @@ import type { Tile, TileId, TileType } from '../tiles/constants'
 import { tilesMatch } from '../tiles/constants'
 import type { PlayerState, ClaimType, ExposedGroup, DiscardEntry } from './types'
 import type { DemoGameState } from './engine'
+import { wouldCompleteHand } from '../nmjl/matcher'
 
 // Count tiles in hand that match a target type
 export function countMatching(
@@ -44,6 +45,14 @@ export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimT
   if (exact + jokers >= 4 && exact >= 1) claims.push('quint')
   // Sextet: 6 total → need 5 from hand
   if (exact + jokers >= 5 && exact >= 1) claims.push('sextet')
+
+  // Mahjong: check if this tile would complete a winning hand
+  const matchingHand = wouldCompleteHand(player.hand, player.exposed, discardedTile)
+  if (matchingHand) {
+    // For concealed hands, this is the ONLY valid claim type
+    claims.length = 0 // clear other claims — Mahjong takes absolute priority
+    claims.push('mahjong')
+  }
 
   return claims
 }

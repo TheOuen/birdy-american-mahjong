@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import type { TileId } from '@/lib/tiles/constants'
 import type { ClaimType } from '@/lib/game-engine/types'
@@ -10,6 +10,7 @@ import {
   discardTile,
   botTurn,
   isGameOver,
+  rotateDealerForNextRound,
 } from '@/lib/game-engine/engine'
 import type { DemoGameState } from '@/lib/game-engine/engine'
 import {
@@ -28,14 +29,19 @@ import { CharlestonPhase } from './CharlestonPhase'
 import { GameOverScreen } from './GameOverScreen'
 import {
   createCharlestonState,
+  createSecondCharlestonState,
   executeCharlestonPass,
 } from '@/lib/game-engine/charleston'
 import type { CharlestonState } from '@/lib/game-engine/charleston'
+import { hasWinningHand, findMatchingHands, wouldCompleteHand } from '@/lib/nmjl/matcher'
+import { calculateScore, applyScores } from '@/lib/game-engine/scoring'
 
 type ClaimPhase = {
   discardIndex: number
   validClaims: ClaimType[]
 } | null
+
+const TURN_TIMER_SEC = 60
 
 export function GameBoard() {
   const [game, setGame] = useState<DemoGameState | null>(null)
@@ -47,6 +53,20 @@ export function GameBoard() {
   const [showCard, setShowCard] = useState(false)
   const [charleston, setCharleston] = useState<CharlestonState | null>(null)
 
+  // Turn timer state
+  const [turnTimer, setTurnTimer] = useState(TURN_TIMER_SEC)
+  const gameRef = useRef<DemoGameState | null>(null)
+  const hasDrawnRef = useRef(false)
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    gameRef.current = game
+  }, [game])
+
+  useEffect(() => {
+    hasDrawnRef.current = hasDrawn
+  }, [hasDrawn])
+
   // Initialize game
   useEffect(() => {
     const newGame = createDemoGame()
@@ -57,6 +77,113 @@ export function GameBoard() {
     setMessage('The Charleston — select 3 tiles to pass.')
     setHasDrawn(false)
   }, [])
+
+  // Reset turn timer when it becomes the player's turn during playing phase
+  useEffect(() => {
+    if (
+      game?.gameState.currentTurn === 'player' &&
+      game?.gameState.status === 'playing'
+    ) {
+      setTurnTimer(TURN_TIMER_SEC)
+    }
+  }, [game?.gameState.currentTurn, game?.gameState.status])
+
+  // Countdown timer — ticks every second only when it's the player's turn in playing phase
+  useEffect(() => {
+    if (
+      !game ||
+      game.gameState.currentTurn !== 'player' ||
+      game.gameState.status !== 'playing' ||
+      isGameOver(game) ||
+      claimPhase
+    ) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      setTurnTimer((prev) => {
+        if (prev <= 1) {
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [game?.gameState.currentTurn, game?.gameState.status, claimPhase])
+
+  // Auto-play when timer reaches 0 — separate effect so it fires once, not every tick
+  useEffect(() => {
+    if (turnTimer !== 0) return
+    if (!gameRef.current) return
+    if (gameRef.current.gameState.currentTurn !== 'player') return
+    if (gameRef.current.gameState.status !== 'playing') return
+    if (isGameOver(gameRef.current)) return
+
+    const currentGame = gameRef.current
+    const currentHasDrawn = hasDrawnRef.current
+
+    if (!currentHasDrawn) {
+      // Auto-draw first
+      const drawResult = drawTile(currentGame)
+      if (!drawResult) {
+        setGame((prev) =>
+          prev
+            ? { ...prev, gameState: { ...prev.gameState, status: 'finished' } }
+            : null
+        )
+        setMessage('No tiles left — wall game!')
+        return
+      }
+
+      // Then auto-discard a random non-joker tile
+      const drawnPlayer = drawResult.state.gameState.players.find(
+        (p) => p.id === 'player'
+      )!
+      const nonJokers = drawnPlayer.hand.filter((t) => t.type.kind !== 'joker')
+      const candidates = nonJokers.length > 0 ? nonJokers : drawnPlayer.hand
+      if (candidates.length === 0) return
+
+      const autoDiscard =
+        candidates[Math.floor(Math.random() * candidates.length)]
+      const discardResult = discardTile(
+        drawResult.state,
+        'player',
+        autoDiscard.id
+      )
+      if (!discardResult) return
+
+      setGame(discardResult)
+      setHasDrawn(false)
+      setSelectedTile(null)
+      setMessage('Time ran out — auto-played for you.')
+    } else {
+      // Already drawn — auto-discard a random non-joker tile
+      const currentPlayer = currentGame.gameState.players.find(
+        (p) => p.id === 'player'
+      )!
+      const nonJokers = currentPlayer.hand.filter(
+        (t) => t.type.kind !== 'joker'
+      )
+      const candidates =
+        nonJokers.length > 0 ? nonJokers : currentPlayer.hand
+      if (candidates.length === 0) return
+
+      const autoDiscard =
+        candidates[Math.floor(Math.random() * candidates.length)]
+      const discardResult = discardTile(
+        currentGame,
+        'player',
+        autoDiscard.id
+      )
+      if (!discardResult) return
+
+      setGame(discardResult)
+      setHasDrawn(false)
+      setSelectedTile(null)
+      setMessage('Time ran out — auto-discarded for you.')
+    }
+  }, [turnTimer])
 
   // Handle charleston pass
   const handleCharlestonPass = useCallback(
@@ -73,6 +200,11 @@ export function GameBoard() {
         setCharleston(null)
         setHasDrawn(true) // East starts with 14 tiles
         setMessage('Charleston complete! Your turn — tap a tile to discard.')
+      } else if (result.charleston.awaitingSecondVote) {
+        // First charleston finished — ask player about second
+        setGame(result.gameState)
+        setCharleston(result.charleston)
+        setMessage('First Charleston complete! Vote on a second Charleston.')
       } else {
         setGame(result.gameState)
         setCharleston(result.charleston)
@@ -81,6 +213,27 @@ export function GameBoard() {
     },
     [game, charleston]
   )
+
+  // Accept second charleston — bots always agree in demo mode
+  const handleAcceptSecond = useCallback(() => {
+    if (!game) return
+    const secondCharleston = createSecondCharlestonState()
+    setCharleston(secondCharleston)
+    setMessage('Second Charleston — pass 1 of 3. Select 3 tiles to pass left.')
+  }, [game])
+
+  // Decline second charleston — go straight to playing
+  const handleDeclineSecond = useCallback(() => {
+    if (!game) return
+    const updatedGame = {
+      ...game,
+      gameState: { ...game.gameState, status: 'playing' as const },
+    }
+    setGame(updatedGame)
+    setCharleston(null)
+    setHasDrawn(true) // East starts with 14 tiles
+    setMessage('Charleston complete! Your turn — tap a tile to discard.')
+  }, [game])
 
   const isPlayerTurn = game?.gameState.currentTurn === 'player'
 
@@ -99,6 +252,7 @@ export function GameBoard() {
 
     setGame(result.state)
     setHasDrawn(true)
+    setTurnTimer(TURN_TIMER_SEC) // Reset timer after drawing
     setMessage('You drew a tile. Tap a tile to discard.')
   }, [game, isPlayerTurn, hasDrawn])
 
@@ -367,7 +521,7 @@ export function GameBoard() {
     )
   }
 
-  // Charleston phase
+  // Charleston phase (includes vote screen and both rounds)
   if (charleston && !charleston.complete && game.gameState.status === 'charleston') {
     const playerHand = game.gameState.players.find((p) => p.id === 'player')!.hand
     return (
@@ -377,6 +531,10 @@ export function GameBoard() {
         direction={charleston.direction}
         receivedTileIds={charleston.receivedTileIds}
         onPass={handleCharlestonPass}
+        awaitingSecondVote={charleston.awaitingSecondVote}
+        charlestonRound={charleston.round}
+        onAcceptSecond={handleAcceptSecond}
+        onDeclineSecond={handleDeclineSecond}
       />
     )
   }
@@ -384,6 +542,13 @@ export function GameBoard() {
   const player = game.gameState.players.find((p) => p.id === 'player')!
   const opponents = game.gameState.players.filter((p) => p.id !== 'player')
   const gameOver = isGameOver(game)
+
+  // Show timer only during playing phase when it's the player's turn
+  const showTimer =
+    isPlayerTurn &&
+    game.gameState.status === 'playing' &&
+    !gameOver &&
+    !claimPhase
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
@@ -432,7 +597,7 @@ export function GameBoard() {
       <div className="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-5 px-3 sm:px-6">
         <DiscardPile discards={game.gameState.discardPile} />
 
-        {/* Status message */}
+        {/* Status message with turn timer */}
         <div
           className="px-4 sm:px-8 py-3 sm:py-4 rounded-[var(--radius-lg)] text-center max-w-md w-full sm:w-auto"
           style={{
@@ -441,7 +606,20 @@ export function GameBoard() {
             border: '1px solid var(--border)',
           }}
         >
-          <p className="text-[var(--text-primary)] text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-body)' }}>{message}</p>
+          <p className="text-[var(--text-primary)] text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-body)' }}>
+            {message}
+            {showTimer && (
+              <span
+                className={`ml-2 font-bold ${
+                  turnTimer <= 15
+                    ? 'text-[var(--accent-warm)]'
+                    : 'text-[var(--text-muted)]'
+                }`}
+              >
+                — {turnTimer}s
+              </span>
+            )}
+          </p>
         </div>
 
         {/* Action buttons */}
@@ -472,13 +650,21 @@ export function GameBoard() {
           <GameOverScreen
             gameState={game.gameState}
             onPlayAgain={() => {
-              const ng = createDemoGame()
+              // Determine if this was a wall game (no winner)
+              const wasWallGame = game.gameState.winnerId === null
+              // Rotate dealer: same dealer if wall game, next dealer if someone won
+              const newDealerIndex = wasWallGame
+                ? game.gameState.dealerIndex
+                : (game.gameState.dealerIndex + 1) % 4
+              const ng = createDemoGame(newDealerIndex)
               ng.gameState.status = 'charleston' as const
+              ng.gameState.round = game.gameState.round + 1
               setGame(ng)
               setSelectedTile(null)
               setHasDrawn(false)
               setClaimPhase(null)
               setBotsProcessing(false)
+              setTurnTimer(TURN_TIMER_SEC)
               setCharleston(createCharlestonState())
               setMessage('The Charleston — select 3 tiles to pass.')
             }}

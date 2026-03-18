@@ -159,9 +159,12 @@ export function executeCharlestonPass(
   let newCharleston: CharlestonState
 
   if (roundComplete && charleston.round === 'first') {
-    // First charleston done — in demo mode, skip second charleston for simplicity
-    // (In multiplayer, we'd vote here)
-    newCharleston = { ...charleston, complete: true }
+    // First charleston done — prompt players to vote on second charleston
+    newCharleston = {
+      ...charleston,
+      playerSelection: [],
+      awaitingSecondVote: true,
+    }
   } else if (roundComplete && charleston.round === 'second') {
     newCharleston = { ...charleston, complete: true }
   } else {
@@ -190,5 +193,18 @@ export function executeCharlestonPass(
       },
     },
     charleston: newCharleston,
+  }
+}
+
+// Create a fresh CharlestonState for the second (optional) round
+export function createSecondCharlestonState(): CharlestonState {
+  return {
+    round: 'second',
+    step: 1,
+    direction: 'left',
+    playerSelection: [],
+    receivedTileIds: new Set(),
+    complete: false,
+    awaitingSecondVote: false,
   }
 }

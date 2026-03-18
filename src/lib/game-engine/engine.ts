@@ -27,14 +27,17 @@ export type DemoGameState = {
 
 const BOT_NAMES = ['Margaret', 'Ruth', 'Florence']
 
-export function createDemoGame(): DemoGameState {
+export function createDemoGame(dealerIndex = 0): DemoGameState {
   const tiles = shuffle(createTileSet())
   const wall = [...tiles]
 
-  // Deal: East (seat 0, the player) gets 14, others get 13
+  const turnOrder = ['player', 'bot-1', 'bot-2', 'bot-3']
+  const dealerId = turnOrder[dealerIndex]
+
+  // Deal: dealer gets 14 tiles (East), others get 13
   const hands: Tile[][] = [[], [], [], []]
   for (let seat = 0; seat < 4; seat++) {
-    const count = seat === 0 ? 14 : 13
+    const count = seat === dealerIndex ? 14 : 13
     for (let i = 0; i < count; i++) {
       hands[seat].push(wall.pop()!)
     }
@@ -73,9 +76,9 @@ export function createDemoGame(): DemoGameState {
     status: 'playing' as GameStatus,
     type: 'private',
     hostId: 'player',
-    currentTurn: 'player',
-    turnOrder: ['player', 'bot-1', 'bot-2', 'bot-3'],
-    dealerIndex: 0,
+    currentTurn: dealerId,
+    turnOrder,
+    dealerIndex,
     players,
     discardPile: [],
     charlestonStep: 'done',
@@ -88,6 +91,33 @@ export function createDemoGame(): DemoGameState {
   }
 
   return { gameState, wall }
+}
+
+/**
+ * Rotate dealer for the next round.
+ * - If wasWallGame is true, the same dealer stays.
+ * - Otherwise, dealer rotates counter-clockwise (next index).
+ * Increments round and sets currentTurn to the new dealer.
+ */
+export function rotateDealerForNextRound(
+  state: DemoGameState,
+  wasWallGame: boolean
+): DemoGameState {
+  const prevDealerIndex = state.gameState.dealerIndex
+  const newDealerIndex = wasWallGame
+    ? prevDealerIndex
+    : (prevDealerIndex + 1) % 4
+  const newDealerId = state.gameState.turnOrder[newDealerIndex]
+
+  return {
+    ...state,
+    gameState: {
+      ...state.gameState,
+      dealerIndex: newDealerIndex,
+      currentTurn: newDealerId,
+      round: state.gameState.round + 1,
+    },
+  }
 }
 
 export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameState } | null {
