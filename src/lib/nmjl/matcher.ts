@@ -308,18 +308,30 @@ function trySuitAssignment(
       }
     } else if (g.kind === 'dragon') {
       if (g.dragonColor === 'any') {
-        // Try each dragon color — simplified: just check if any color has enough
-        // (This is a simplification; in reality we'd need to try all assignments)
         let found = false
         for (const color of ['red', 'green', 'white']) {
           const available = counts.dragons.get(color) ?? 0
           if (g.count < 3) {
             if (available >= g.count) { found = true; break }
           } else {
-            if (available + (totalJokers - jokersUsed) >= g.count) { found = true; break }
+            const deficit = Math.max(0, g.count - available)
+            if (deficit <= (totalJokers - jokersUsed)) {
+              jokersUsed += deficit // properly deduct jokers used for dragons
+              found = true
+              break
+            }
           }
         }
         if (!found) return false
+      } else {
+        // Specific dragon color
+        const available = counts.dragons.get(g.dragonColor!) ?? 0
+        if (g.count < 3) {
+          if (available < g.count) return false
+        } else {
+          const deficit = Math.max(0, g.count - available)
+          jokersUsed += deficit
+        }
       }
     }
   }
@@ -401,12 +413,28 @@ export function hasWinningHand(
 }
 
 // Check if adding a specific tile would complete a winning hand
+// hand = tiles in player's hand (NOT including exposed)
+// The total must be exactly 14: hand + newTile + exposed tiles
 export function wouldCompleteHand(
   hand: Tile[],
   exposed: ExposedGroup[],
   newTile: Tile
 ): NmjlHand | null {
-  const testHand = [...hand, newTile]
-  const matches = findMatchingHands(testHand, exposed)
-  return matches.length > 0 ? matches[0] : null
+  // Build the complete set of tiles (hand + new tile + exposed)
+  const allTiles = [...hand, newTile]
+  for (const group of exposed) {
+    allTiles.push(...group.tiles)
+  }
+  if (allTiles.length !== 14) return null
+
+  const counts = countTiles(allTiles)
+
+  for (const nmjlHand of NMJL_2025_HANDS) {
+    if (nmjlHand.concealed && exposed.length > 0) continue
+    const groups = parsePattern(nmjlHand.pattern)
+    if (tryMatch(groups, counts, counts.jokers)) {
+      return nmjlHand
+    }
+  }
+  return null
 }

@@ -28,7 +28,8 @@ export const NMJL_2025_HANDS: NmjlHand[] = [
   { id: 'q-3', category: 'quints', pattern: 'FF 11111 11 11111', suitsRule: 'Any 3 Suits, Any Like Nos.', concealed: false, points: 35 },
 
   // Consecutive Run
-  { id: 'cr-1', category: 'consecutive-run', pattern: '11 222 3333 444 55', suitsRule: 'Any 1 Suit, These Nos. Only', concealed: false, points: 25 },
+  { id: 'cr-1a', category: 'consecutive-run', pattern: '11 222 3333 444 55', suitsRule: 'Any 1 Suit, These Nos. Only', concealed: false, points: 25 },
+  { id: 'cr-1b', category: 'consecutive-run', pattern: '55 666 7777 888 99', suitsRule: 'Any 1 Suit, These Nos. Only', concealed: false, points: 25 },
   { id: 'cr-2', category: 'consecutive-run', pattern: '111 2222 333 4444', suitsRule: 'Any 1 or 2 Suits, Any 4 Consec. Nos.', concealed: false, points: 25 },
   { id: 'cr-3', category: 'consecutive-run', pattern: 'FFFF 1111 22 3333', suitsRule: 'Any 1 or 3 Suits, Any 3 Consec. Nos.', concealed: false, points: 25 },
   { id: 'cr-4', category: 'consecutive-run', pattern: 'FFF 123 4444 5555', suitsRule: 'Any 3 Suits, Any 5 Consec. Nos.', concealed: false, points: 25 },
@@ -39,23 +40,30 @@ export const NMJL_2025_HANDS: NmjlHand[] = [
 
   // 13579
   { id: '13579-1', category: '13579', pattern: '11 333 5555 777 99', suitsRule: 'Any 1 or 3 Suits', concealed: false, points: 25 },
-  { id: '13579-2', category: '13579', pattern: '111 3333 333 5555', suitsRule: 'Any 2 Suits', concealed: false, points: 25 },
-  { id: '13579-3', category: '13579', pattern: '1111 333 5555 DDD', suitsRule: 'Any 1 Suit', concealed: false, points: 25 },
-  { id: '13579-4', category: '13579', pattern: 'FFFF 1111 + 9999 = 10', suitsRule: 'Any 2 Suits, These Nos. Only', concealed: false, points: 25 },
+  { id: '13579-2a', category: '13579', pattern: '111 3333 333 5555', suitsRule: 'Any 2 Suits', concealed: false, points: 25 },
+  { id: '13579-2b', category: '13579', pattern: '555 7777 777 9999', suitsRule: 'Any 2 Suits', concealed: false, points: 25 },
+  { id: '13579-3a', category: '13579', pattern: '1111 333 5555 DDD', suitsRule: 'Any 1 Suit', concealed: false, points: 25 },
+  { id: '13579-3b', category: '13579', pattern: '5555 777 9999 DDD', suitsRule: 'Any 1 Suit', concealed: false, points: 25 },
+  { id: '13579-4a', category: '13579', pattern: 'FFFF 11 1111 9999', suitsRule: 'Any 2 Suits, These Nos. Only', concealed: false, points: 25 },
+  { id: '13579-4b', category: '13579', pattern: 'FFFF 1111 9999 99', suitsRule: 'Any 2 Suits, These Nos. Only', concealed: false, points: 25 },
   { id: '13579-5', category: '13579', pattern: 'FFF 135 7777 9999', suitsRule: 'Any 1 or 3 Suits', concealed: false, points: 25 },
   { id: '13579-6', category: '13579', pattern: '111 333 5555 DD DD', suitsRule: 'Any 3 Suits w Opp. Dragons', concealed: false, points: 25 },
-  { id: '13579-7', category: '13579', pattern: '11 333 NEWS 333 55', suitsRule: 'Any 2 Suits', concealed: false, points: 30 },
+  { id: '13579-7a', category: '13579', pattern: '11 333 NEWS 333 55', suitsRule: 'Any 2 Suits', concealed: false, points: 30 },
+  { id: '13579-7b', category: '13579', pattern: '55 777 NEWS 777 99', suitsRule: 'Any 2 Suits', concealed: false, points: 30 },
   { id: '13579-8', category: '13579', pattern: '1111 33 55 77 9999', suitsRule: 'Any 3 Suits', concealed: false, points: 30 },
-  { id: '13579-9', category: '13579', pattern: 'FF 11 33 111 333 55', suitsRule: 'Any 2 Suits', concealed: true, points: 30 },
+  { id: '13579-9a', category: '13579', pattern: 'FF 11 33 111 333 55', suitsRule: 'Any 2 Suits', concealed: true, points: 30 },
+  { id: '13579-9b', category: '13579', pattern: 'FF 55 77 555 777 99', suitsRule: 'Any 2 Suits', concealed: true, points: 30 },
 
   // Winds & Dragons
-  { id: 'wd-1', category: 'winds-dragons', pattern: 'NNNN EEE WWW SSSS', suitsRule: '', concealed: false, points: 30 },
+  { id: 'wd-1a', category: 'winds-dragons', pattern: 'NNNN EEE WWW SSSS', suitsRule: '', concealed: false, points: 30 },
+  { id: 'wd-1b', category: 'winds-dragons', pattern: 'NNN EEEE WWWW SSS', suitsRule: '', concealed: false, points: 30 },
   { id: 'wd-2', category: 'winds-dragons', pattern: 'FF 123 DD DDD DDDD', suitsRule: 'Any 3 Consec. Nos. in Any 1 Suit, Any 3 Dragons', concealed: false, points: 30 },
   { id: 'wd-3', category: 'winds-dragons', pattern: 'FFF NN EE WWW SSSS', suitsRule: '', concealed: false, points: 30 },
   { id: 'wd-4', category: 'winds-dragons', pattern: 'FFFF DDD NEWS DDD', suitsRule: 'Dragons Any 2 Suits', concealed: false, points: 30 },
   { id: 'wd-5', category: 'winds-dragons', pattern: 'NNNN 1 11 111 SSSS', suitsRule: 'Any Like Odd Nos. in 3 Suits', concealed: false, points: 30 },
   { id: 'wd-6', category: 'winds-dragons', pattern: 'EEEE 2 22 222 WWWW', suitsRule: 'Any Like Even Nos. in 3 Suits', concealed: false, points: 30 },
-  { id: 'wd-7', category: 'winds-dragons', pattern: 'NN EEE WWW SS 2025', suitsRule: '2025 Any 1 Suit', concealed: false, points: 30 },
+  { id: 'wd-7a', category: 'winds-dragons', pattern: 'NN EEE WWW SS 2025', suitsRule: '2025 Any 1 Suit', concealed: false, points: 30 },
+  { id: 'wd-7b', category: 'winds-dragons', pattern: 'NNN EE WW SSS 2025', suitsRule: '2025 Any 1 Suit', concealed: false, points: 30 },
   { id: 'wd-8', category: 'winds-dragons', pattern: 'NN EE WWW SSS DDDD', suitsRule: 'Kong Any Dragon', concealed: false, points: 30 },
 
   // 369
