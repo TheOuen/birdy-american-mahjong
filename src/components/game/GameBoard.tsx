@@ -163,9 +163,22 @@ export function GameBoard() {
       if (!game || !isPlayerTurn || !hasDrawn || claimPhase) return
 
       if (selectedTile === tileId) {
+        // Check if it's a joker — can't discard jokers
+        const player = game.gameState.players.find((p) => p.id === 'player')!
+        const tile = player.hand.find((t) => t.id === tileId)
+        if (tile?.type.kind === 'joker') {
+          setMessage('Jokers cannot be discarded!')
+          setSelectedTile(null)
+          return
+        }
+
         // Second click — discard
         const result = discardTile(game, 'player', tileId)
-        if (!result) return
+        if (!result) {
+          setMessage('Cannot discard that tile.')
+          setSelectedTile(null)
+          return
+        }
 
         setGame(result)
         setSelectedTile(null)
@@ -176,7 +189,14 @@ export function GameBoard() {
         checkBotClaimsAfterDiscard(result)
       } else {
         setSelectedTile(tileId)
-        setMessage('Tap again to discard, or choose a different tile.')
+        // Warn if selecting a joker
+        const player = game.gameState.players.find((p) => p.id === 'player')!
+        const tile = player.hand.find((t) => t.id === tileId)
+        if (tile?.type.kind === 'joker') {
+          setMessage('Jokers cannot be discarded. Choose a different tile.')
+        } else {
+          setMessage('Tap again to discard, or choose a different tile.')
+        }
       }
     },
     [game, isPlayerTurn, selectedTile, hasDrawn, claimPhase]
@@ -192,8 +212,18 @@ export function GameBoard() {
         return
       }
 
-      // Check bots in turn order for claims
-      const bots = state.gameState.players.filter((p) => p.isBot && !p.isDead)
+      // Check bots in turn order priority (next in turn first, then others)
+      const discarderId = lastDiscard.discardedBy
+      const turnOrder = state.gameState.turnOrder
+      const discarderIndex = turnOrder.indexOf(discarderId)
+      const bots = state.gameState.players
+        .filter((p) => p.isBot && !p.isDead)
+        .sort((a, b) => {
+          // Sort by proximity to discarder in turn order (next player first)
+          const aIdx = (turnOrder.indexOf(a.id) - discarderIndex + 4) % 4
+          const bIdx = (turnOrder.indexOf(b.id) - discarderIndex + 4) % 4
+          return aIdx - bIdx
+        })
       for (const bot of bots) {
         const claim = evaluateBotClaim(bot, lastDiscard.tile)
         if (claim) {
@@ -345,6 +375,7 @@ export function GameBoard() {
         hand={playerHand}
         step={charleston.step}
         direction={charleston.direction}
+        receivedTileIds={charleston.receivedTileIds}
         onPass={handleCharlestonPass}
       />
     )

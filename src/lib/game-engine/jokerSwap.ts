@@ -10,15 +10,23 @@ export function canSwapJokerInGroup(
   tileFromHand: Tile,
   group: ExposedGroup
 ): boolean {
+  // Can't swap jokers with jokers
+  if (tileFromHand.type.kind === 'joker') return false
+
   // Group must contain at least one joker
   const hasJoker = group.tiles.some((t) => t.type.kind === 'joker')
   if (!hasJoker) return false
 
-  // The tile must match the non-joker tiles in the group
+  // Use representsTileType if available (tracks what the group represents)
+  if (group.representsTileType) {
+    return tilesMatch(tileFromHand.type, group.representsTileType)
+  }
+
+  // Fallback: check against non-joker tiles in the group
   const nonJokerTile = group.tiles.find((t) => t.type.kind !== 'joker')
   if (!nonJokerTile) {
-    // All jokers — any tile can replace
-    return true
+    // All jokers with no representsTileType — can't determine what to swap
+    return false
   }
 
   return tilesMatch(tileFromHand.type, nonJokerTile.type)
@@ -42,14 +50,13 @@ export function findJokerSwaps(
   }> = []
 
   for (const handTile of player.hand) {
-    if (handTile.type.kind === 'joker') continue // can't swap joker with joker
+    if (handTile.type.kind === 'joker') continue
 
     for (const target of allPlayers) {
       for (let gi = 0; gi < target.exposed.length; gi++) {
         const group = target.exposed[gi]
         if (!canSwapJokerInGroup(handTile, group)) continue
 
-        // Find a joker in this group
         const joker = group.tiles.find((t) => t.type.kind === 'joker')
         if (!joker) continue
 
@@ -66,7 +73,7 @@ export function findJokerSwaps(
   return swaps
 }
 
-// Execute a joker swap
+// Execute a joker swap — returns new state + the tile ID that cannot be discarded this turn
 export function executeJokerSwap(
   state: DemoGameState,
   playerId: string,
@@ -74,9 +81,12 @@ export function executeJokerSwap(
   targetPlayerId: string,
   groupIndex: number,
   jokerTileId: TileId
-): DemoGameState | null {
+): { state: DemoGameState; noDiscardTileId: TileId } | null {
   const player = state.gameState.players.find((p) => p.id === playerId)
   if (!player) return null
+
+  // Must be player's turn
+  if (state.gameState.currentTurn !== playerId) return null
 
   const handTile = player.hand.find((t) => t.id === handTileId)
   if (!handTile) return null
@@ -116,10 +126,14 @@ export function executeJokerSwap(
   })
 
   return {
-    wall: state.wall,
-    gameState: {
-      ...state.gameState,
-      players: updatedPlayers,
+    state: {
+      wall: state.wall,
+      gameState: {
+        ...state.gameState,
+        players: updatedPlayers,
+      },
     },
+    // The tile used for the swap cannot be discarded this turn
+    noDiscardTileId: handTileId,
   }
 }

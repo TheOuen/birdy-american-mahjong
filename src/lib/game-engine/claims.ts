@@ -106,6 +106,7 @@ export function executeClaim(
     tiles: [discard.tile, ...tilesFromHand],
     claimType,
     claimedFrom: discard.discardedBy,
+    representsTileType: discard.tile.type, // track what this group represents for joker swaps
   }
 
   // Remove used tiles from claimer's hand
@@ -135,6 +136,20 @@ export function executeClaim(
       currentTurn: claimerId,
     },
   }
+}
+
+// Check if a player's hand is dead (wrong tile count or invalid exposed groups)
+export function checkDeadHand(player: PlayerState): boolean {
+  const handTiles = player.hand.length
+  const exposedTiles = player.exposed.reduce((sum, g) => sum + g.tiles.length, 0)
+  const total = handTiles + exposedTiles
+
+  // A valid hand always has exactly 14 tiles total (hand + exposed)
+  // Exception: during a turn when player has drawn but not discarded, they have 15
+  // We check for clearly invalid states
+  if (total < 13 || total > 15) return true
+
+  return false
 }
 
 // Evaluate bot claims — returns the best claim a bot can make, or null

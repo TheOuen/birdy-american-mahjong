@@ -4,13 +4,14 @@ import { useState } from 'react'
 import type { Tile, TileId } from '@/lib/tiles/constants'
 import { TileRenderer } from '@/components/tiles/TileRenderer'
 import { sortHand } from '@/lib/tiles/sorting'
-import { getDirectionLabel } from '@/lib/game-engine/charleston'
+import { getDirectionLabel, validateCharlestonSelection } from '@/lib/game-engine/charleston'
 import type { CharlestonDirection } from '@/lib/game-engine/charleston'
 
 type CharlestonPhaseProps = {
   hand: Tile[]
   step: 1 | 2 | 3
   direction: CharlestonDirection
+  receivedTileIds: Set<TileId>
   onPass: (tileIds: TileId[]) => void
 }
 
@@ -20,11 +21,21 @@ const DIRECTION_ARROWS: Record<CharlestonDirection, string> = {
   left: '←',
 }
 
-export function CharlestonPhase({ hand, step, direction, onPass }: CharlestonPhaseProps) {
+export function CharlestonPhase({ hand, step, direction, receivedTileIds, onPass }: CharlestonPhaseProps) {
   const [selectedIds, setSelectedIds] = useState<TileId[]>([])
+  const [error, setError] = useState<string | null>(null)
   const sorted = sortHand(hand)
 
   function handleTileClick(tileId: TileId) {
+    setError(null)
+    const tile = hand.find((t) => t.id === tileId)
+
+    // Prevent selecting jokers
+    if (tile?.type.kind === 'joker' && !selectedIds.includes(tileId)) {
+      setError('Jokers cannot be passed in the Charleston.')
+      return
+    }
+
     setSelectedIds((prev) => {
       if (prev.includes(tileId)) return prev.filter((id) => id !== tileId)
       if (prev.length >= 3) return prev
@@ -34,8 +45,14 @@ export function CharlestonPhase({ hand, step, direction, onPass }: CharlestonPha
 
   function handleConfirm() {
     if (selectedIds.length !== 3) return
+    const validation = validateCharlestonSelection(hand, selectedIds, receivedTileIds)
+    if (!validation.valid) {
+      setError(validation.error ?? 'Invalid selection.')
+      return
+    }
     onPass(selectedIds)
     setSelectedIds([])
+    setError(null)
   }
 
   return (
@@ -102,6 +119,13 @@ export function CharlestonPhase({ hand, step, direction, onPass }: CharlestonPha
             ))}
           </div>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--error-light)] text-[var(--error)] text-sm font-medium">
+            {error}
+          </div>
+        )}
 
         {/* Confirm button */}
         <button

@@ -1,6 +1,6 @@
 // Game engine types — shared between client and server
 
-import type { Tile, TileId } from '../tiles/constants'
+import type { Tile, TileId, TileType } from '../tiles/constants'
 
 export type GameStatus = 'waiting' | 'charleston' | 'playing' | 'finished' | 'abandoned'
 export type GameType = 'private' | 'public'
@@ -23,6 +23,7 @@ export type ExposedGroup = {
   tiles: Tile[]
   claimType: ClaimType
   claimedFrom?: string // player id who discarded
+  representsTileType?: TileType // what tile type this group represents (for joker swap validation)
 }
 
 export type PlayerState = {

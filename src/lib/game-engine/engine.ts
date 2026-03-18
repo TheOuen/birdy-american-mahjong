@@ -119,13 +119,20 @@ export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameSta
 export function discardTile(
   state: DemoGameState,
   playerId: string,
-  tileId: TileId
+  tileId: TileId,
+  noDiscardTileId?: TileId // tile that cannot be discarded this turn (joker swap rule)
 ): DemoGameState | null {
   const player = state.gameState.players.find((p) => p.id === playerId)
   if (!player) return null
 
   const tileIndex = player.hand.findIndex((t) => t.id === tileId)
   if (tileIndex === -1) return null
+
+  // Jokers cannot be discarded per NMJL rules
+  if (player.hand[tileIndex].type.kind === 'joker') return null
+
+  // Cannot discard the tile used for a joker swap this turn
+  if (noDiscardTileId && tileId === noDiscardTileId) return null
 
   const discardedTile = player.hand[tileIndex]
   const newHand = [...player.hand]

@@ -149,7 +149,7 @@ export function tilesMatch(a: TileType, b: TileType): boolean {
     case 'dragon':
       return a.color === (b as typeof a).color
     case 'flower':
-      return a.number === (b as typeof a).number
+      return true // all flowers are interchangeable per NMJL rules
     case 'joker':
       return true
   }
