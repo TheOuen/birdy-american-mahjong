@@ -14,26 +14,26 @@ export default function HomePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-[0.04]"
           style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }} />
 
-        <div className="relative max-w-5xl mx-auto px-6 py-20 flex flex-col items-center gap-8 text-center animate-in">
-          <div className="gold-line w-32" />
+        <div className="relative max-w-5xl mx-auto px-5 sm:px-6 py-12 sm:py-20 flex flex-col items-center gap-6 sm:gap-8 text-center animate-in">
+          <div className="gold-line w-24 sm:w-32" />
 
           <h1
             className="text-[var(--text-primary)] max-w-2xl leading-tight"
-            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)' }}
+            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.75rem)' }}
           >
             The warm way to play
             <span className="text-[var(--brand)]"> American Mahjong</span> online
           </h1>
 
-          <p className="text-xl text-[var(--text-secondary)] max-w-lg leading-relaxed">
+          <p className="text-base sm:text-xl text-[var(--text-secondary)] max-w-lg leading-relaxed">
             Join the table with friends or practice against bots. Free forever, beautifully designed, and made for players of all levels.
           </p>
 
-          <div className="flex gap-4 flex-wrap justify-center mt-4">
-            <Link href="/lobby" className="btn-primary text-xl px-10 py-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto mt-2 sm:mt-4">
+            <Link href="/lobby" className="btn-primary text-base sm:text-xl px-8 sm:px-10 py-3.5 sm:py-4 text-center">
               Play Now
             </Link>
-            <Link href="/how-to-play" className="btn-secondary text-xl px-10 py-4">
+            <Link href="/how-to-play" className="btn-secondary text-base sm:text-xl px-8 sm:px-10 py-3.5 sm:py-4 text-center">
               Learn the Rules
             </Link>
           </div>
@@ -41,9 +41,9 @@ export default function HomePage() {
       </section>
 
       {/* Features section */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="card p-8 flex flex-col items-center text-center gap-4">
+      <section className="max-w-5xl mx-auto px-5 sm:px-6 py-10 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
+          <div className="card p-6 sm:p-8 flex flex-col items-center text-center gap-3 sm:gap-4">
             <div className="w-16 h-16 rounded-full bg-[var(--brand-subtle)] flex items-center justify-center">
               <span className="text-3xl">🀄</span>
             </div>

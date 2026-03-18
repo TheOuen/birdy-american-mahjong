@@ -16,7 +16,7 @@ export default function LobbyPage() {
           <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full opacity-[0.03]"
             style={{ background: 'radial-gradient(circle, var(--accent-gold) 0%, transparent 70%)' }} />
 
-          <div className="relative max-w-4xl mx-auto px-6 py-14 flex flex-col items-center gap-6 text-center animate-in">
+          <div className="relative max-w-4xl mx-auto px-5 sm:px-6 py-10 sm:py-14 flex flex-col items-center gap-5 sm:gap-6 text-center animate-in">
             <div className="gold-line w-24" />
             <h1
               className="text-[var(--text-primary)]"
@@ -31,8 +31,8 @@ export default function LobbyPage() {
         </section>
 
         {/* Game options */}
-        <section className="max-w-4xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <section className="max-w-4xl mx-auto px-5 sm:px-6 py-8 sm:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
             {/* Quick Match */}
             <button
               onClick={() => router.push("/play/demo")}

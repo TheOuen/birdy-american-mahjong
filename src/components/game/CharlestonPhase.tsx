@@ -55,9 +55,9 @@ export function CharlestonPhase({ hand, step, direction, onPass }: CharlestonPha
       </div>
 
       {/* Direction indicator */}
-      <div className="flex flex-col items-center gap-6 py-10 px-6">
+      <div className="flex flex-col items-center gap-4 sm:gap-6 py-6 sm:py-10 px-4 sm:px-6">
         <div
-          className="flex items-center gap-6 px-10 py-8 rounded-[var(--radius-lg)]"
+          className="flex items-center gap-4 sm:gap-6 px-6 sm:px-10 py-5 sm:py-8 rounded-[var(--radius-lg)]"
           style={{
             background: 'rgba(250, 247, 242, 0.95)',
             boxShadow: 'var(--shadow-lg)',
@@ -118,17 +118,17 @@ export function CharlestonPhase({ hand, step, direction, onPass }: CharlestonPha
       {/* Player hand */}
       <div className="flex-1" />
       <div
-        className="px-6 py-5 border-t"
+        className="px-2 sm:px-6 py-3 sm:py-5 border-t"
         style={{
           background: 'var(--bg-elevated)',
           borderColor: 'var(--border)',
           boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
         }}
       >
-        <p className="text-center text-sm text-[var(--text-muted)] mb-3">
+        <p className="text-center text-xs sm:text-sm text-[var(--text-muted)] mb-2 sm:mb-3">
           Your hand — tap tiles to select for passing
         </p>
-        <div className="flex flex-wrap justify-center gap-1">
+        <div className="flex flex-wrap justify-center gap-0.5 sm:gap-1">
           {sorted.map((tile) => (
             <TileRenderer
               key={tile.id}

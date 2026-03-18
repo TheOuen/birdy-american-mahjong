@@ -357,27 +357,29 @@ export function GameBoard() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
       {/* Game Header — dark, elegant */}
-      <header className="flex items-center justify-between px-6 py-3 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-        <Image src="/logo.png" alt="Birdy American Mahjong" width={160} height={40} className="brightness-200 opacity-90" />
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-3 text-[#A09888]">
-            <span className="text-sm font-medium">
-              Wall: <span className="text-[var(--accent-gold)]">{game.gameState.tilesRemaining}</span>
-            </span>
-            <span className="text-[rgba(255,255,255,0.15)]">|</span>
-            <span className="text-sm font-medium">
-              Round <span className="text-[var(--accent-gold)]">{game.gameState.round}</span>
-            </span>
-          </div>
+      <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+        <div className="flex items-center gap-3 text-[#A09888]">
+          <span className="text-xs sm:text-sm font-medium">
+            Wall: <span className="text-[var(--accent-gold)]">{game.gameState.tilesRemaining}</span>
+          </span>
+          <span className="text-[rgba(255,255,255,0.15)] hidden sm:inline">|</span>
+          <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+            Round <span className="text-[var(--accent-gold)]">{game.gameState.round}</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCard(true)}
-            className="btn-gold text-sm px-4 py-2"
+            className="px-3 sm:px-4 h-8 sm:h-9 inline-flex items-center rounded-md text-xs sm:text-sm font-semibold
+              bg-[var(--accent-gold)] text-[var(--text-inverse)]
+              active:bg-[var(--accent-gold-dark)] active:scale-[0.97]
+              transition-all duration-150"
           >
             NMJL Card
           </button>
           <a
             href="/lobby"
-            className="px-4 py-2 text-sm rounded-md bg-[rgba(255,255,255,0.08)] text-[#A09888] hover:bg-[rgba(255,255,255,0.12)] hover:text-white transition-all"
+            className="px-3 sm:px-4 h-8 sm:h-9 inline-flex items-center text-xs sm:text-sm rounded-md bg-[rgba(255,255,255,0.08)] text-[#A09888] hover:bg-[rgba(255,255,255,0.12)] active:bg-[rgba(255,255,255,0.18)] transition-all"
           >
             Leave
           </a>
@@ -385,7 +387,7 @@ export function GameBoard() {
       </header>
 
       {/* Opponents — on the felt */}
-      <div className="flex justify-center gap-4 px-6 py-5 flex-wrap">
+      <div className="flex justify-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-5 flex-wrap">
         {opponents.map((opp) => (
           <OpponentRow
             key={opp.id}
@@ -396,33 +398,33 @@ export function GameBoard() {
       </div>
 
       {/* Center — Discard pile + status */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6">
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-5 px-3 sm:px-6">
         <DiscardPile discards={game.gameState.discardPile} />
 
         {/* Status message */}
         <div
-          className="px-8 py-4 rounded-[var(--radius-lg)] text-center max-w-md"
+          className="px-4 sm:px-8 py-3 sm:py-4 rounded-[var(--radius-lg)] text-center max-w-md w-full sm:w-auto"
           style={{
             background: 'rgba(250, 247, 242, 0.95)',
             boxShadow: 'var(--shadow-md)',
             border: '1px solid var(--border)',
           }}
         >
-          <p className="text-[var(--text-primary)] text-lg font-medium" style={{ fontFamily: 'var(--font-body)' }}>{message}</p>
+          <p className="text-[var(--text-primary)] text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-body)' }}>{message}</p>
         </div>
 
         {/* Action buttons */}
         {!gameOver && isPlayerTurn && !claimPhase && (
           <div className="flex gap-4">
             {!hasDrawn && (
-              <button onClick={handleDraw} className="btn-primary text-lg px-10 py-4">
+              <button onClick={handleDraw} className="btn-primary text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4">
                 Draw Tile
               </button>
             )}
             {hasDrawn && selectedTile && (
               <button
                 onClick={() => handleTileClick(selectedTile)}
-                className="px-10 py-4 rounded-[var(--radius-md)] text-lg font-semibold text-[var(--text-inverse)] min-h-[var(--touch-min)] transition-all"
+                className="px-8 sm:px-10 py-3 sm:py-4 rounded-[var(--radius-md)] text-base sm:text-lg font-semibold text-[var(--text-inverse)] min-h-[var(--touch-min)] transition-all"
                 style={{
                   background: 'var(--accent-warm)',
                   boxShadow: '0 4px 12px rgba(196, 106, 60, 0.3)',
@@ -462,7 +464,7 @@ export function GameBoard() {
 
       {/* Player hand — warm elevated tray */}
       <div
-        className="px-6 py-5 border-t"
+        className="px-2 sm:px-6 py-3 sm:py-5 border-t"
         style={{
           background: 'var(--bg-elevated)',
           borderColor: 'var(--border)',

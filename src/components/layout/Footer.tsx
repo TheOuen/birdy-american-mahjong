@@ -7,8 +7,8 @@ export function Footer() {
       {/* Gold separator */}
       <div className="gold-line" />
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 py-8 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
           {/* Brand column */}
           <div className="flex flex-col gap-4">
             <Image
