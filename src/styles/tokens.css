@@ -1,0 +1,100 @@
+/* Birdy American Mahjong — Design Tokens */
+/* Refined Editorial Luxury — warm earth tones, gold accents, painterly elegance */
+
+:root {
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+
+  /* Background — warm parchment layers */
+  --bg: #FAF7F2;
+  --bg-card: #F5EFE6;
+  --bg-elevated: #FFFFFF;
+  --bg-deep: #2D2A26;
+  --bg-table: #1A3A2A;
+
+  /* Text */
+  --text-primary: #2D2A26;
+  --text-secondary: #5C564D;
+  --text-muted: #8A8279;
+  --text-inverse: #FAF7F2;
+  --text-gold: #B8860B;
+
+  /* Brand — Peacock Green */
+  --brand: #1B5E3B;
+  --brand-light: #2D8F5E;
+  --brand-dark: #134529;
+  --brand-subtle: rgba(27, 94, 59, 0.08);
+
+  /* Accent — Warm Terracotta */
+  --accent-warm: #C46A3C;
+  --accent-warm-light: #D4845C;
+  --accent-warm-dark: #A4562E;
+  --accent-warm-subtle: rgba(196, 106, 60, 0.08);
+
+  /* Accent — Ochre Gold */
+  --accent-gold: #B8860B;
+  --accent-gold-light: #D4A843;
+  --accent-gold-dark: #8B6508;
+  --accent-gold-subtle: rgba(184, 134, 11, 0.1);
+
+  /* Tile Colors */
+  --tile-bg: #FFFFF5;
+  --tile-border: #D4C9B8;
+  --tile-shadow: rgba(45, 42, 38, 0.12);
+  --tile-bam: #2D8F5E;
+  --tile-crak: #C44B3C;
+  --tile-dot: #3B6EC4;
+  --tile-wind: #2D2A26;
+  --tile-dragon-red: #C44B3C;
+  --tile-dragon-green: #2D8F5E;
+  --tile-dragon-white: #D4C9B8;
+  --tile-flower: #B8860B;
+  --tile-joker: #7B4EC4;
+
+  /* Feedback */
+  --error: #B83A3A;
+  --error-light: #F8E8E6;
+  --success: #2D7A4A;
+  --success-light: #E6F3EC;
+  --warning: #B8860B;
+  --warning-light: #FBF4E4;
+
+  /* Borders */
+  --border: #E8E0D4;
+  --border-strong: #D4C9B8;
+  --border-gold: rgba(184, 134, 11, 0.3);
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Typography sizes */
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 3rem;
+  --text-5xl: 3.75rem;
+
+  /* Touch targets */
+  --touch-min: 48px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.06);
+  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.08);
+  --shadow-lg: 0 8px 24px rgba(45, 42, 38, 0.1);
+  --shadow-gold: 0 4px 16px rgba(184, 134, 11, 0.15);
+}
