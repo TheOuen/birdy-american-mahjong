@@ -1,10 +1,29 @@
 import { GameBoard } from '@/components/game/GameBoard'
+import type { GameMode } from '@/lib/game-engine/types'
 
-export default async function PlayPage({ params }: { params: Promise<{ gameId: string }> }) {
+// Accept an optional ?mode= query string for the demo flow (P5 variants).
+// Values outside the allowed set are ignored and the game starts in 'standard'.
+function parseMode(raw: string | string[] | undefined): GameMode | undefined {
+  const value = Array.isArray(raw) ? raw[0] : raw
+  if (value === 'messy' || value === 'short' || value === 'blanks' || value === 'standard') {
+    return value
+  }
+  return undefined
+}
+
+export default async function PlayPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ gameId: string }>
+  searchParams?: Promise<{ mode?: string | string[] }>
+}) {
   const { gameId } = await params
+  const resolvedSearch = searchParams ? await searchParams : undefined
 
   if (gameId === 'demo') {
-    return <GameBoard />
+    const mode = parseMode(resolvedSearch?.mode)
+    return <GameBoard mode={mode} />
   }
 
   return (

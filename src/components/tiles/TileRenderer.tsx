@@ -23,6 +23,9 @@ function getTileColor(type: TileType): string {
       return 'var(--tile-flower)'
     case 'joker':
       return 'var(--tile-joker)'
+    case 'blank':
+      // Blanks variant only — subdued neutral so it reads as "empty"
+      return 'var(--text-muted)'
   }
 }
 
@@ -40,6 +43,8 @@ function getTileSymbol(type: TileType): string {
       return '✿'
     case 'joker':
       return '★'
+    case 'blank':
+      return '◌'
   }
 }
 

@@ -3,9 +3,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import type { TileId } from '@/lib/tiles/constants'
-import type { ClaimType } from '@/lib/game-engine/types'
+import type { ClaimType, GameMode } from '@/lib/game-engine/types'
 import {
   createDemoGame,
+  createGameForMode,
   drawTile,
   discardTile,
   botTurn,
@@ -29,8 +30,10 @@ import { CharlestonPhase } from './CharlestonPhase'
 import { GameOverScreen } from './GameOverScreen'
 import {
   createCharlestonState,
-  createSecondCharlestonState,
   executeCharlestonPass,
+  executeCharlestonBlindPass,
+  executeCourtesyPass,
+  submitStopVote,
 } from '@/lib/game-engine/charleston'
 import type { CharlestonState } from '@/lib/game-engine/charleston'
 import { hasWinningHand, findMatchingHands, wouldCompleteHand } from '@/lib/nmjl/matcher'
@@ -43,7 +46,15 @@ type ClaimPhase = {
 
 const TURN_TIMER_SEC = 60
 
-export function GameBoard() {
+export type GameBoardProps = {
+  /**
+   * Optional ruleset variant. Defaults to 'standard' (4-player, full wall build,
+   * Charleston). Variants skip Charleston and follow DRAFT GUIDE alternate rules.
+   */
+  mode?: GameMode
+}
+
+export function GameBoard({ mode }: GameBoardProps = {}) {
   const [game, setGame] = useState<DemoGameState | null>(null)
   const [selectedTile, setSelectedTile] = useState<TileId | null>(null)
   const [message, setMessage] = useState('')
@@ -70,14 +81,31 @@ export function GameBoard() {
 
   // Initialize game
   useEffect(() => {
-    const newGame = createDemoGame()
-    // Start in charleston phase
-    newGame.gameState.status = 'charleston' as const
-    setGame(newGame)
-    setCharleston(createCharlestonState())
-    setMessage('The Charleston — select 3 tiles to pass.')
-    setHasDrawn(false)
-  }, [])
+    const resolvedMode: GameMode = mode ?? 'standard'
+    const newGame =
+      resolvedMode === 'standard'
+        ? createDemoGame()
+        : createGameForMode(resolvedMode)
+
+    if (resolvedMode === 'standard') {
+      // Standard: open with Charleston.
+      newGame.gameState.status = 'charleston' as const
+      setGame(newGame)
+      setCharleston(createCharlestonState())
+      setMessage('The Charleston — select 3 tiles to pass.')
+      setHasDrawn(false)
+    } else {
+      // Variants skip Charleston; dealer opens play holding 14 tiles.
+      setGame(newGame)
+      setCharleston(null)
+      setHasDrawn(true)
+      const opener =
+        newGame.gameState.currentTurn === 'player'
+          ? 'Your turn — tap a tile to discard.'
+          : `${newGame.gameState.players.find((p) => p.id === newGame.gameState.currentTurn)?.displayName ?? 'Dealer'} opens play…`
+      setMessage(opener)
+    }
+  }, [mode])
 
   // Reset turn timer when it becomes the player's turn during playing phase
   useEffect(() => {
@@ -188,7 +216,18 @@ export function GameBoard() {
     }
   }, [turnTimer])
 
-  // Handle charleston pass
+  // Messages for the current charleston state, used after each pass/vote
+  const describeCharleston = useCallback((c: CharlestonState): string => {
+    if (c.phase === 'stop_vote') {
+      return 'First Charleston complete — continue to the second, or stop?'
+    }
+    if (c.phase === 'courtesy') {
+      return 'Offer 0-3 tiles to the player across — or skip.'
+    }
+    return `Pass ${c.step} of 3 — select 3 tiles to pass ${c.direction}.`
+  }, [])
+
+  // Handle charleston pass (standard 3-tile)
   const handleCharlestonPass = useCallback(
     (tileIds: TileId[]) => {
       if (!game || !charleston) return
@@ -196,47 +235,78 @@ export function GameBoard() {
       const result = executeCharlestonPass(game, charleston, tileIds)
       if (!result) return
 
-      if (result.charleston.complete) {
-        // Charleston done — transition to playing
-        result.gameState.gameState.status = 'playing'
-        setGame(result.gameState)
-        setCharleston(null)
-        setHasDrawn(true) // East starts with 14 tiles
-        setMessage('Charleston complete! Your turn — tap a tile to discard.')
-      } else if (result.charleston.awaitingSecondVote) {
-        // First charleston finished — ask player about second
-        setGame(result.gameState)
-        setCharleston(result.charleston)
-        setMessage('First Charleston complete! Vote on a second Charleston.')
+      setGame(result.gameState)
+      setCharleston(result.charleston)
+      setMessage(describeCharleston(result.charleston))
+    },
+    [game, charleston, describeCharleston]
+  )
+
+  // Handle blind pass
+  const handleBlindPass = useCallback(
+    (blindTileIds: TileId[], fromHandTileIds: TileId[]) => {
+      if (!game || !charleston) return
+
+      const result = executeCharlestonBlindPass(
+        game,
+        charleston,
+        blindTileIds,
+        fromHandTileIds
+      )
+      if (!result) return
+
+      setGame(result.gameState)
+      setCharleston(result.charleston)
+      setMessage(describeCharleston(result.charleston))
+    },
+    [game, charleston, describeCharleston]
+  )
+
+  // Handle stop vote (post first Charleston)
+  const handleStopVote = useCallback(
+    (stop: boolean) => {
+      if (!game || !charleston) return
+      const result = submitStopVote(game, charleston, stop)
+      if (!result) return
+
+      setGame(result.gameState)
+      setCharleston(result.charleston)
+      if (result.charleston.phase === 'courtesy') {
+        setMessage(
+          stop
+            ? 'Charleston stopped. One last courtesy pass before play begins.'
+            : 'A player voted to stop. One last courtesy pass before play begins.'
+        )
       } else {
-        setGame(result.gameState)
-        setCharleston(result.charleston)
-        setMessage(`Pass ${result.charleston.step} of 3 — select 3 tiles to pass ${result.charleston.direction}.`)
+        setMessage('Second Charleston — pass 1 of 3. Select 3 tiles to pass left.')
       }
     },
     [game, charleston]
   )
 
-  // Accept second charleston — bots always agree in demo mode
-  const handleAcceptSecond = useCallback(() => {
-    if (!game) return
-    const secondCharleston = createSecondCharlestonState()
-    setCharleston(secondCharleston)
-    setMessage('Second Charleston — pass 1 of 3. Select 3 tiles to pass left.')
-  }, [game])
+  // Handle courtesy pass
+  const handleCourtesyPass = useCallback(
+    (humanCount: number, tileIds: TileId[]) => {
+      if (!game || !charleston) return
+      const result = executeCourtesyPass(game, charleston, humanCount, tileIds)
+      if (!result) return
 
-  // Decline second charleston — go straight to playing
-  const handleDeclineSecond = useCallback(() => {
-    if (!game) return
-    const updatedGame = {
-      ...game,
-      gameState: { ...game.gameState, status: 'playing' as const },
-    }
-    setGame(updatedGame)
-    setCharleston(null)
-    setHasDrawn(true) // East starts with 14 tiles
-    setMessage('Charleston complete! Your turn — tap a tile to discard.')
-  }, [game])
+      // Courtesy concludes charleston — transition to playing
+      const finalGame = {
+        ...result.gameState,
+        gameState: { ...result.gameState.gameState, status: 'playing' as const },
+      }
+      setGame(finalGame)
+      setCharleston(null)
+      setHasDrawn(true) // East starts with 14 tiles
+      setMessage(
+        humanCount === 0
+          ? 'Charleston complete! Your turn — tap a tile to discard.'
+          : 'Courtesy pass complete! Your turn — tap a tile to discard.'
+      )
+    },
+    [game, charleston]
+  )
 
   const isPlayerTurn = game?.gameState.currentTurn === 'player'
 
@@ -422,12 +492,13 @@ export function GameBoard() {
       const discarderId = lastDiscard.discardedBy
       const turnOrder = state.gameState.turnOrder
       const discarderIndex = turnOrder.indexOf(discarderId)
+      const seatCount = turnOrder.length
       const bots = state.gameState.players
         .filter((p) => p.isBot && !p.isDead)
         .sort((a, b) => {
           // Sort by proximity to discarder in turn order (next player first)
-          const aIdx = (turnOrder.indexOf(a.id) - discarderIndex + 4) % 4
-          const bIdx = (turnOrder.indexOf(b.id) - discarderIndex + 4) % 4
+          const aIdx = (turnOrder.indexOf(a.id) - discarderIndex + seatCount) % seatCount
+          const bIdx = (turnOrder.indexOf(b.id) - discarderIndex + seatCount) % seatCount
           return aIdx - bIdx
         })
       for (const bot of bots) {
@@ -583,20 +654,17 @@ export function GameBoard() {
     )
   }
 
-  // Charleston phase (includes vote screen and both rounds)
+  // Charleston phase (handles pass, stop vote, courtesy, and both rounds)
   if (charleston && !charleston.complete && game.gameState.status === 'charleston') {
     const playerHand = game.gameState.players.find((p) => p.id === 'player')!.hand
     return (
       <CharlestonPhase
         hand={playerHand}
-        step={charleston.step}
-        direction={charleston.direction}
-        receivedTileIds={charleston.receivedTileIds}
+        charleston={charleston}
         onPass={handleCharlestonPass}
-        awaitingSecondVote={charleston.awaitingSecondVote}
-        charlestonRound={charleston.round}
-        onAcceptSecond={handleAcceptSecond}
-        onDeclineSecond={handleDeclineSecond}
+        onBlindPass={handleBlindPass}
+        onStopVote={handleStopVote}
+        onCourtesy={handleCourtesyPass}
       />
     )
   }
@@ -723,20 +791,35 @@ export function GameBoard() {
               // Determine if this was a wall game (no winner)
               const wasWallGame = game.gameState.winnerId === null
               // Rotate dealer: same dealer if wall game, next dealer if someone won
+              const seatCount = game.gameState.turnOrder.length || 4
               const newDealerIndex = wasWallGame
                 ? game.gameState.dealerIndex
-                : (game.gameState.dealerIndex + 1) % 4
-              const ng = createDemoGame(newDealerIndex)
-              ng.gameState.status = 'charleston' as const
+                : (game.gameState.dealerIndex + 1) % seatCount
+              const resolvedMode: GameMode = mode ?? 'standard'
+              const ng =
+                resolvedMode === 'standard'
+                  ? createDemoGame(newDealerIndex)
+                  : createGameForMode(resolvedMode, { dealerIndex: newDealerIndex })
               ng.gameState.round = game.gameState.round + 1
               setGame(ng)
               setSelectedTile(null)
-              setHasDrawn(false)
               setClaimPhase(null)
               setBotsProcessing(false)
               setTurnTimer(TURN_TIMER_SEC)
-              setCharleston(createCharlestonState())
-              setMessage('The Charleston — select 3 tiles to pass.')
+              if (resolvedMode === 'standard') {
+                ng.gameState.status = 'charleston' as const
+                setHasDrawn(false)
+                setCharleston(createCharlestonState())
+                setMessage('The Charleston — select 3 tiles to pass.')
+              } else {
+                setHasDrawn(true)
+                setCharleston(null)
+                setMessage(
+                  ng.gameState.currentTurn === 'player'
+                    ? 'Your turn — tap a tile to discard.'
+                    : 'Dealer opens play…',
+                )
+              }
             }}
           />
         )}

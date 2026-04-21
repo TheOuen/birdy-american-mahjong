@@ -9,6 +9,8 @@ const KIND_ORDER: Record<TileType['kind'], number> = {
   wind: 2,
   dragon: 3,
   joker: 4,
+  // Blanks sort last (variant only); irrelevant in standard play.
+  blank: 5,
 }
 
 const SUIT_ORDER: Record<Suit, number> = {
@@ -43,6 +45,8 @@ function getTileSortKey(type: TileType): number {
     case 'dragon':
       return kindBase + DRAGON_ORDER[type.color]
     case 'joker':
+      return kindBase
+    case 'blank':
       return kindBase
   }
 }

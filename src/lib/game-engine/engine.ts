@@ -3,14 +3,39 @@
 import { createTileSet } from '../tiles/constants'
 import type { Tile, TileId } from '../tiles/constants'
 import { hasWinningHand, findMatchingHands } from '../nmjl/matcher'
-import { calculateScore, applyScores } from './scoring'
+import type { NmjlHand } from '../nmjl/types'
+import { calculateScore, applyScores, applyMahjongInError } from './scoring'
+import type { MahjongInErrorOpts } from './scoring'
+import {
+  resolveClaims,
+  evaluateBotClaim,
+  getClaimTileIds,
+} from './claims'
+import type { PendingClaim } from './claims'
 import type {
+  GameMode,
   GameState,
   GameStatus,
   PlayerState,
   Seat,
   DiscardEntry,
 } from './types'
+import { createMessyGame } from './variants/messyMahjong'
+import { createShortPlayerGame } from './variants/shortPlayerGame'
+import { createBlanksGame } from './variants/blanks'
+
+// The matcher is being refactored in parallel (Agent 1) to return joker
+// usage alongside the matching NmjlHand. For now findMatchingHands may return
+// either shape; this helper normalises both.
+type MatcherResult = NmjlHand | { hand: NmjlHand; jokersUsed: number }
+
+function extractMatch(m: MatcherResult): { hand: NmjlHand; jokersUsed: number } {
+  if ('hand' in m && 'jokersUsed' in m) {
+    return { hand: m.hand, jokersUsed: m.jokersUsed }
+  }
+  // TODO: pending matcher refactor — joker count unknown, skip jokerless bonus.
+  return { hand: m as NmjlHand, jokersUsed: -1 }
+}
 
 // Fisher-Yates shuffle
 function shuffle<T>(arr: T[]): T[] {
@@ -90,9 +115,34 @@ export function createDemoGame(dealerIndex = 0): DemoGameState {
     winningHandId: null,
     turnTimerSec: 0,
     tilesRemaining: wall.length,
+    mode: 'standard',
   }
 
   return { gameState, wall }
+}
+
+/**
+ * Variant-aware demo game factory. Dispatches on GameMode to the appropriate
+ * creator (standard / messy / short / blanks). Kept intentionally thin so the
+ * existing standard flow in `createDemoGame` is unchanged for 'standard' mode.
+ *
+ * For 'short' mode the caller may pass a playerCount via options — defaults to 2.
+ */
+export function createGameForMode(
+  mode: GameMode,
+  options: { dealerIndex?: number; playerCount?: 2 | 3 } = {},
+): DemoGameState {
+  const dealerIndex = options.dealerIndex ?? 0
+  switch (mode) {
+    case 'standard':
+      return createDemoGame(dealerIndex)
+    case 'messy':
+      return createMessyGame(dealerIndex)
+    case 'short':
+      return createShortPlayerGame(options.playerCount ?? 2, dealerIndex)
+    case 'blanks':
+      return createBlanksGame(dealerIndex)
+  }
 }
 
 /**
@@ -106,9 +156,12 @@ export function rotateDealerForNextRound(
   wasWallGame: boolean
 ): DemoGameState {
   const prevDealerIndex = state.gameState.dealerIndex
+  // Use turnOrder.length rather than a hardcoded 4 so short-player variants
+  // (2 or 3 seats) rotate correctly.
+  const seatCount = state.gameState.turnOrder.length || 4
   const newDealerIndex = wasWallGame
     ? prevDealerIndex
-    : (prevDealerIndex + 1) % 4
+    : (prevDealerIndex + 1) % seatCount
   const newDealerId = state.gameState.turnOrder[newDealerIndex]
 
   return {
@@ -125,11 +178,15 @@ export function rotateDealerForNextRound(
 export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameState } | null {
   if (state.wall.length === 0) return null
 
-  const wall = [...state.wall]
-  const tile = wall.pop()!
   const player = state.gameState.players.find(
     (p) => p.id === state.gameState.currentTurn
   )!
+  // Dead players can't draw. They still owe payments when someone wins; but
+  // they don't continue to play out the hand.
+  if (player.isDead) return null
+
+  const wall = [...state.wall]
+  const tile = wall.pop()!
 
   const updatedPlayers = state.gameState.players.map((p) =>
     p.id === player.id ? { ...p, hand: [...p.hand, tile] } : p
@@ -157,6 +214,9 @@ export function discardTile(
   const player = state.gameState.players.find((p) => p.id === playerId)
   if (!player) return null
 
+  // Dead players cannot discard (they don't take turns).
+  if (player.isDead) return null
+
   const tileIndex = player.hand.findIndex((t) => t.id === tileId)
   if (tileIndex === -1) return null
 
@@ -176,11 +236,19 @@ export function discardTile(
     claimed: false,
   }
 
-  // Advance to next player (counter-clockwise = next index in array)
+  // Advance to next LIVE player (counter-clockwise). Skip dead seats so play
+  // doesn't stall on them.
   const turnOrder = state.gameState.turnOrder
   const currentIndex = turnOrder.indexOf(playerId)
-  const nextIndex = (currentIndex + 1) % turnOrder.length
-  const nextPlayer = turnOrder[nextIndex]
+  let nextPlayer = turnOrder[(currentIndex + 1) % turnOrder.length]
+  for (let step = 1; step <= turnOrder.length; step++) {
+    const candidateId = turnOrder[(currentIndex + step) % turnOrder.length]
+    const candidate = state.gameState.players.find((p) => p.id === candidateId)
+    if (candidate && !candidate.isDead) {
+      nextPlayer = candidateId
+      break
+    }
+  }
 
   const updatedPlayers = state.gameState.players.map((p) =>
     p.id === playerId ? { ...p, hand: newHand } : p
@@ -193,12 +261,36 @@ export function discardTile(
       players: updatedPlayers,
       discardPile: [...state.gameState.discardPile, entry],
       currentTurn: nextPlayer,
+      // Clear claim-rearrange window — you only get to rearrange until discard.
+      awaitingDiscardAfterClaim: false,
     },
   }
 }
 
 // Bot AI: draw a tile, check for Mahjong, then discard a random non-joker tile
 export function botTurn(state: DemoGameState): DemoGameState | null {
+  // Skip dead bots — advance turn to next live player.
+  const currentBot = state.gameState.players.find(
+    (p) => p.id === state.gameState.currentTurn
+  )
+  if (currentBot?.isDead) {
+    const turnOrder = state.gameState.turnOrder
+    const currentIndex = turnOrder.indexOf(currentBot.id)
+    let nextId = turnOrder[(currentIndex + 1) % turnOrder.length]
+    for (let step = 1; step <= turnOrder.length; step++) {
+      const candidateId = turnOrder[(currentIndex + step) % turnOrder.length]
+      const candidate = state.gameState.players.find((p) => p.id === candidateId)
+      if (candidate && !candidate.isDead) {
+        nextId = candidateId
+        break
+      }
+    }
+    return {
+      ...state,
+      gameState: { ...state.gameState, currentTurn: nextId },
+    }
+  }
+
   // Draw
   const drawResult = drawTile(state)
   if (!drawResult) {
@@ -216,10 +308,20 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
 
   // Check if bot has a winning hand (self-draw Mahjong)
   if (hasWinningHand(bot.hand, bot.exposed)) {
-    const matches = findMatchingHands(bot.hand, bot.exposed)
+    const matches = findMatchingHands(bot.hand, bot.exposed) as MatcherResult[]
     if (matches.length > 0) {
-      const winningHand = matches[0]
-      const scoreResult = calculateScore(current.gameState, botId, 'self_draw', winningHand.points)
+      const { hand: winningHand, jokersUsed } = extractMatch(matches[0])
+      const scoreResult = calculateScore(
+        current.gameState,
+        botId,
+        'self_draw',
+        winningHand.points,
+        {
+          jokersUsed,
+          handCategory: winningHand.category,
+          pendingMahjongError: current.gameState.pendingMahjongError ?? null,
+        }
+      )
       const updatedPlayers = applyScores(current.gameState.players, scoreResult)
       return {
         wall: current.wall,
@@ -230,6 +332,7 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
           winningMethod: 'self_draw',
           winningHandId: winningHand.id,
           players: updatedPlayers,
+          pendingMahjongError: null,
         },
       }
     }
@@ -247,4 +350,70 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
 // Check if the game is over (wall empty)
 export function isGameOver(state: DemoGameState): boolean {
   return state.wall.length === 0 || state.gameState.status === 'finished'
+}
+
+// ---------------------------------------------------------------------------
+// Mahjong-in-Error engine hook
+// ---------------------------------------------------------------------------
+//
+// Wrapper over applyMahjongInError that threads a DemoGameState through the
+// GameState-level scorer. Use this from the UI / bot flow when a player
+// (incorrectly) declares Mahjong.
+export function handleMahjongInError(
+  state: DemoGameState,
+  opts: MahjongInErrorOpts
+): { state: DemoGameState; summary: string } {
+  const { newState, summary } = applyMahjongInError(state.gameState, opts)
+  return {
+    state: { ...state, gameState: newState },
+    summary,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Claim-window resolution
+// ---------------------------------------------------------------------------
+//
+// For the current demo-mode single-human flow: after a discard, collect
+// pending claims (from the human UI + each live bot's evaluateBotClaim),
+// then run them through resolveClaims to pick the winner per Claim Rules 4-7.
+// The losing claimants are dropped — their claim windows close automatically.
+export function collectAndResolveClaims(
+  state: DemoGameState,
+  discardIndex: number,
+  humanClaim: PendingClaim | null
+): PendingClaim | null {
+  const discard = state.gameState.discardPile[discardIndex]
+  if (!discard) return null
+
+  const claims: PendingClaim[] = []
+  if (humanClaim) claims.push(humanClaim)
+
+  // Poll each live bot for its preferred claim.
+  for (const p of state.gameState.players) {
+    if (p.isDead) continue
+    if (!p.isBot) continue
+    if (p.id === discard.discardedBy) continue // can't claim own discard
+    const claimType = evaluateBotClaim(p, discard.tile)
+    if (!claimType) continue
+    if (claimType === 'mahjong') {
+      claims.push({
+        claimerId: p.id,
+        claimType,
+        tileIds: [],
+        declaredAt: Date.now(),
+      })
+    } else {
+      const tileIds = getClaimTileIds(p.hand, discard.tile, claimType)
+      if (!tileIds) continue
+      claims.push({
+        claimerId: p.id,
+        claimType,
+        tileIds,
+        declaredAt: Date.now(),
+      })
+    }
+  }
+
+  return resolveClaims(state.gameState, discardIndex, claims)
 }

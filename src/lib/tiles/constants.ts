@@ -10,6 +10,9 @@ export type TileType =
   | { kind: 'dragon'; color: DragonColor }
   | { kind: 'flower'; number: number }
   | { kind: 'joker' }
+  // Blanks variant only — wild tile that can be exchanged for any DEAD discard.
+  // Never allowed in exposures, cannot mahjong on a blank, cannot be passed in Charleston.
+  | { kind: 'blank' }
 
 export type TileId = string // e.g. "bam-3-0", "wind-east-2", "joker-5"
 
@@ -119,6 +122,8 @@ export function getTileLabel(type: TileType): string {
       return `Flower ${type.number}`
     case 'joker':
       return 'Joker'
+    case 'blank':
+      return 'Blank'
   }
 }
 
@@ -135,6 +140,8 @@ export function getTileShortLabel(type: TileType): string {
       return `F${type.number}`
     case 'joker':
       return 'J'
+    case 'blank':
+      return 'B'
   }
 }
 
@@ -152,5 +159,74 @@ export function tilesMatch(a: TileType, b: TileType): boolean {
       return true // all flowers are interchangeable per NMJL rules
     case 'joker':
       return true
+    case 'blank':
+      // All blanks are interchangeable (blanks variant only)
+      return true
   }
+}
+
+// Build the alternate 160-tile set for the Blanks variant:
+// 108 suits + 16 winds + 12 dragons + 8 flowers + 10 jokers + 6 blanks = 160
+export function createBlanksVariantTileSet(): Tile[] {
+  const tiles: Tile[] = []
+
+  // Suit tiles: 3 suits x 9 numbers x 4 copies = 108
+  for (const suit of SUITS) {
+    for (let num = 1; num <= 9; num++) {
+      for (let copy = 0; copy < 4; copy++) {
+        tiles.push({
+          id: `${suit}-${num}-${copy}`,
+          type: { kind: 'suit', suit, number: num },
+        })
+      }
+    }
+  }
+
+  // Wind tiles: 4 directions x 4 copies = 16
+  for (const direction of WINDS) {
+    for (let copy = 0; copy < 4; copy++) {
+      tiles.push({
+        id: `wind-${direction}-${copy}`,
+        type: { kind: 'wind', direction },
+      })
+    }
+  }
+
+  // Dragon tiles: 3 colors x 4 copies = 12
+  for (const color of DRAGONS) {
+    for (let copy = 0; copy < 4; copy++) {
+      tiles.push({
+        id: `dragon-${color}-${copy}`,
+        type: { kind: 'dragon', color },
+      })
+    }
+  }
+
+  // Flower tiles: 4 numbers x 2 copies = 8
+  for (let num = 1; num <= 4; num++) {
+    for (let copy = 0; copy < 2; copy++) {
+      tiles.push({
+        id: `flower-${num}-${copy}`,
+        type: { kind: 'flower', number: num },
+      })
+    }
+  }
+
+  // Joker tiles: 10 (vs 8 in standard)
+  for (let copy = 0; copy < 10; copy++) {
+    tiles.push({
+      id: `joker-${copy}`,
+      type: { kind: 'joker' },
+    })
+  }
+
+  // Blank tiles: 6 (variant-exclusive)
+  for (let copy = 0; copy < 6; copy++) {
+    tiles.push({
+      id: `blank-${copy}`,
+      type: { kind: 'blank' },
+    })
+  }
+
+  return tiles
 }
