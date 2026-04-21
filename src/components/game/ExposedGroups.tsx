@@ -13,6 +13,7 @@ const CLAIM_LABELS: Record<string, string> = {
   quint: 'Quint',
   sextet: 'Sextet',
   mahjong: 'Mahjong',
+  flower: 'Flower',
 }
 
 export function ExposedGroups({ groups }: ExposedGroupsProps) {

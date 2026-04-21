@@ -167,12 +167,14 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
         return
       }
 
-      // Then auto-discard a random non-joker tile
+      // Then auto-discard a random non-joker, non-flower tile. Flowers should
+      // already be auto-exposed during drawTile, but filter defensively.
       const drawnPlayer = drawResult.state.gameState.players.find(
         (p) => p.id === 'player'
       )!
-      const nonJokers = drawnPlayer.hand.filter((t) => t.type.kind !== 'joker')
-      const candidates = nonJokers.length > 0 ? nonJokers : drawnPlayer.hand
+      const candidates = drawnPlayer.hand.filter(
+        (t) => t.type.kind !== 'joker' && t.type.kind !== 'flower'
+      )
       if (candidates.length === 0) return
 
       const autoDiscard =

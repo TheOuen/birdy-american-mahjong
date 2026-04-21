@@ -38,6 +38,11 @@ export function countMatching(
 // Determine what claims a player can make on a discarded tile
 export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimType[] {
   if (player.isDead) return []
+  // Flowers are never claimable — they're auto-exposed on draw, not passed
+  // through the discard pile. If one ends up here, surface no claim options.
+  if (discardedTile.type.kind === 'flower') return []
+  // Jokers likewise cannot be discarded/claimed.
+  if (discardedTile.type.kind === 'joker') return []
 
   const { exact, jokers } = countMatching(player.hand, discardedTile.type)
   // Need N-1 from hand (discard provides 1)
@@ -192,6 +197,8 @@ export function rearrangeExposure(
 
   const group = player.exposed[groupIndex]
   if (!group) return null
+  // Auto-exposed flowers are not rearrangeable.
+  if (group.claimType === 'flower') return null
 
   const requiredSize: Record<ClaimType, number> = {
     pung: 3,

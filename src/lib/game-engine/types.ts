@@ -27,10 +27,15 @@ export type CharlestonStep =
 
 export type ClaimType = 'pung' | 'kong' | 'quint' | 'sextet' | 'mahjong'
 
+// ExposedGroup covers both claimed groups (ClaimType) and flowers which are
+// auto-exposed on draw without a claim. Flowers live here so the matcher and
+// exposed-tile UI treat them uniformly with claimed groups.
+export type ExposureKind = ClaimType | 'flower'
+
 export type ExposedGroup = {
   tiles: Tile[]
-  claimType: ClaimType
-  claimedFrom?: string // player id who discarded
+  claimType: ExposureKind
+  claimedFrom?: string // player id who discarded (undefined for flowers)
   representsTileType?: TileType // what tile type this group represents (for joker swap validation)
 }
 

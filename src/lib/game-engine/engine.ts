@@ -181,19 +181,48 @@ export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameSta
   const player = state.gameState.players.find(
     (p) => p.id === state.gameState.currentTurn
   )!
-  // Dead players can't draw. They still owe payments when someone wins; but
-  // they don't continue to play out the hand.
   if (player.isDead) return null
 
+  // NMJL flower rule: flowers are never held in hand and never discarded —
+  // when drawn, set aside face-up next to the player and draw again. We model
+  // this by auto-pushing each flower into `exposed` and continuing to pop the
+  // wall until we get a non-flower (or the wall empties).
   const wall = [...state.wall]
-  const tile = wall.pop()!
+  const accumulatedFlowers: Tile[] = []
+  let drawn: Tile | null = null
 
-  const updatedPlayers = state.gameState.players.map((p) =>
-    p.id === player.id ? { ...p, hand: [...p.hand, tile] } : p
-  )
+  while (wall.length > 0) {
+    const tile = wall.pop()!
+    if (tile.type.kind === 'flower') {
+      accumulatedFlowers.push(tile)
+      continue
+    }
+    drawn = tile
+    break
+  }
+
+  if (drawn === null && accumulatedFlowers.length === 0) return null
+
+  const updatedPlayers = state.gameState.players.map((p) => {
+    if (p.id !== player.id) return p
+    const flowerGroups = accumulatedFlowers.map((f) => ({
+      tiles: [f],
+      claimType: 'flower' as const,
+    }))
+    return {
+      ...p,
+      hand: drawn ? [...p.hand, drawn] : p.hand,
+      exposed: [...p.exposed, ...flowerGroups],
+    }
+  })
+
+  // If the wall emptied while only flowers were available, return the last
+  // flower as the "drawn" tile so callers still get a tile reference — but
+  // prefer the real non-flower draw when one exists.
+  const reportedTile = drawn ?? accumulatedFlowers[accumulatedFlowers.length - 1]
 
   return {
-    tile,
+    tile: reportedTile,
     state: {
       wall,
       gameState: {
@@ -222,6 +251,10 @@ export function discardTile(
 
   // Jokers cannot be discarded per NMJL rules
   if (player.hand[tileIndex].type.kind === 'joker') return null
+
+  // Flowers never reach a player's hand (auto-exposed on draw), so a flower
+  // id here means state was corrupted. Refuse the discard defensively.
+  if (player.hand[tileIndex].type.kind === 'flower') return null
 
   // Cannot discard the tile used for a joker swap this turn
   if (noDiscardTileId && tileId === noDiscardTileId) return null
@@ -338,10 +371,14 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
     }
   }
 
-  // Simple strategy: discard a random tile, preferring non-jokers
-  const nonJokers = bot.hand.filter((t) => t.type.kind !== 'joker')
-  const candidates = nonJokers.length > 0 ? nonJokers : bot.hand
-  const discard = candidates[Math.floor(Math.random() * candidates.length)]
+  // Simple strategy: discard a random tile. Jokers and flowers never leave
+  // the hand via discard (flowers should already be auto-exposed on draw,
+  // but filter defensively in case of any legacy state).
+  const discardable = bot.hand.filter(
+    (t) => t.type.kind !== 'joker' && t.type.kind !== 'flower'
+  )
+  if (discardable.length === 0) return current
+  const discard = discardable[Math.floor(Math.random() * discardable.length)]
 
   const result = discardTile(current, botId, discard.id)
   return result ?? current
