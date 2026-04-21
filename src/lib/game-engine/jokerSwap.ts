@@ -73,7 +73,12 @@ export function findJokerSwaps(
   return swaps
 }
 
-// Execute a joker swap — returns new state + the tile ID that cannot be discarded this turn
+// Execute a joker swap — returns new state + the tile ID that cannot be discarded this turn.
+//
+// NOTE: Per DRAFT GUIDE Joker Rule 6, jokers in a DEAD player's exposed
+// groups remain swappable by other (live) players. So we intentionally do NOT
+// reject swaps where the target player is dead — we only reject if the
+// ACTOR (the swapping player) is dead or it isn't their turn.
 export function executeJokerSwap(
   state: DemoGameState,
   playerId: string,
@@ -85,6 +90,9 @@ export function executeJokerSwap(
   const player = state.gameState.players.find((p) => p.id === playerId)
   if (!player) return null
 
+  // Dead players cannot act, even to swap their own jokers.
+  if (player.isDead) return null
+
   // Must be player's turn
   if (state.gameState.currentTurn !== playerId) return null
 
@@ -93,6 +101,7 @@ export function executeJokerSwap(
 
   const target = state.gameState.players.find((p) => p.id === targetPlayerId)
   if (!target) return null
+  // Intentionally do not block target.isDead — see function docblock.
 
   const group = target.exposed[groupIndex]
   if (!group) return null

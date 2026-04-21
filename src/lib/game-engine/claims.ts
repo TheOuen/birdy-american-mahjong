@@ -1,8 +1,14 @@
-// Claim validation and execution for discard claims (Pung, Kong, Quint, Sextet)
+// Claim validation, resolution, and execution for discard claims
+// (Pung, Kong, Quint, Sextet, Mahjong).
 
 import type { Tile, TileId, TileType } from '../tiles/constants'
 import { tilesMatch } from '../tiles/constants'
-import type { PlayerState, ClaimType, ExposedGroup, DiscardEntry } from './types'
+import type {
+  PlayerState,
+  ClaimType,
+  ExposedGroup,
+  GameState,
+} from './types'
 import type { DemoGameState } from './engine'
 import { wouldCompleteHand } from '../nmjl/matcher'
 
@@ -96,7 +102,8 @@ export function getClaimTileIds(
   return selected.length >= needed ? selected : null
 }
 
-// Execute a claim: remove tiles from hand, create exposed group, mark discard claimed
+// Execute a claim: remove tiles from hand, create exposed group, mark discard claimed.
+// Sets awaitingDiscardAfterClaim = true so rearrangeExposure is permitted until discard.
 export function executeClaim(
   state: DemoGameState,
   claimerId: string,
@@ -106,6 +113,8 @@ export function executeClaim(
 ): DemoGameState | null {
   const claimer = state.gameState.players.find((p) => p.id === claimerId)
   if (!claimer) return null
+  // Dead players cannot claim.
+  if (claimer.isDead) return null
 
   const discard = state.gameState.discardPile[discardIndex]
   if (!discard || discard.claimed) return null
@@ -149,19 +158,129 @@ export function executeClaim(
       players: updatedPlayers,
       discardPile: updatedDiscardPile,
       currentTurn: claimerId,
+      awaitingDiscardAfterClaim: true,
     },
   }
 }
 
-// Check if a player's hand is dead (wrong tile count or invalid exposed groups)
+// ---------------------------------------------------------------------------
+// Rearrange exposure (Claim Rule 8)
+// ---------------------------------------------------------------------------
+//
+// After claiming a discard and exposing a group, the claimer may rearrange
+// that group (swap real tile↔joker from hand) until they discard. Examples:
+//   — Swap a joker into the exposure and pull a real tile back to hand
+//   — Swap a joker out, replacing with a real tile they just drew/held
+// Constraints:
+//   - Actor is the current turn holder (the claimer).
+//   - awaitingDiscardAfterClaim is true (not yet discarded).
+//   - newTileIds come from the union of (current group tiles, actor's hand).
+//   - Result size matches the claimType (pung=3, kong=4, etc.).
+//   - Result still represents the group's original tile type (no type swaps).
+export function rearrangeExposure(
+  state: DemoGameState,
+  playerId: string,
+  groupIndex: number,
+  newTileIds: TileId[]
+): DemoGameState | null {
+  if (state.gameState.currentTurn !== playerId) return null
+  if (!state.gameState.awaitingDiscardAfterClaim) return null
+
+  const player = state.gameState.players.find((p) => p.id === playerId)
+  if (!player) return null
+  if (player.isDead) return null
+
+  const group = player.exposed[groupIndex]
+  if (!group) return null
+
+  const requiredSize: Record<ClaimType, number> = {
+    pung: 3,
+    kong: 4,
+    quint: 5,
+    sextet: 6,
+    mahjong: 0,
+  }
+  const expectedSize = requiredSize[group.claimType]
+  if (expectedSize === 0) return null
+  if (newTileIds.length !== expectedSize) return null
+
+  // Pool of tiles available to form the new arrangement: group + hand.
+  const pool: Tile[] = [...group.tiles, ...player.hand]
+  const poolById = new Map(pool.map((t) => [t.id, t] as const))
+
+  // Every requested tile must be in the pool, and each used at most once.
+  const newTiles: Tile[] = []
+  const usedIds = new Set<TileId>()
+  for (const id of newTileIds) {
+    if (usedIds.has(id)) return null
+    const t = poolById.get(id)
+    if (!t) return null
+    newTiles.push(t)
+    usedIds.add(id)
+  }
+
+  // Validate the rearrangement still represents the same tile type.
+  // We need at least one real (non-joker) tile that matches representsTileType,
+  // or every tile matches (jokers count as wild for groups of 3+).
+  const representsType = group.representsTileType
+  if (!representsType) return null
+
+  let realMatches = 0
+  let jokers = 0
+  for (const t of newTiles) {
+    if (t.type.kind === 'joker') {
+      jokers++
+    } else if (tilesMatch(t.type, representsType)) {
+      realMatches++
+    } else {
+      // Non-matching non-joker tile — invalid rearrangement.
+      return null
+    }
+  }
+  // Per NMJL rules, groups of 3+ must contain at least one real tile
+  // (the original claimed discard guarantees this if retained, but jokers-only
+  // arrangements are forbidden).
+  if (realMatches === 0) return null
+  // Sanity: all tiles must be accounted for.
+  if (realMatches + jokers !== expectedSize) return null
+
+  // Remaining tiles (pool minus newTiles) return to the hand.
+  const leftover: Tile[] = pool.filter((t) => !usedIds.has(t.id))
+
+  const newGroup: ExposedGroup = { ...group, tiles: newTiles }
+  const newExposed = player.exposed.map((g, i) =>
+    i === groupIndex ? newGroup : g
+  )
+
+  const updatedPlayers = state.gameState.players.map((p) =>
+    p.id === playerId ? { ...p, hand: leftover, exposed: newExposed } : p
+  )
+
+  return {
+    wall: state.wall,
+    gameState: {
+      ...state.gameState,
+      players: updatedPlayers,
+    },
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dead-hand check
+// ---------------------------------------------------------------------------
+//
+// A player is dead if their tile count is invalid at a turn boundary. Valid
+// counts:
+//   13 — post-discard resting (non-dealer) and pre-draw dealer after first discard
+//   14 — pre-discard resting (dealer before first discard; after-claim during turn)
+//   15 — transient during one's own turn (drew, haven't yet discarded / joker-swapped)
+// Anything else at the next turn boundary => dead.
 export function checkDeadHand(player: PlayerState): boolean {
   const handTiles = player.hand.length
   const exposedTiles = player.exposed.reduce((sum, g) => sum + g.tiles.length, 0)
   const total = handTiles + exposedTiles
 
-  // A valid hand always has exactly 14 tiles total (hand + exposed)
-  // Exception: during a turn when player has drawn but not discarded, they have 15
-  // We check for clearly invalid states
+  // Allow 13, 14, 15; anything else is dead.
   if (total < 13 || total > 15) return true
 
   return false
@@ -182,4 +301,60 @@ export function evaluateBotClaim(
     if (claims.includes(claim)) return claim
   }
   return null
+}
+
+// ---------------------------------------------------------------------------
+// Claim priority resolver (Claim Rules 4-7)
+// ---------------------------------------------------------------------------
+//
+// Pending claims collected during the discard window are resolved here.
+// Priority:
+//   1. A Mahjong claim beats any exposure (pung/kong/quint/sextet) claim,
+//      regardless of "who claimed first".
+//   2. Among same-priority claims (all Mahjong OR all exposure), the winner is
+//      the claimer closest to the LEFT of the discarder — i.e. the next seat
+//      in turn order (counter-clockwise). Ties resolved by traversing
+//      turnOrder starting from (discarderIndex + 1) % length.
+//
+// Returns null if `claims` is empty.
+export type PendingClaim = {
+  claimerId: string
+  claimType: ClaimType
+  tileIds: TileId[]
+  declaredAt: number // timestamp; ordering tiebreaker below seat-priority
+}
+
+export function resolveClaims(
+  state: GameState,
+  discardIndex: number,
+  claims: PendingClaim[]
+): PendingClaim | null {
+  if (claims.length === 0) return null
+
+  const discard = state.discardPile[discardIndex]
+  if (!discard) return null
+
+  // Drop any claims from dead players defensively.
+  const live = claims.filter((c) => {
+    const p = state.players.find((pp) => pp.id === c.claimerId)
+    return p !== undefined && !p.isDead
+  })
+  if (live.length === 0) return null
+
+  // Step 1: Mahjong beats any exposure.
+  const mahjongClaims = live.filter((c) => c.claimType === 'mahjong')
+  const candidates = mahjongClaims.length > 0 ? mahjongClaims : live
+
+  // Step 2: closest to LEFT of discarder (next in turn order) wins.
+  const turnOrder = state.turnOrder
+  const discarderIndex = turnOrder.indexOf(discard.discardedBy)
+  if (discarderIndex === -1) return candidates[0] ?? null
+
+  for (let step = 1; step <= turnOrder.length; step++) {
+    const seatId = turnOrder[(discarderIndex + step) % turnOrder.length]
+    const match = candidates.find((c) => c.claimerId === seatId)
+    if (match) return match
+  }
+
+  return candidates[0] ?? null
 }
