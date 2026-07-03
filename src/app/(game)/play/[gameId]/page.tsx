@@ -1,14 +1,41 @@
+import { redirect } from 'next/navigation'
 import { GameBoard } from '@/components/game/GameBoard'
-import type { GameMode } from '@/lib/game-engine/types'
+import { RoomWaiting } from '@/components/game/RoomWaiting'
+import { createAuthedServerClient } from '@/lib/supabase/server'
+import type { BotDifficulty, GameMode } from '@/lib/game-engine/types'
 
-// Accept an optional ?mode= query string for the demo flow (P5 variants).
-// Values outside the allowed set are ignored and the game starts in 'standard'.
-function parseMode(raw: string | string[] | undefined): GameMode | undefined {
-  const value = Array.isArray(raw) ? raw[0] : raw
+type RawParam = string | string[] | undefined
+
+function first(raw: RawParam): string | undefined {
+  return Array.isArray(raw) ? raw[0] : raw
+}
+
+// Table options arrive as query params from the lobby's setup panel.
+// Anything outside the allowed sets falls back to safe defaults.
+function parseMode(raw: RawParam): GameMode | undefined {
+  const value = first(raw)
   if (value === 'messy' || value === 'short' || value === 'blanks' || value === 'standard') {
     return value
   }
   return undefined
+}
+
+function parseTimer(raw: RawParam): number | undefined {
+  const value = Number(first(raw))
+  if (Number.isInteger(value) && (value === 0 || (value >= 15 && value <= 120))) {
+    return value
+  }
+  return undefined
+}
+
+function parseBots(raw: RawParam): BotDifficulty | undefined {
+  const value = first(raw)
+  return value === 'easy' || value === 'clever' ? value : undefined
+}
+
+function parsePlayers(raw: RawParam): 2 | 3 | undefined {
+  const value = Number(first(raw))
+  return value === 2 || value === 3 ? (value as 2 | 3) : undefined
 }
 
 export default async function PlayPage({
@@ -16,30 +43,28 @@ export default async function PlayPage({
   searchParams,
 }: {
   params: Promise<{ gameId: string }>
-  searchParams?: Promise<{ mode?: string | string[] }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { gameId } = await params
-  const resolvedSearch = searchParams ? await searchParams : undefined
+  const search = searchParams ? await searchParams : {}
 
   if (gameId === 'demo') {
-    const mode = parseMode(resolvedSearch?.mode)
-    return <GameBoard mode={mode} />
+    return (
+      <GameBoard
+        mode={parseMode(search.mode)}
+        timerSec={parseTimer(search.timer)}
+        botDifficulty={parseBots(search.bots)}
+        playerCount={parsePlayers(search.players)}
+      />
+    )
   }
 
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8">
-      <h1 className="text-3xl font-bold text-[var(--brand)]">
-        Game: {gameId}
-      </h1>
-      <p className="text-lg text-[var(--text-muted)]">
-        Multiplayer game loading — coming soon.
-      </p>
-      <a
-        href="/lobby"
-        className="px-8 py-4 bg-[var(--bg-card)] text-[var(--text-primary)] rounded-md text-lg font-medium hover:bg-[var(--border)] transition-colors min-h-[var(--touch-min)]"
-      >
-        Back to Lobby
-      </a>
-    </main>
-  )
+  // A real room: the waiting lobby needs to know who's looking at it.
+  const supabase = await createAuthedServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  return <RoomWaiting roomId={gameId} currentUserId={user.id} />
 }
