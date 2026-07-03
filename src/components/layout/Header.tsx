@@ -1,62 +1,60 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { AmlLogo } from './AmlLogo'
+import { useCart } from '@/components/shop/CartProvider'
+import { cartCount } from '@/lib/shop/cart'
+
+const NAV_ITEMS = [
+  { href: '/', label: 'Home' },
+  { href: '/lobby', label: 'Play Online' },
+  { href: '/private-lessons', label: 'Private Lessons' },
+  { href: '/about', label: 'About' },
+  { href: '/shop', label: 'Shop' },
+  { href: '/discover', label: 'Discover' },
+  { href: '/london-local', label: 'London Local' },
+  { href: '/get-in-touch', label: 'Get in Touch' },
+] as const
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { cart } = useCart()
+  const count = cartCount(cart)
 
   return (
     <header
       className="sticky top-0 z-40 bg-[var(--bg-elevated)]/95 backdrop-blur-sm"
       style={{ borderBottom: '1px solid var(--border)' }}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
-        <Link href="/" className="shrink-0 transition-opacity hover:opacity-80 active:opacity-60">
-          <Image src="/logo.png" alt="Birdy American Mahjong" width={150} height={38} priority className="sm:w-[170px]" />
-        </Link>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <AmlLogo />
 
-        {/* Desktop nav */}
-        <nav className="hidden sm:flex items-center gap-1">
-          <NavLink href="/how-to-play">How to Play</NavLink>
-          <NavLink href="/about">About</NavLink>
-          <NavLink href="/login" variant="subtle">Sign In</NavLink>
+        <div className="flex items-center gap-2">
           <Link
             href="/lobby"
-            className="ml-2 px-5 h-10 inline-flex items-center rounded-md text-sm font-semibold tracking-wide
+            className="hidden sm:inline-flex px-5 h-12 items-center rounded-md text-base font-semibold tracking-wide
               bg-[var(--brand)] text-[var(--text-inverse)]
               hover:bg-[var(--brand-light)] active:bg-[var(--brand-dark)] active:scale-[0.97]
               transition-all duration-150"
           >
-            Play Now
+            Play Birdy Online — Free
           </Link>
-        </nav>
-
-        {/* Mobile: Play + hamburger */}
-        <div className="flex sm:hidden items-center gap-2">
-          <Link
-            href="/lobby"
-            className="px-4 h-9 inline-flex items-center rounded-md text-sm font-semibold
-              bg-[var(--brand)] text-[var(--text-inverse)]
-              active:bg-[var(--brand-dark)] active:scale-[0.97]
-              transition-all duration-150"
-          >
-            Play
-          </Link>
+          <CartLink count={count} />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="w-10 h-10 flex items-center justify-center rounded-md
+            className="lg:hidden w-12 h-12 flex items-center justify-center rounded-md
               text-[var(--text-secondary)] hover:bg-[var(--bg-card)] active:bg-[var(--border)]
               transition-all duration-150"
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
           >
             {menuOpen ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <line x1="4" y1="4" x2="16" y2="16" /><line x1="16" y1="4" x2="4" y2="16" />
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <line x1="3" y1="5" x2="17" y2="5" /><line x1="3" y1="10" x2="17" y2="10" /><line x1="3" y1="15" x2="17" y2="15" />
               </svg>
             )}
@@ -64,28 +62,65 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* Desktop nav row */}
+      <nav
+        className="hidden lg:flex max-w-6xl mx-auto px-6 pb-2 items-center gap-1"
+        aria-label="Main navigation"
+      >
+        {NAV_ITEMS.map((item) => (
+          <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+        ))}
+      </nav>
+
+      {/* Mobile / tablet menu */}
       {menuOpen && (
-        <div className="sm:hidden border-t border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 flex flex-col gap-1">
-          <MobileNavLink href="/how-to-play" onClick={() => setMenuOpen(false)}>How to Play</MobileNavLink>
-          <MobileNavLink href="/about" onClick={() => setMenuOpen(false)}>About</MobileNavLink>
-          <MobileNavLink href="/login" onClick={() => setMenuOpen(false)}>Sign In</MobileNavLink>
-        </div>
+        <nav
+          className="lg:hidden border-t border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 flex flex-col gap-1"
+          aria-label="Main navigation"
+        >
+          {NAV_ITEMS.map((item) => (
+            <MobileNavLink key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </MobileNavLink>
+          ))}
+          <MobileNavLink href="/cart" onClick={() => setMenuOpen(false)}>
+            Cart{count > 0 ? ` (${count})` : ''}
+          </MobileNavLink>
+        </nav>
       )}
     </header>
   )
 }
 
-function NavLink({ href, children, variant }: { href: string; children: React.ReactNode; variant?: 'subtle' }) {
+function CartLink({ count }: { count: number }) {
+  return (
+    <Link
+      href="/cart"
+      className="relative w-12 h-12 flex items-center justify-center rounded-md
+        text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]
+        active:bg-[var(--border)] transition-all duration-150"
+      aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 7h12l-1.5 12a2 2 0 0 1-2 1.8h-5a2 2 0 0 1-2-1.8L6 7Z" />
+        <path d="M9 7V5a3 3 0 0 1 6 0v2" />
+      </svg>
+      {count > 0 && (
+        <span className="absolute top-0.5 right-0.5 min-w-5 h-5 px-1 rounded-full bg-[var(--accent-warm)] text-[var(--text-inverse)] text-xs font-bold flex items-center justify-center">
+          {count}
+        </span>
+      )}
+    </Link>
+  )
+}
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className={`px-3 h-10 inline-flex items-center rounded-md text-sm font-medium transition-all duration-150
-        active:scale-[0.97]
-        ${variant === 'subtle'
-          ? 'text-[var(--accent-gold-dark)] hover:text-[var(--accent-gold)] hover:bg-[var(--accent-gold-subtle)] active:bg-[var(--accent-gold-subtle)]'
-          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--border)]'
-        }`}
+      className="px-3 h-12 inline-flex items-center rounded-md text-base font-medium transition-all duration-150
+        active:scale-[0.97] text-[var(--text-secondary)] hover:text-[var(--text-primary)]
+        hover:bg-[var(--bg-card)] active:bg-[var(--border)]"
     >
       {children}
     </Link>
@@ -97,7 +132,7 @@ function MobileNavLink({ href, children, onClick }: { href: string; children: Re
     <Link
       href={href}
       onClick={onClick}
-      className="px-4 py-3 rounded-md text-base font-medium text-[var(--text-secondary)]
+      className="px-4 py-3 rounded-md text-lg font-medium text-[var(--text-secondary)]
         hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--border)]
         transition-all duration-150 min-h-[var(--touch-min)] flex items-center"
     >
