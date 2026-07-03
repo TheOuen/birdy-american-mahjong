@@ -196,7 +196,7 @@ BEGIN
     RAISE EXCEPTION 'User not found: %', user_email;
   END IF;
   UPDATE auth.users
-  SET raw_user_meta_data = raw_user_meta_data || '{"role": "admin"}'::jsonb
+  SET raw_app_meta_data = COALESCE(raw_app_meta_data, '{}'::jsonb) || '{"role": "admin"}'::jsonb
   WHERE id = target_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
