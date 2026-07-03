@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'settings' }) {
+function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' }) {
   const iconProps = {
     width: 22,
     height: 22,
@@ -39,6 +39,14 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'setting
           <path d="M7 16h6" />
         </svg>
       )
+    case 'orders':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <path d="M21 8l-9-5-9 5v8l9 5 9-5V8Z" />
+          <path d="M3 8l9 5 9-5" />
+          <path d="M12 13v8" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg {...iconProps} viewBox="0 0 24 24">
@@ -52,13 +60,14 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'setting
 type NavItem = {
   href: string
   label: string
-  icon: 'dashboard' | 'users' | 'card' | 'settings'
+  icon: 'dashboard' | 'users' | 'card' | 'orders' | 'settings'
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
   { href: '/admin/users', label: 'Users', icon: 'users' },
   { href: '/admin/nmjl-card', label: 'NMJL Card', icon: 'card' },
+  { href: '/admin/orders', label: 'Orders', icon: 'orders' },
   { href: '/admin/settings', label: 'Settings', icon: 'settings' },
 ]
 
