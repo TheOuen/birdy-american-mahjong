@@ -6,6 +6,7 @@
 //
 // Exit code 0 = all pass; non-zero = failure with details.
 
+import { test, expect } from 'vitest'
 import {
   calculateScore,
   applyScores,
@@ -356,9 +357,6 @@ console.log('\n--- Dead claimers are dropped from resolution ---')
 // ---------------------------------------------------------------------------
 
 console.log(`\n${testsRun - testsFailed}/${testsRun} tests passed`)
-if (testsFailed > 0) {
-  console.error(`${testsFailed} test(s) failed`)
-  if (typeof process !== 'undefined') process.exit(1)
-} else if (typeof process !== 'undefined') {
-  process.exit(0)
-}
+test('legacy scoring suite: all assertions pass', () => {
+  expect(testsFailed, `${testsFailed} of ${testsRun} legacy assertions failed`).toBe(0)
+})
