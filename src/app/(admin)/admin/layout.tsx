@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createAuthedServerClient } from '@/lib/supabase/server'
+import { AmlMark } from '@/components/layout/AmlMark'
 
 function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' }) {
   const iconProps = {
@@ -103,23 +104,16 @@ export default async function AdminLayout({
           className="flex items-center gap-3 px-6 py-5"
           style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}
         >
-          {/* Peacock logo placeholder */}
-          <div
-            className="flex items-center justify-center w-10 h-10 rounded-md font-bold text-lg"
-            style={{
-              backgroundColor: 'var(--brand-light)',
-              color: 'var(--text-inverse)',
-            }}
-          >
-            B
-          </div>
-          <div>
-            <div className="font-semibold text-base leading-tight">Birdy</div>
+          <AmlMark inverse className="h-10 w-auto shrink-0" />
+          <div style={{ fontFamily: 'var(--font-display)' }}>
+            <div className="font-bold text-sm leading-tight uppercase tracking-wide">
+              American Mahjong
+            </div>
             <div
-              className="text-xs leading-tight"
-              style={{ color: 'rgba(255,255,255,0.6)' }}
+              className="text-xs leading-tight uppercase tracking-[0.25em]"
+              style={{ color: 'var(--accent-periwinkle)' }}
             >
-              Admin Panel
+              London · Admin
             </div>
           </div>
         </div>
@@ -153,7 +147,7 @@ export default async function AdminLayout({
             color: 'rgba(255,255,255,0.45)',
           }}
         >
-          Birdy American Mahjong
+          American Mahjong | London
         </div>
       </aside>
 

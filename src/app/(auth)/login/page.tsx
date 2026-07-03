@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/browser'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { AmlMark } from '@/components/layout/AmlMark'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,36 +53,22 @@ export default function LoginPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div
-          className="w-full max-w-md rounded-md border border-[var(--border)] bg-[var(--bg-card)] px-8 py-10"
-          style={{ boxShadow: '0 1px 3px rgba(45, 42, 38, 0.06)' }}
-        >
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <Image
-              src="/logo.png"
-              alt="Birdy American Mahjong"
-              width={160}
-              height={40}
-              priority
-            />
+      <main className="flex-1 flex items-center justify-center bg-[var(--accent-blush)] px-6 py-12 sm:py-16">
+        <div className="w-full max-w-md rounded-md border border-[var(--border)] bg-[var(--bg-elevated)] px-8 py-10">
+          {/* Brand mark */}
+          <div className="flex justify-center mb-6">
+            <AmlMark className="h-14 w-auto" />
           </div>
 
           {/* Heading */}
           <h1
-            className="text-center text-[var(--text-primary)] mb-2"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 600,
-              lineHeight: 1.2,
-            }}
+            className="text-center text-[var(--text-primary)] mb-2 text-3xl font-bold"
+            style={{ fontFamily: 'var(--font-display)', lineHeight: 1.2 }}
           >
-            Welcome Back
+            Welcome back
           </h1>
-          <p className="text-center text-[var(--text-muted)] mb-8" style={{ fontSize: 'var(--text-base)' }}>
-            Sign in to rejoin the table
+          <p className="text-center text-[var(--text-secondary)] mb-8 text-lg">
+            Sign in to play Birdy online
           </p>
 
           {/* Error */}
