@@ -16,60 +16,93 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero — the promise, Andrew, and the tiles */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-16 sm:pt-20 sm:pb-24 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 md:gap-14 items-center">
-          <div className="flex flex-col gap-7">
-            <Eyebrow tile="dot" className="reveal reveal-1">
-              American Mahjong lessons &middot; London
-            </Eyebrow>
-            <h1 className="display-hero text-[var(--text-primary)] reveal reveal-2">
-              Learn it once,{' '}
-              <em className="display-italic">love it forever.</em>
-            </h1>
-            <p className="lede reveal reveal-3">
-              Private American Mahjong lessons across London with Andrew — the
-              tiles, the Charleston, and the official NMJL card, taught at your
-              own table. Between lessons, keep playing with Birdy, our free
-              online game.
-            </p>
-            <div className="flex flex-wrap gap-4 reveal reveal-4">
-              <Link href="/private-lessons" className="btn-berry text-xl px-8 h-14">
-                Book a lesson
-              </Link>
-              <Link href="/lobby" className="btn-secondary text-xl px-8 h-14">
-                Play Birdy free
-              </Link>
-            </div>
-            <p className="text-base text-[var(--text-muted)] reveal reveal-4">
-              Beginner friendly &middot; Andrew brings everything to you &middot; Official 2026 NMJL card
-            </p>
+      {/* Hero — the brand's arch, centered groovy type, tiles tipped from the box */}
+      <section className="relative overflow-hidden bg-[var(--accent-lavender)]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 flex flex-col items-center text-center">
+          <h1 className="display-hero text-[var(--accent-gold)] max-w-4xl reveal reveal-1">
+            Learn American Mahjong
+          </h1>
+          <p
+            className="mt-3 text-[var(--accent-warm)] reveal reveal-2"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              fontSize: 'var(--display-lg)',
+              letterSpacing: '0.04em',
+            }}
+          >
+            with Andrew
+          </p>
+          <p className="lede mt-6 max-w-xl reveal reveal-3">
+            Private lessons across London — the tiles, the Charleston, and the
+            official NMJL card, taught at your own table. Between lessons, keep
+            playing with Birdy, our free online game.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4 reveal reveal-4">
+            <Link href="/private-lessons" className="btn-berry text-xl px-8 h-14">
+              Book a lesson
+            </Link>
+            <Link href="/lobby" className="btn-primary text-xl px-8 h-14">
+              Play Birdy free
+            </Link>
           </div>
+          <p className="mt-5 text-base text-[var(--text-muted)] reveal reveal-4">
+            Beginner friendly &middot; Andrew brings everything to you &middot; Official 2026 NMJL card
+          </p>
 
-          <div className="relative reveal reveal-3">
-            {/* Scattered brand tiles behind the photo */}
-            <TileMotif
-              variant="bam"
-              edge="jade"
-              className="absolute -top-8 -left-6 h-16 w-auto -rotate-12 hidden sm:block"
+          {/* The arch, with the brand's word-art and 3D tiles floating beside it */}
+          <div className="relative mt-10 sm:mt-14 w-full max-w-2xl reveal reveal-4">
+            {/* Word-art stickers, left */}
+            <Image
+              src="/aml/tiles-1.png"
+              alt=""
+              width={182}
+              height={119}
+              className="sticker sticker-bob hidden md:block -left-44 top-16 w-36 -rotate-6"
             />
-            <TileMotif
-              variant="flower"
-              edge="periwinkle"
-              className="absolute -bottom-7 -right-4 h-14 w-auto rotate-6 hidden sm:block"
+            <Image
+              src="/aml/tiles-4.png"
+              alt=""
+              width={159}
+              height={124}
+              className="sticker sticker-bob-late hidden md:block -left-32 top-44 w-28 rotate-3"
             />
-            <TileFrame edge="berry" tilt="right">
-              <div className="relative aspect-[4/5]">
-                <Image
-                  src="/aml/hero.jpeg"
-                  alt="Andrew at his mahjong table in London, arranging tiles on a blue gingham mat"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 42vw"
-                  priority
-                />
+            <Image
+              src="/aml/tiles-5.png"
+              alt=""
+              width={194}
+              height={118}
+              className="sticker sticker-bob hidden md:block -left-40 top-72 w-32 -rotate-3"
+            />
+            {/* 3D tile stickers, right */}
+            <Image
+              src="/aml/tiles-3.png"
+              alt=""
+              width={120}
+              height={180}
+              className="sticker sticker-bob hidden md:block -right-36 top-20 w-24 rotate-12"
+            />
+            <Image
+              src="/aml/how-it-works.png"
+              alt=""
+              width={140}
+              height={156}
+              className="sticker sticker-bob-late hidden md:block -right-44 top-56 w-28 -rotate-6"
+            />
+            <div className="arch-ring">
+              <div className="arch-ring-inner">
+                <div className="arch relative aspect-[4/3]">
+                  <Image
+                    src="/aml/hero.jpeg"
+                    alt="Andrew at his mahjong table in London, arranging tiles on a blue gingham mat"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 672px"
+                    priority
+                  />
+                </div>
               </div>
-            </TileFrame>
+            </div>
           </div>
         </div>
       </section>
@@ -169,7 +202,7 @@ export default async function HomePage() {
           <h2 className="display-xl max-w-2xl">
             Play tonight — free, with <em className="display-italic" style={{ color: 'var(--accent-periwinkle)' }}>Birdy</em>
           </h2>
-          <p className="lede text-[var(--accent-lavender)] max-w-xl">
+          <p className="text-xl leading-relaxed text-[var(--accent-lavender)] max-w-xl" style={{ textWrap: 'pretty' }}>
             Birdy is our online American Mahjong game. Real NMJL rules, the
             Charleston, jokers and all — with friends or against friendly bots,
             any time.

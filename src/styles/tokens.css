@@ -1,11 +1,13 @@
 /* American Mahjong | London — Design Tokens */
 /* Grounded in the real materials of Andrew's table: cream tiles with layered
    coloured sides, a blue gingham mat, the berry-red NMJL card, jade racks.
-   Display type (Fraunces) nods to the game's 1920s American heyday. */
+   Display type (Gluten) approximates the brand's groovy bubble face,
+   Synthemesc — an Adobe-licensed font. --font-display is the single swap
+   point if the client supplies a license. */
 
 :root {
   /* Typography */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-display: 'Gluten', 'Poppins', 'Segoe UI', system-ui, sans-serif;
   --font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
 
   /* Background */

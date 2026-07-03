@@ -13,7 +13,7 @@ const FALLBACK_PRODUCTS: Product[] = [
       "New to Mahjong? Our Beginner Session is the perfect place to start. Learn the tiles, the rules, and how to build winning hands — at your own pace. You'll leave with a complete guide to take home and return to anytime.",
     price_pence: 25000,
     type: 'lesson',
-    image: '/aml/lesson-individual.png',
+    image: '/aml/lesson-beginner.png',
     active: true,
   },
   {
@@ -24,7 +24,7 @@ const FALLBACK_PRODUCTS: Product[] = [
       'Learn everything you need to know to play American Mahjong from scratch, in a group of 2, 3, or 4. Cover the tiles, the rules, and winning hand construction at your own pace, and leave with a complete guide to take home.',
     price_pence: 15000,
     type: 'lesson',
-    image: '/aml/tiles-4.png',
+    image: '/aml/lesson-individual.png',
     active: true,
   },
   {

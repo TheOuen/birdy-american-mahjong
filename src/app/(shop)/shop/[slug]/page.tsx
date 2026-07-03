@@ -5,7 +5,6 @@ import { getProduct } from '@/lib/shop/products'
 import { formatGbp } from '@/lib/shop/cart'
 import { AddToCartButton } from '@/components/shop/AddToCartButton'
 import { TileFrame } from '@/components/ui/TileFrame'
-import { TileMotif } from '@/components/ui/TileMotif'
 
 export const revalidate = 300
 
@@ -24,29 +23,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           edge={product.type === 'lesson' ? 'berry' : 'indigo'}
           className="max-w-lg w-full mx-auto md:mx-0"
         >
-          {product.type === 'lesson' ? (
-            <div className="relative aspect-square bg-[var(--accent-blush)] flex flex-col items-center justify-center gap-6">
-              <div className="flex gap-3">
-                <TileMotif variant="dot" className="h-24 w-auto -rotate-3" />
-                <TileMotif variant="bam" className="h-24 w-auto" />
-                <TileMotif variant="crak" className="h-24 w-auto rotate-3" />
-              </div>
-              <span className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--accent-warm)]">
+          <div className="relative aspect-square bg-[var(--bg-card)]">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+            {product.type === 'lesson' && (
+              <span className="absolute left-4 top-4 rounded-full bg-[var(--bg-elevated)]/95 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--accent-warm)]">
                 Lesson with Andrew
               </span>
-            </div>
-          ) : (
-            <div className="relative aspect-square bg-[var(--bg-card)]">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            </div>
-          )}
+            )}
+          </div>
         </TileFrame>
 
         <div className="flex flex-col gap-5">

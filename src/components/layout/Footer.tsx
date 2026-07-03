@@ -42,7 +42,7 @@ export function Footer() {
               </h4>
               <a
                 href="mailto:hello@americanmahjonglondon.com"
-                className="text-[var(--accent-lavender)] hover:text-[var(--text-inverse)] transition-colors py-1 break-all"
+                className="text-[var(--accent-lavender)] hover:text-[var(--text-inverse)] transition-colors py-1 text-base break-words"
               >
                 hello@americanmahjonglondon.com
               </a>

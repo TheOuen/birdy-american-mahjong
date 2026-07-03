@@ -14,9 +14,11 @@ export function AmlLogo({ inverse }: AmlLogoProps) {
     >
       <AmlMark inverse={inverse} className="h-10 w-auto shrink-0 transition-transform group-hover:-rotate-3" />
       <span className="flex flex-col">
+        {/* Wordmark stays in the body face — the groovy display is reserved
+            for headings, matching the live site's plain header wordmark. */}
         <span
-          className="text-xl sm:text-2xl leading-none"
-          style={{ fontFamily: 'var(--font-display)', fontWeight: 600, letterSpacing: '-0.01em' }}
+          className="text-lg sm:text-xl leading-none uppercase"
+          style={{ fontFamily: 'var(--font-body)', fontWeight: 700, letterSpacing: '0.04em' }}
         >
           American Mahjong
         </span>

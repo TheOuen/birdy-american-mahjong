@@ -71,10 +71,10 @@ ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 INSERT INTO products (slug, name, description, price_pence, type, image) VALUES
   ('beginner-individual-session', 'Beginner Individual Session (2.5 Hours)',
    'New to Mahjong? Our Beginner Session is the perfect place to start. Learn the tiles, the rules, and how to build winning hands — at your own pace. You''ll leave with a complete guide to take home and return to anytime.',
-   25000, 'lesson', '/aml/lesson-individual.png'),
+   25000, 'lesson', '/aml/lesson-beginner.png'),
   ('beginner-group-session', 'Beginner Group Session (2.5 Hours, per person)',
    'Learn everything you need to know to play American Mahjong from scratch, in a group of 2, 3, or 4. Cover the tiles, the rules, and winning hand construction at your own pace, and leave with a complete guide to take home.',
-   15000, 'lesson', '/aml/tiles-4.png'),
+   15000, 'lesson', '/aml/lesson-individual.png'),
   ('private-session-1-hour', 'Private Session (1 Hour)',
    'Already know American Mahjong? This session is designed for you. Refresh your knowledge of the rules and etiquette, keep building on your game, and pick up advanced strategy, gameplay and tips to take your game to the next level.',
    12500, 'lesson', '/aml/lesson-1-hour.png'),

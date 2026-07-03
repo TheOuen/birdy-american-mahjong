@@ -95,7 +95,7 @@ export default function AboutPage() {
         <div className="flex flex-col items-center gap-6 text-center">
           <TileMotif variant="bird" edge="jade" className="h-14 w-auto" />
           <h2 className="display-xl max-w-2xl">Play online with Birdy</h2>
-          <p className="lede text-[var(--accent-lavender)] max-w-xl">
+          <p className="text-xl leading-relaxed text-[var(--accent-lavender)] max-w-xl" style={{ textWrap: 'pretty' }}>
             Birdy is our free online American Mahjong game — real NMJL rules,
             the Charleston, jokers and all. Play with friends or against
             friendly bots, any time.
