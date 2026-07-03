@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CartProvider } from "@/components/shop/CartProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col bg-[var(--bg)]">
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );
