@@ -7,11 +7,11 @@ Read `docs/plans/2026-03-18-american-mahjong-design.md`, `docs/RULES.md`, and `d
 
 ## Project Overview
 
-**Product:** Birdy American Mahjong — free online multiplayer American Mahjong platform
-**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Supabase (Auth, DB, Realtime, Edge Functions)
+**Product:** American Mahjong | London — the online home of AML: lessons, shop, and free online play
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Supabase (Auth, DB, Realtime, Edge Functions) · Stripe (hosted Checkout) · Resend (email)
 **Target audience:** Primarily elderly women — design must be accessible, warm, and simple
-**Brand:** Birdy American Mahjong (peacock logo, custom tile designs)
-**Visual style:** Inspired by Werner Bronkhorst CRACK Prints — warm earth tones, painterly textures, joyful
+**Brand:** American Mahjong | London (site brand); the online game is "Birdy" (peacock logo appears only in game surfaces)
+**Visual style:** AML palette — navy, berry, blush pink, cream (sampled from americanmahjonglondon.com); Poppins typography
 
 ---
 
@@ -55,27 +55,37 @@ Read `docs/plans/2026-03-18-american-mahjong-design.md`, `docs/RULES.md`, and `d
 ```
 src/
   app/
-    (public)/              # Landing, how-to-play, about
+    (public)/              # Home, private-lessons, about, discover, london-local, get-in-touch, how-to-play
     (auth)/                # Login, signup
     (game)/                # Lobby, play, stats (requires auth)
-    (admin)/admin/         # Admin panel (requires admin role)
+    (shop)/                # Shop grid, product detail, cart, checkout/success
+    (admin)/admin/         # Admin panel (requires admin role) — includes orders
     api/game/              # Game action endpoints
     api/matchmaking/       # Queue + bot backfill
+    api/checkout/          # Create Stripe hosted Checkout session
+    api/stripe/webhook/    # Stripe webhook — only writer of orders
+    api/contact/           # Contact form → Resend email
+    api/newsletter/        # Newsletter signup → newsletter_subscribers
   components/
-    ui/                    # Button, Input, Modal — pure presentational
-    layout/                # Header, Footer, Nav
+    ui/                    # Button, Input, Modal, ContactForm, NewsletterForm
+    layout/                # Header, Footer, AmlLogo
     game/                  # Board, Hand, DiscardPile, Wall, Charleston
+    shop/                  # CartProvider, ProductCard, AddToCartButton, CartContents
     tiles/                 # SVG tile components (152 tiles)
   lib/
     supabase/              # Server + browser client helpers
     game-engine/           # State machine, validation, scoring
+    shop/                  # cart, products, checkout, orders, types
+    email/                 # Resend send helper + contact validation
     tiles/                 # Tile definitions, constants
     matchmaking/           # Queue logic, bot backfill
   styles/
     globals.css
     tokens.css
   supabase/
-    migrations/            # SQL schema files (not run until Supabase connected)
+    migrations/            # SQL schema files (001 core, 002 shop; not run until Supabase connected)
+public/
+  aml/                     # AML site assets (images, downloadable scorecard PDFs)
 ```
 
 ---
@@ -146,6 +156,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=      # server-only
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+STRIPE_SECRET_KEY=              # server-only
+STRIPE_WEBHOOK_SECRET=          # server-only
+RESEND_API_KEY=                 # server-only
+ORDER_NOTIFY_EMAIL=hello@americanmahjonglondon.com
 ```
 
 ---
@@ -153,8 +167,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ## What Not To Do
 
 - **No ads in V1** — out of scope
-- **No payment/subscription** — platform is free
-- **No landing/marketing pages in V1** — game engine + auth only
+- **Playing is free** — the game has no paywall. The shop (lessons + equipment) uses Stripe hosted Checkout; prices are always looked up server-side from the products table.
+- **Stripe webhook is the only writer of orders** — via service client.
 - **No client-side game state mutations** — all through Edge Functions
 - **No exposing wall tiles to client** — server-authoritative only
 - **No unprotected admin routes**
