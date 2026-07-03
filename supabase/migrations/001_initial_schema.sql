@@ -172,12 +172,13 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- Admin check function
+-- role lives in app_metadata (server-set only); user_metadata is client-editable
 CREATE OR REPLACE FUNCTION is_admin()
 RETURNS boolean AS $$
 BEGIN
   RETURN (
     SELECT COALESCE(
-      (auth.jwt()->'user_metadata'->>'role') = 'admin',
+      (auth.jwt()->'app_metadata'->>'role') = 'admin',
       false
     )
   );
