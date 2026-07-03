@@ -16,88 +16,83 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero — the brand's arch, centered groovy type, tiles tipped from the box */}
+      {/* Hero — split: groovy type left, the brand's arch right */}
       <section className="relative overflow-hidden bg-[var(--accent-lavender)]">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 flex flex-col items-center text-center">
-          <h1 className="display-hero text-[var(--accent-gold)] max-w-4xl reveal reveal-1">
-            Learn American Mahjong
-          </h1>
-          <p
-            className="mt-3 text-[var(--accent-warm)] reveal reveal-2"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: 'var(--display-lg)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            with Andrew
-          </p>
-          <p className="lede mt-6 max-w-xl reveal reveal-3">
-            Private lessons across London — the tiles, the Charleston, and the
-            official NMJL card, taught at your own table. Between lessons, keep
-            playing with Birdy, our free online game.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4 reveal reveal-4">
-            <Link href="/private-lessons" className="btn-berry text-xl px-8 h-14">
-              Book a lesson
-            </Link>
-            <Link href="/lobby" className="btn-primary text-xl px-8 h-14">
-              Play Birdy free
-            </Link>
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 md:gap-10 items-center">
+          <div className="flex flex-col items-start text-left">
+            <h1 className="display-hero text-[var(--accent-gold)] reveal reveal-1">
+              Learn American Mahjong
+            </h1>
+            <p
+              className="mt-3 text-[var(--accent-warm)] reveal reveal-2"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 'var(--display-lg)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              with Andrew
+            </p>
+            <p className="lede mt-6 reveal reveal-3">
+              Private lessons across London — the tiles, the Charleston, and the
+              official NMJL card, taught at your own table. Between lessons, keep
+              playing with Birdy, our free online game.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4 reveal reveal-4">
+              <Link href="/private-lessons" className="btn-berry text-xl px-8 h-14">
+                Book a lesson
+              </Link>
+              <Link href="/lobby" className="btn-primary text-xl px-8 h-14">
+                Play Birdy free
+              </Link>
+            </div>
+            <p className="mt-5 text-base text-[var(--text-muted)] reveal reveal-4">
+              Beginner friendly &middot; Andrew brings everything to you &middot; Official 2026 NMJL card
+            </p>
           </div>
-          <p className="mt-5 text-base text-[var(--text-muted)] reveal reveal-4">
-            Beginner friendly &middot; Andrew brings everything to you &middot; Official 2026 NMJL card
-          </p>
 
           {/* The arch, with the brand's word-art and 3D tiles floating beside it */}
-          <div className="relative mt-10 sm:mt-14 w-full max-w-2xl reveal reveal-4">
-            {/* Word-art stickers, left */}
+          <div className="relative w-full max-w-md mx-auto md:mx-0 reveal reveal-3">
+            {/* Word-art stickers, left of the arch */}
             <Image
               src="/aml/tiles-1.png"
               alt=""
               width={182}
               height={119}
-              className="sticker sticker-bob hidden md:block -left-44 top-16 w-36 -rotate-6"
-            />
-            <Image
-              src="/aml/tiles-4.png"
-              alt=""
-              width={159}
-              height={124}
-              className="sticker sticker-bob-late hidden md:block -left-32 top-44 w-28 rotate-3"
+              className="sticker sticker-bob hidden lg:block -left-24 top-10 w-28 -rotate-6"
             />
             <Image
               src="/aml/tiles-5.png"
               alt=""
               width={194}
               height={118}
-              className="sticker sticker-bob hidden md:block -left-40 top-72 w-32 -rotate-3"
+              className="sticker sticker-bob-late hidden lg:block -left-20 bottom-16 w-24 -rotate-3"
             />
-            {/* 3D tile stickers, right */}
+            {/* 3D tile stickers, right of the arch */}
             <Image
               src="/aml/tiles-3.png"
               alt=""
               width={120}
               height={180}
-              className="sticker sticker-bob hidden md:block -right-36 top-20 w-24 rotate-12"
+              className="sticker sticker-bob hidden lg:block -right-14 top-16 w-20 rotate-12"
             />
             <Image
               src="/aml/how-it-works.png"
               alt=""
               width={140}
               height={156}
-              className="sticker sticker-bob-late hidden md:block -right-44 top-56 w-28 -rotate-6"
+              className="sticker sticker-bob-late hidden lg:block -right-16 bottom-10 w-24 -rotate-6"
             />
             <div className="arch-ring">
               <div className="arch-ring-inner">
-                <div className="arch relative aspect-[4/3]">
+                <div className="arch relative aspect-[4/5]">
                   <Image
                     src="/aml/hero.jpeg"
                     alt="Andrew at his mahjong table in London, arranging tiles on a blue gingham mat"
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 672px"
+                    sizes="(max-width: 768px) 100vw, 448px"
                     priority
                   />
                 </div>
