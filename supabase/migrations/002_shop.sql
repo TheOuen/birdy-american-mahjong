@@ -41,13 +41,14 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "customers read own orders"
   ON orders FOR SELECT USING (auth.uid() = user_id);
 
+-- role lives in app_metadata (server-set only); user_metadata is client-editable
 CREATE POLICY "admins read all orders"
   ON orders FOR SELECT
-  USING ((auth.jwt() -> 'user_metadata' ->> 'role') = 'admin');
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 CREATE POLICY "admins update order status"
   ON orders FOR UPDATE
-  USING ((auth.jwt() -> 'user_metadata' ->> 'role') = 'admin');
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- inserts happen only via service role (webhook), which bypasses RLS
 
