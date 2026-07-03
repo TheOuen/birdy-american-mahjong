@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/server'
+import { createAuthedServerClient } from '@/lib/supabase/server'
 import { formatGbp } from '@/lib/shop/cart'
 
 export const metadata = { title: 'Orders — Admin' }
@@ -16,7 +16,10 @@ type OrderListItem = {
 }
 
 export default async function AdminOrdersPage() {
-  const supabase = createServiceClient()
+  // The (admin) layout already gates on the admin role. Use the authenticated
+  // client (not the service client) so RLS "admins read all orders" is a second
+  // line of defense — a non-admin session simply gets no rows, never PII.
+  const supabase = await createAuthedServerClient()
   const { data, error } = await supabase
     .from('orders')
     .select('*')

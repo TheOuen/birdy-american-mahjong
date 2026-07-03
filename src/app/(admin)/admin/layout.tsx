@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createAuthedServerClient } from '@/lib/supabase/server'
 
 function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' }) {
   const iconProps = {
@@ -71,13 +73,20 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/settings', label: 'Settings', icon: 'settings' },
 ]
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // TODO: Add auth check — verify user has role = 'admin' in metadata
-  // For now, render the layout unconditionally
+  // Gate the entire admin panel: only signed-in users whose server-set
+  // app_metadata.role is 'admin' may proceed. Fail closed — any auth error
+  // or missing/insufficient role redirects to login.
+  const supabase = await createAuthedServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const role = (user?.app_metadata as { role?: string } | undefined)?.role
+  if (!user || role !== 'admin') redirect('/login')
 
   return (
     <div className="flex min-h-screen">
