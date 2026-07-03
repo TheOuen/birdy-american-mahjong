@@ -2,6 +2,7 @@
 
 import { TileRenderer } from '@/components/tiles/TileRenderer'
 import type { Tile } from '@/lib/tiles/constants'
+import { Eyebrow } from '@/components/ui/Eyebrow'
 
 // Helper to make demo tiles for visual examples
 function makeTile(id: string, type: Tile['type']): Tile {
@@ -91,10 +92,8 @@ function TileGroup({ tiles, label }: { tiles: Tile[]; label: string }) {
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-24">
-      <h2 className="text-[var(--brand)] mb-6" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
-        {title}
-      </h2>
+    <section id={id} className="scroll-mt-28">
+      <h2 className="display-lg text-[var(--text-primary)] mb-6">{title}</h2>
       <div className="flex flex-col gap-6">{children}</div>
     </section>
   )
@@ -102,14 +101,19 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 function Callout({ children, type = 'tip' }: { children: React.ReactNode; type?: 'tip' | 'important' | 'example' }) {
   const styles = {
-    tip: { bg: 'var(--brand-subtle)', border: 'var(--brand)', icon: '💡', label: 'Tip' },
-    important: { bg: 'var(--accent-warm-subtle)', border: 'var(--accent-warm)', icon: '⚠️', label: 'Important' },
-    example: { bg: 'var(--accent-gold-subtle)', border: 'var(--accent-gold)', icon: '📋', label: 'Example' },
+    tip: { bg: 'var(--accent-jade-subtle)', border: 'var(--accent-jade)', color: 'var(--accent-jade-dark)', label: 'Tip' },
+    important: { bg: 'var(--accent-warm-subtle)', border: 'var(--accent-warm)', color: 'var(--accent-warm-dark)', label: 'Worth knowing' },
+    example: { bg: 'var(--accent-gold-subtle)', border: 'var(--accent-gold)', color: 'var(--accent-gold-dark)', label: 'Example' },
   }
   const s = styles[type]
   return (
-    <div className="px-6 py-4 rounded-[var(--radius-md)]" style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}>
-      <p className="font-semibold text-[var(--text-primary)] mb-1">{s.icon} {s.label}</p>
+    <div
+      className="px-6 py-5 rounded-[var(--radius-lg)]"
+      style={{ background: s.bg, borderLeft: `4px solid ${s.border}` }}
+    >
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] mb-1.5" style={{ color: s.color }}>
+        {s.label}
+      </p>
       <div className="text-[var(--text-secondary)]">{children}</div>
     </div>
   )
@@ -131,24 +135,25 @@ export default function HowToPlayPage() {
   ]
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
       {/* Hero */}
       <div className="bg-[var(--bg-card)] border-b border-[var(--border)]">
-        <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-          <div className="gold-line w-20 mx-auto mb-6" />
-          <h1 className="text-[var(--brand)] mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-            How to Play
+        <div className="max-w-4xl mx-auto px-6 py-14 sm:py-16 flex flex-col items-center text-center gap-5">
+          <Eyebrow tile="wind">The guide</Eyebrow>
+          <h1 className="display-hero text-[var(--text-primary)]">
+            How to <em className="display-italic">play.</em>
           </h1>
-          <p className="text-xl text-[var(--text-secondary)] max-w-xl mx-auto">
-            A friendly, visual guide to American Mahjong. Everything you need to know to sit down and play.
+          <p className="lede mx-auto">
+            A friendly, visual guide to American Mahjong. Everything you need to
+            know to sit down and play.
           </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Table of Contents */}
-        <nav className="card p-6 mb-12">
-          <h3 className="text-lg font-semibold text-[var(--brand)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+        <nav className="card rounded-[var(--radius-tile)] p-6 mb-14" aria-label="Guide contents">
+          <h3 className="display-md text-[var(--text-primary)] mb-4">
             What&apos;s in this guide
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

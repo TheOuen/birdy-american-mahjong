@@ -1,0 +1,137 @@
+- generic [active] [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - link "American Mahjong London — home" [ref=f3e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=f3e5]
+        - generic [ref=f3e9]:
+          - generic [ref=f3e10]: American Mahjong
+          - generic [ref=f3e11]: London
+      - generic [ref=f3e12]:
+        - link "Play Birdy Online — Free" [ref=f3e13] [cursor=pointer]:
+          - /url: /lobby
+        - link "Cart, 0 items" [ref=f3e14] [cursor=pointer]:
+          - /url: /cart
+          - img [ref=f3e15]
+    - navigation "Main navigation" [ref=f3e18]:
+      - link "Home" [ref=f3e19] [cursor=pointer]:
+        - /url: /
+      - link "Play Online" [ref=f3e20] [cursor=pointer]:
+        - /url: /lobby
+      - link "Private Lessons" [ref=f3e21] [cursor=pointer]:
+        - /url: /private-lessons
+      - link "About" [ref=f3e22] [cursor=pointer]:
+        - /url: /about
+      - link "Shop" [ref=f3e23] [cursor=pointer]:
+        - /url: /shop
+      - link "Discover" [ref=f3e24] [cursor=pointer]:
+        - /url: /discover
+      - link "London Local" [ref=f3e25] [cursor=pointer]:
+        - /url: /london-local
+      - link "Get in Touch" [ref=f3e26] [cursor=pointer]:
+        - /url: /get-in-touch
+  - main [ref=f3e27]:
+    - generic [ref=f3e28]:
+      - generic [ref=f3e29]:
+        - heading "Shop" [level=1] [ref=f3e30]
+        - paragraph [ref=f3e31]: Everything you need to play American Mahjong — the official NMJL card, scorecards, and lessons with Andrew.
+      - generic [ref=f3e32]:
+        - heading "Lessons" [level=2] [ref=f3e33]
+        - generic [ref=f3e34]:
+          - link "Lesson with Andrew Beginner Individual Session (2.5 Hours) £250.00" [ref=f3e35] [cursor=pointer]:
+            - /url: /shop/beginner-individual-session
+            - generic [ref=f3e36]:
+              - img [ref=f3e37]
+              - generic [ref=f3e41]: Lesson with Andrew
+            - generic [ref=f3e42]:
+              - heading "Beginner Individual Session (2.5 Hours)" [level=3] [ref=f3e43]
+              - paragraph [ref=f3e44]: £250.00
+          - link "Lesson with Andrew Beginner Group Session (2.5 Hours, per person) £150.00" [ref=f3e45] [cursor=pointer]:
+            - /url: /shop/beginner-group-session
+            - generic [ref=f3e46]:
+              - img [ref=f3e47]
+              - generic [ref=f3e51]: Lesson with Andrew
+            - generic [ref=f3e52]:
+              - heading "Beginner Group Session (2.5 Hours, per person)" [level=3] [ref=f3e53]
+              - paragraph [ref=f3e54]: £150.00
+          - link "Lesson with Andrew Private Session (1 Hour) £125.00" [ref=f3e55] [cursor=pointer]:
+            - /url: /shop/private-session-1-hour
+            - generic [ref=f3e56]:
+              - img [ref=f3e57]
+              - generic [ref=f3e61]: Lesson with Andrew
+            - generic [ref=f3e62]:
+              - heading "Private Session (1 Hour)" [level=3] [ref=f3e63]
+              - paragraph [ref=f3e64]: £125.00
+      - generic [ref=f3e65]:
+        - heading "Equipment" [level=2] [ref=f3e66]
+        - generic [ref=f3e67]:
+          - link "2026 Official NMJL Card (Large Print) 2026 Official NMJL Card (Large Print) £15.00" [ref=f3e68] [cursor=pointer]:
+            - /url: /shop/nmjl-card-2026
+            - img "2026 Official NMJL Card (Large Print)" [ref=f3e70]
+            - generic [ref=f3e71]:
+              - heading "2026 Official NMJL Card (Large Print)" [level=3] [ref=f3e72]
+              - paragraph [ref=f3e73]: £15.00
+          - link "American Mahjong Scorecard Notepad (A5, 50 pages) American Mahjong Scorecard Notepad (A5, 50 pages) £10.00" [ref=f3e74] [cursor=pointer]:
+            - /url: /shop/scorecard-notepad
+            - img "American Mahjong Scorecard Notepad (A5, 50 pages)" [ref=f3e76]
+            - generic [ref=f3e77]:
+              - heading "American Mahjong Scorecard Notepad (A5, 50 pages)" [level=3] [ref=f3e78]
+              - paragraph [ref=f3e79]: £10.00
+      - generic [ref=f3e80]:
+        - heading "Free Downloadable Scorecards" [level=2] [ref=f3e81]
+        - paragraph [ref=f3e82]: Print at home and keep score the easy way.
+        - generic [ref=f3e83]:
+          - link "Landscape PDF" [ref=f3e84] [cursor=pointer]:
+            - /url: /aml/downloads/scorecard-landscape.pdf
+          - link "Portrait PDF" [ref=f3e85] [cursor=pointer]:
+            - /url: /aml/downloads/scorecard-portrait.pdf
+  - contentinfo [ref=f3e86]:
+    - generic [ref=f3e87]:
+      - generic [ref=f3e88]:
+        - generic [ref=f3e89]:
+          - link "American Mahjong London — home" [ref=f3e90] [cursor=pointer]:
+            - /url: /
+            - img [ref=f3e91]
+            - generic [ref=f3e95]:
+              - generic [ref=f3e96]: American Mahjong
+              - generic [ref=f3e97]: London
+          - paragraph [ref=f3e98]: Learn it once, love it forever! Lessons, equipment and free online play — American Mahjong in London, with Andrew.
+        - generic [ref=f3e99]:
+          - heading "Explore" [level=4] [ref=f3e100]
+          - link "Play Birdy Online" [ref=f3e101] [cursor=pointer]:
+            - /url: /lobby
+          - link "Private Lessons" [ref=f3e102] [cursor=pointer]:
+            - /url: /private-lessons
+          - link "Shop" [ref=f3e103] [cursor=pointer]:
+            - /url: /shop
+          - link "How to Play" [ref=f3e104] [cursor=pointer]:
+            - /url: /how-to-play
+          - link "Discover" [ref=f3e105] [cursor=pointer]:
+            - /url: /discover
+          - link "London Local" [ref=f3e106] [cursor=pointer]:
+            - /url: /london-local
+        - generic [ref=f3e107]:
+          - heading "Get in Touch" [level=4] [ref=f3e108]
+          - link "hello@americanmahjonglondon.com" [ref=f3e109] [cursor=pointer]:
+            - /url: mailto:hello@americanmahjonglondon.com
+          - link "+44 738 639 8249" [ref=f3e110] [cursor=pointer]:
+            - /url: tel:+447386398249
+          - link "Contact & Newsletter" [ref=f3e111] [cursor=pointer]:
+            - /url: /get-in-touch
+          - link "Sign In" [ref=f3e112] [cursor=pointer]:
+            - /url: /login
+      - generic [ref=f3e113]:
+        - paragraph [ref=f3e114]: © 2026 American Mahjong | London. All rights reserved.
+        - paragraph [ref=f3e115]: Online play powered by Birdy · Official NMJL Card Supported
+  - generic [ref=f3e120] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f3e121]:
+      - img [ref=f3e122]
+    - generic [ref=f3e125]:
+      - button "Open issues overlay" [ref=f3e126]:
+        - generic [ref=f3e127]:
+          - generic [ref=f3e128]: "0"
+          - generic [ref=f3e129]: "1"
+        - generic [ref=f3e130]: Issue
+      - button "Collapse issues badge" [ref=f3e131]:
+        - img [ref=f3e132]
+  - alert [ref=f3e134]

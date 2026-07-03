@@ -7,14 +7,13 @@ import { useCart } from '@/components/shop/CartProvider'
 import { cartCount } from '@/lib/shop/cart'
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home' },
-  { href: '/lobby', label: 'Play Online' },
-  { href: '/private-lessons', label: 'Private Lessons' },
-  { href: '/about', label: 'About' },
+  { href: '/private-lessons', label: 'Lessons' },
   { href: '/shop', label: 'Shop' },
+  { href: '/how-to-play', label: 'How to play' },
+  { href: '/about', label: 'About' },
   { href: '/discover', label: 'Discover' },
-  { href: '/london-local', label: 'London Local' },
-  { href: '/get-in-touch', label: 'Get in Touch' },
+  { href: '/london-local', label: 'London local' },
+  { href: '/get-in-touch', label: 'Contact' },
 ] as const
 
 export function Header() {
@@ -23,30 +22,40 @@ export function Header() {
   const count = cartCount(cart)
 
   return (
-    <header
-      className="sticky top-0 z-40 bg-[var(--bg-elevated)]/95 backdrop-blur-sm"
-      style={{ borderBottom: '1px solid var(--border)' }}
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--border)]">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-3 focus:bg-[var(--brand)] focus:text-[var(--text-inverse)] focus:rounded-md"
+      >
+        Skip to content
+      </a>
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between gap-4">
         <AmlLogo />
+
+        {/* Desktop nav */}
+        <nav className="hidden xl:flex items-center gap-1" aria-label="Main navigation">
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+          ))}
+        </nav>
 
         <div className="flex items-center gap-2">
           <Link
             href="/lobby"
-            className="hidden sm:inline-flex px-5 h-12 items-center rounded-md text-base font-semibold tracking-wide
-              bg-[var(--brand)] text-[var(--text-inverse)]
-              hover:bg-[var(--brand-light)] active:bg-[var(--brand-dark)] active:scale-[0.97]
-              transition-all duration-150"
+            className="hidden sm:inline-flex px-5 h-12 items-center rounded-md text-base font-semibold
+              bg-[var(--accent-warm)] text-[var(--text-inverse)]
+              hover:bg-[var(--accent-warm-dark)] active:scale-[0.97]
+              transition-all duration-150 whitespace-nowrap"
           >
-            Play Birdy Online — Free
+            Play Birdy free
           </Link>
           <CartLink count={count} />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden w-12 h-12 flex items-center justify-center rounded-md
-              text-[var(--text-secondary)] hover:bg-[var(--bg-card)] active:bg-[var(--border)]
+            className="xl:hidden w-12 h-12 flex items-center justify-center rounded-md
+              text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--border)]
               transition-all duration-150"
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
             {menuOpen ? (
@@ -62,20 +71,10 @@ export function Header() {
         </div>
       </div>
 
-      {/* Desktop nav row */}
-      <nav
-        className="hidden lg:flex max-w-6xl mx-auto px-6 pb-2 items-center gap-1"
-        aria-label="Main navigation"
-      >
-        {NAV_ITEMS.map((item) => (
-          <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
-        ))}
-      </nav>
-
       {/* Mobile / tablet menu */}
       {menuOpen && (
         <nav
-          className="lg:hidden border-t border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 flex flex-col gap-1"
+          className="xl:hidden border-t border-[var(--border)] bg-[var(--bg)] px-4 py-4 flex flex-col gap-1"
           aria-label="Main navigation"
         >
           {NAV_ITEMS.map((item) => (
@@ -86,6 +85,15 @@ export function Header() {
           <MobileNavLink href="/cart" onClick={() => setMenuOpen(false)}>
             Cart{count > 0 ? ` (${count})` : ''}
           </MobileNavLink>
+          <Link
+            href="/lobby"
+            onClick={() => setMenuOpen(false)}
+            className="mt-2 px-5 h-14 inline-flex items-center justify-center rounded-md text-lg font-semibold
+              bg-[var(--accent-warm)] text-[var(--text-inverse)] hover:bg-[var(--accent-warm-dark)]
+              active:scale-[0.98] transition-all duration-150"
+          >
+            Play Birdy free
+          </Link>
         </nav>
       )}
     </header>
@@ -97,7 +105,7 @@ function CartLink({ count }: { count: number }) {
     <Link
       href="/cart"
       className="relative w-12 h-12 flex items-center justify-center rounded-md
-        text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]
+        text-[var(--text-primary)] hover:bg-[var(--bg-card)]
         active:bg-[var(--border)] transition-all duration-150"
       aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}
     >
@@ -120,7 +128,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
       href={href}
       className="px-3 h-12 inline-flex items-center rounded-md text-base font-medium transition-all duration-150
         active:scale-[0.97] text-[var(--text-secondary)] hover:text-[var(--text-primary)]
-        hover:bg-[var(--bg-card)] active:bg-[var(--border)]"
+        hover:bg-[var(--bg-card)] active:bg-[var(--border)] whitespace-nowrap"
     >
       {children}
     </Link>

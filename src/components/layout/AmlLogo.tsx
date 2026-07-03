@@ -8,17 +8,19 @@ export function AmlLogo({ inverse }: AmlLogoProps) {
     <Link
       href="/"
       aria-label="American Mahjong London — home"
-      className={`group flex items-center gap-2.5 transition-opacity hover:opacity-80 active:opacity-60 ${
+      className={`group flex items-center gap-3 transition-opacity hover:opacity-80 active:opacity-60 ${
         inverse ? 'text-[var(--text-inverse)]' : 'text-[var(--text-primary)]'
       }`}
-      style={{ fontFamily: 'var(--font-display)' }}
     >
-      <AmlMark inverse={inverse} className="h-9 w-auto shrink-0 transition-transform group-hover:-rotate-3" />
-      <span className="flex flex-col leading-none">
-        <span className="text-lg sm:text-xl font-bold tracking-wide uppercase">
+      <AmlMark inverse={inverse} className="h-10 w-auto shrink-0 transition-transform group-hover:-rotate-3" />
+      <span className="flex flex-col">
+        <span
+          className="text-xl sm:text-2xl leading-none"
+          style={{ fontFamily: 'var(--font-display)', fontWeight: 600, letterSpacing: '-0.01em' }}
+        >
           American Mahjong
         </span>
-        <span className="mt-1 text-sm sm:text-base font-medium tracking-[0.35em] uppercase text-[var(--accent-warm)]">
+        <span className="mt-1 text-xs sm:text-sm font-semibold leading-none tracking-[0.42em] uppercase text-[var(--accent-warm)]">
           London
         </span>
       </span>

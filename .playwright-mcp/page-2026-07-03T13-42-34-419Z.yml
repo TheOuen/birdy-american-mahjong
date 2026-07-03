@@ -1,0 +1,136 @@
+- generic [active] [ref=f4e1]:
+  - banner [ref=f4e2]:
+    - generic [ref=f4e3]:
+      - link "American Mahjong London — home" [ref=f4e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=f4e5]
+        - generic [ref=f4e9]:
+          - generic [ref=f4e10]: American Mahjong
+          - generic [ref=f4e11]: London
+      - generic [ref=f4e12]:
+        - link "Play Birdy Online — Free" [ref=f4e13] [cursor=pointer]:
+          - /url: /lobby
+        - link "Cart, 0 items" [ref=f4e14] [cursor=pointer]:
+          - /url: /cart
+          - img [ref=f4e15]
+    - navigation "Main navigation" [ref=f4e18]:
+      - link "Home" [ref=f4e19] [cursor=pointer]:
+        - /url: /
+      - link "Play Online" [ref=f4e20] [cursor=pointer]:
+        - /url: /lobby
+      - link "Private Lessons" [ref=f4e21] [cursor=pointer]:
+        - /url: /private-lessons
+      - link "About" [ref=f4e22] [cursor=pointer]:
+        - /url: /about
+      - link "Shop" [ref=f4e23] [cursor=pointer]:
+        - /url: /shop
+      - link "Discover" [ref=f4e24] [cursor=pointer]:
+        - /url: /discover
+      - link "London Local" [ref=f4e25] [cursor=pointer]:
+        - /url: /london-local
+      - link "Get in Touch" [ref=f4e26] [cursor=pointer]:
+        - /url: /get-in-touch
+  - main [ref=f4e27]:
+    - generic [ref=f4e28]:
+      - generic [ref=f4e30]:
+        - generic [ref=f4e31]:
+          - heading "Learn American Mahjong" [level=1] [ref=f4e32]
+          - paragraph [ref=f4e33]: with Andrew
+          - paragraph [ref=f4e34]: Learn it once, love it forever! Private lessons in London, official NMJL equipment, and now — play online for free, any time.
+          - generic [ref=f4e35]:
+            - link "Play Birdy Online — Free" [ref=f4e36] [cursor=pointer]:
+              - /url: /lobby
+            - link "Book a Lesson" [ref=f4e37] [cursor=pointer]:
+              - /url: /private-lessons
+        - img "Andrew teaching American Mahjong in London" [ref=f4e39]
+      - generic [ref=f4e40]:
+        - img "American Mahjong set laid out for a lesson" [ref=f4e42]
+        - generic [ref=f4e43]:
+          - heading "How It Works" [level=2] [ref=f4e44]
+          - paragraph [ref=f4e45]: Book a session and Andrew brings everything to you — tiles, cards, and a complete guide to take home. Learn the tiles, the rules, and how to build winning hands at your own pace. Then keep playing between lessons with Birdy, our free online game.
+          - link "New to the game? Read how to play →" [ref=f4e46] [cursor=pointer]:
+            - /url: /how-to-play
+      - generic [ref=f4e48]:
+        - heading "Lessons" [level=2] [ref=f4e49]
+        - generic [ref=f4e50]:
+          - link "Lesson with Andrew Beginner Individual Session (2.5 Hours) £250.00" [ref=f4e51] [cursor=pointer]:
+            - /url: /shop/beginner-individual-session
+            - generic [ref=f4e52]:
+              - img [ref=f4e53]
+              - generic [ref=f4e57]: Lesson with Andrew
+            - generic [ref=f4e58]:
+              - heading "Beginner Individual Session (2.5 Hours)" [level=3] [ref=f4e59]
+              - paragraph [ref=f4e60]: £250.00
+          - link "Lesson with Andrew Beginner Group Session (2.5 Hours, per person) £150.00" [ref=f4e61] [cursor=pointer]:
+            - /url: /shop/beginner-group-session
+            - generic [ref=f4e62]:
+              - img [ref=f4e63]
+              - generic [ref=f4e67]: Lesson with Andrew
+            - generic [ref=f4e68]:
+              - heading "Beginner Group Session (2.5 Hours, per person)" [level=3] [ref=f4e69]
+              - paragraph [ref=f4e70]: £150.00
+          - link "Lesson with Andrew Private Session (1 Hour) £125.00" [ref=f4e71] [cursor=pointer]:
+            - /url: /shop/private-session-1-hour
+            - generic [ref=f4e72]:
+              - img [ref=f4e73]
+              - generic [ref=f4e77]: Lesson with Andrew
+            - generic [ref=f4e78]:
+              - heading "Private Session (1 Hour)" [level=3] [ref=f4e79]
+              - paragraph [ref=f4e80]: £125.00
+      - generic [ref=f4e81]:
+        - generic [ref=f4e82]:
+          - heading "About Mahjong" [level=2] [ref=f4e83]
+          - paragraph [ref=f4e84]: Mahjong is a tile game that began in Shanghai in the 1800s and grew into distinct regional styles. American Mahjong is its own game — played with 152 tiles, jokers, and a standardised card of winning hands updated every April by the National Mah Jongg League, founded in 1937.
+          - link "More about the game and Andrew →" [ref=f4e85] [cursor=pointer]:
+            - /url: /about
+        - img "A full set of American Mahjong tiles" [ref=f4e87]
+  - contentinfo [ref=f4e88]:
+    - generic [ref=f4e89]:
+      - generic [ref=f4e90]:
+        - generic [ref=f4e91]:
+          - link "American Mahjong London — home" [ref=f4e92] [cursor=pointer]:
+            - /url: /
+            - img [ref=f4e93]
+            - generic [ref=f4e97]:
+              - generic [ref=f4e98]: American Mahjong
+              - generic [ref=f4e99]: London
+          - paragraph [ref=f4e100]: Learn it once, love it forever! Lessons, equipment and free online play — American Mahjong in London, with Andrew.
+        - generic [ref=f4e101]:
+          - heading "Explore" [level=4] [ref=f4e102]
+          - link "Play Birdy Online" [ref=f4e103] [cursor=pointer]:
+            - /url: /lobby
+          - link "Private Lessons" [ref=f4e104] [cursor=pointer]:
+            - /url: /private-lessons
+          - link "Shop" [ref=f4e105] [cursor=pointer]:
+            - /url: /shop
+          - link "How to Play" [ref=f4e106] [cursor=pointer]:
+            - /url: /how-to-play
+          - link "Discover" [ref=f4e107] [cursor=pointer]:
+            - /url: /discover
+          - link "London Local" [ref=f4e108] [cursor=pointer]:
+            - /url: /london-local
+        - generic [ref=f4e109]:
+          - heading "Get in Touch" [level=4] [ref=f4e110]
+          - link "hello@americanmahjonglondon.com" [ref=f4e111] [cursor=pointer]:
+            - /url: mailto:hello@americanmahjonglondon.com
+          - link "+44 738 639 8249" [ref=f4e112] [cursor=pointer]:
+            - /url: tel:+447386398249
+          - link "Contact & Newsletter" [ref=f4e113] [cursor=pointer]:
+            - /url: /get-in-touch
+          - link "Sign In" [ref=f4e114] [cursor=pointer]:
+            - /url: /login
+      - generic [ref=f4e115]:
+        - paragraph [ref=f4e116]: © 2026 American Mahjong | London. All rights reserved.
+        - paragraph [ref=f4e117]: Online play powered by Birdy · Official NMJL Card Supported
+  - generic [ref=f4e122] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f4e123]:
+      - img [ref=f4e124]
+    - generic [ref=f4e127]:
+      - button "Open issues overlay" [ref=f4e128]:
+        - generic [ref=f4e129]:
+          - generic [ref=f4e130]: "0"
+          - generic [ref=f4e131]: "1"
+        - generic [ref=f4e132]: Issue
+      - button "Collapse issues badge" [ref=f4e133]:
+        - img [ref=f4e134]
+  - alert [ref=f4e136]

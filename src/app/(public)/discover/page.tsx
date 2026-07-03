@@ -1,4 +1,7 @@
-export const metadata = { title: 'Discover — American Mahjong | London' }
+import { Section } from '@/components/ui/Section'
+import { Eyebrow } from '@/components/ui/Eyebrow'
+
+export const metadata = { title: 'Discover' }
 
 type Article = { title: string; source: string; blurb: string; href: string }
 
@@ -64,28 +67,34 @@ const NEWS: Article[] = [
 
 export default function DiscoverPage() {
   return (
-    <div className="max-w-6xl mx-auto px-5 sm:px-6 py-10 sm:py-14 flex flex-col gap-12">
-      <header className="flex flex-col gap-3 max-w-3xl">
-        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-          Everything Mahjong
-        </h1>
-        <p className="text-xl text-[var(--text-secondary)]">
-          Reading, watching, and rabbit holes — our favourite mahjong resources from around the web.
-        </p>
-      </header>
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {FEATURES.map((a) => <ArticleCard key={a.href} article={a} />)}
-      </section>
-
-      <section className="flex flex-col gap-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-          Mahj in the News
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {NEWS.map((a) => <ArticleCard key={a.href} article={a} />)}
+    <div className="flex flex-col">
+      <Section tone="paper" size="compact">
+        <div className="flex flex-col gap-5 max-w-2xl">
+          <Eyebrow tile="bam">Discover</Eyebrow>
+          <h1 className="display-hero text-[var(--text-primary)]">
+            Everything <em className="display-italic">mahjong.</em>
+          </h1>
+          <p className="lede">
+            Reading, watching, and rabbit holes — our favourite mahjong
+            resources from around the web.
+          </p>
         </div>
-      </section>
+
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FEATURES.map((a) => (
+            <ArticleCard key={a.href} article={a} />
+          ))}
+        </div>
+      </Section>
+
+      <Section tone="cream" size="compact">
+        <h2 className="display-xl text-[var(--text-primary)] mb-8">Mahj in the news</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {NEWS.map((a) => (
+            <ArticleCard key={a.href} article={a} />
+          ))}
+        </div>
+      </Section>
     </div>
   )
 }
@@ -96,13 +105,16 @@ function ArticleCard({ article }: { article: Article }) {
       href={article.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col gap-2 rounded-md border border-[var(--border)] bg-[var(--bg-elevated)] p-6
-        hover:border-[var(--border-strong)] active:scale-[0.99] transition-all duration-150"
+      className="card tile-lift flex flex-col gap-2 rounded-[var(--radius-tile)] p-6"
     >
-      <p className="text-sm font-semibold uppercase tracking-widest text-[var(--accent-warm)]">{article.source}</p>
-      <h3 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>{article.title}</h3>
-      <p className="text-lg text-[var(--text-secondary)]">{article.blurb}</p>
-      <span className="text-lg font-semibold text-[var(--accent-gold)]">Read &rarr;</span>
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--accent-warm)]">
+        {article.source}
+      </p>
+      <h3 className="display-md text-[var(--text-primary)]">{article.title}</h3>
+      <p className="text-base leading-relaxed text-[var(--text-secondary)] flex-1">{article.blurb}</p>
+      <span className="link-arrow text-base">
+        Read the piece <span aria-hidden="true">&rarr;</span>
+      </span>
     </a>
   )
 }

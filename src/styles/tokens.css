@@ -1,13 +1,15 @@
 /* American Mahjong | London — Design Tokens */
-/* Playful modern: navy, berry, blush pink, cream — sampled from americanmahjonglondon.com */
+/* Grounded in the real materials of Andrew's table: cream tiles with layered
+   coloured sides, a blue gingham mat, the berry-red NMJL card, jade racks.
+   Display type (Fraunces) nods to the game's 1920s American heyday. */
 
 :root {
   /* Typography */
-  --font-display: 'Poppins', 'Segoe UI', system-ui, sans-serif; /* swap point for licensed Synthemesc */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
 
   /* Background */
-  --bg: #FFFFFF;
+  --bg: #FDFBF6;
   --bg-card: #F5F0E8;
   --bg-elevated: #FFFFFF;
   --bg-deep: #171D3A;
@@ -16,8 +18,8 @@
   /* Text */
   --text-primary: #171D3A;
   --text-secondary: #3E4460;
-  --text-muted: #62677F;
-  --text-inverse: #FFFFFF;
+  --text-muted: #5C617A;
+  --text-inverse: #FFFCF5;
   --text-gold: #354D9C;
 
   /* Brand — AML Navy */
@@ -26,23 +28,28 @@
   --brand-dark: #0F1428;
   --brand-subtle: rgba(23, 29, 58, 0.06);
 
-  /* Accent — Berry (was terracotta) */
+  /* Accent — Berry (the NMJL card red) */
   --accent-warm: #9E2057;
   --accent-warm-light: #B94577;
   --accent-warm-dark: #7C1843;
   --accent-warm-subtle: rgba(158, 32, 87, 0.08);
 
-  /* Accent — Indigo (was ochre gold) */
+  /* Accent — Indigo */
   --accent-gold: #354D9C;
   --accent-gold-light: #94ABF9;
   --accent-gold-dark: #27397A;
   --accent-gold-subtle: rgba(53, 77, 156, 0.08);
 
-  /* New AML accents */
+  /* AML accents */
   --accent-blush: #FCE8F0;
   --accent-lavender: #E5E9FD;
   --accent-periwinkle: #94ABF9;
   --accent-cream: #F5F0E8;
+
+  /* Accent — Jade (the bamboo suit + tile racks) */
+  --accent-jade: #2F6D50;
+  --accent-jade-dark: #24523D;
+  --accent-jade-subtle: #E4EFE8;
 
   /* Tile Colors */
   --tile-bg: #FFFFF5;
@@ -67,8 +74,8 @@
   --warning-light: #FBF4E4;
 
   /* Borders */
-  --border: #E5E9FD;
-  --border-strong: #C6CEF2;
+  --border: #E7E3D8;
+  --border-strong: #C9C3B2;
   --border-gold: rgba(53, 77, 156, 0.3);
 
   /* Spacing */
@@ -89,6 +96,12 @@
   --text-4xl: 3rem;
   --text-5xl: 3.75rem;
 
+  /* Display scale (marketing pages) */
+  --display-hero: clamp(2.75rem, 2rem + 3.5vw, 4.5rem);
+  --display-xl: clamp(2.125rem, 1.65rem + 2.2vw, 3.25rem);
+  --display-lg: clamp(1.75rem, 1.5rem + 1.2vw, 2.375rem);
+  --display-md: clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);
+
   /* Touch targets */
   --touch-min: 48px;
 
@@ -97,10 +110,12 @@
   --radius-md: 6px;
   --radius-lg: 10px;
   --radius-xl: 16px;
+  --radius-tile: 18px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.06);
-  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.08);
-  --shadow-lg: 0 8px 24px rgba(45, 42, 38, 0.1);
-  --shadow-gold: 0 4px 16px rgba(184, 134, 11, 0.15);
+  --shadow-sm: 0 1px 3px rgba(23, 29, 58, 0.06);
+  --shadow-md: 0 4px 12px rgba(23, 29, 58, 0.08);
+  --shadow-lg: 0 8px 24px rgba(23, 29, 58, 0.1);
+  --shadow-gold: 0 4px 16px rgba(53, 77, 156, 0.15);
+  --shadow-tile: 0 1px 2px rgba(23, 29, 58, 0.08), 0 12px 32px -12px rgba(23, 29, 58, 0.25);
 }

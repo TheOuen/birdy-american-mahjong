@@ -17,110 +17,232 @@
   --color-muted: var(--text-muted);
 }
 
-/* Base typography */
+/* ---------------------------------------------------------------- */
+/* Base typography                                                    */
+/* ---------------------------------------------------------------- */
+
 body {
   background: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--text-base);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 550;
+  line-height: 1.12;
   letter-spacing: -0.01em;
+  font-variation-settings: 'opsz' 72, 'SOFT' 40;
 }
 
-/* Subtle linen texture on body */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232D2A26' fill-opacity='1'%3E%3Cpath d='M0 0h1v1H0zm2 0h1v1H2zm4 0h1v1H6zm6 0h1v1h-1zm8 0h1v1h-1zm10 0h1v1h-1zm4 0h1v1h-1zm6 0h1v1h-1zM1 1h1v1H1zm4 0h1v1H5zm8 0h1v1h-1zm6 0h1v1h-1zm8 0h1v1h-1zm6 0h1v1h-1zm4 0h1v1h-1zM0 2h1v1H0zm6 0h1v1H6zm4 0h1v1h-1zm8 0h1v1h-1zm4 0h1v1h-1zm6 0h1v1h-1zm8 0h1v1h-1zm4 0h1v1h-1z'/%3E%3C/g%3E%3C/svg%3E");
+::selection {
+  background: var(--accent-periwinkle);
+  color: var(--brand-dark);
 }
 
-/* Gold decorative line */
-.gold-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+/* Visible keyboard focus, everywhere */
+:focus-visible {
+  outline: 3px solid var(--accent-gold);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-/* Elegant button base */
-.btn-primary {
+/* ---------------------------------------------------------------- */
+/* Marketing primitives                                               */
+/* ---------------------------------------------------------------- */
+
+/* Eyebrow — small-caps section label, always paired with a tile chip */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+}
+
+/* Display headings */
+.display-hero {
+  font-family: var(--font-display);
+  font-size: var(--display-hero);
+  font-weight: 560;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 60;
+  text-wrap: balance;
+}
+
+.display-xl {
+  font-family: var(--font-display);
+  font-size: var(--display-xl);
+  font-weight: 550;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variation-settings: 'opsz' 96, 'SOFT' 50;
+  text-wrap: balance;
+}
+
+.display-lg {
+  font-family: var(--font-display);
+  font-size: var(--display-lg);
+  font-weight: 550;
+  line-height: 1.15;
+  font-variation-settings: 'opsz' 72, 'SOFT' 50;
+  text-wrap: balance;
+}
+
+.display-md {
+  font-family: var(--font-display);
+  font-size: var(--display-md);
+  font-weight: 560;
+  line-height: 1.2;
+  font-variation-settings: 'opsz' 40, 'SOFT' 40;
+}
+
+.display-italic {
+  font-style: italic;
+  font-weight: 480;
+  color: var(--accent-warm);
+}
+
+/* Lede paragraph */
+.lede {
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 38em;
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- */
+/* The signature: everything sits on a tile                          */
+/* ---------------------------------------------------------------- */
+
+/* A photo or panel framed as an oversized mahjong tile: cream face,
+   navy keyline, tile radius, and a solid coloured "side edge" below —
+   echoing the layered coloured sides of the tiles in Andrew's set. */
+.tile-frame {
+  position: relative;
+  display: block;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--brand);
+  border-radius: var(--radius-tile);
+  padding: 10px;
+  box-shadow: var(--shadow-tile);
+}
+
+.tile-frame > .tile-face {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--radius-tile) - 8px);
+}
+
+.tile-edge-berry { border-bottom: 8px solid var(--accent-warm); }
+.tile-edge-jade { border-bottom: 8px solid var(--accent-jade); }
+.tile-edge-indigo { border-bottom: 8px solid var(--accent-gold); }
+.tile-edge-periwinkle { border-bottom: 8px solid var(--accent-periwinkle); }
+
+/* Gingham strip — the blue-checked mat from Andrew's table, as a divider */
+.gingham-strip {
+  height: 18px;
+  background-image:
+    linear-gradient(90deg, var(--accent-lavender) 50%, transparent 50%),
+    linear-gradient(var(--accent-lavender) 50%, transparent 50%);
+  background-size: 18px 18px;
+  background-color: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------------------------------------------------------------- */
+/* Buttons (class names are load-bearing — game components use them)  */
+/* ---------------------------------------------------------------- */
+
+.btn-primary,
+.btn-secondary,
+.btn-gold,
+.btn-berry {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 32px;
+  gap: 0.5rem;
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-md);
+  min-height: var(--touch-min);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary {
   background: var(--brand);
   color: var(--text-inverse);
-  font-family: var(--font-body);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  min-height: var(--touch-min);
-  transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
-  letter-spacing: 0.02em;
 }
 
-.btn-primary:hover {
-  background: var(--brand-light);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
+.btn-primary:hover { background: var(--brand-light); box-shadow: var(--shadow-md); }
+.btn-primary:active { background: var(--brand-dark); transform: scale(0.98); }
 
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  min-height: var(--touch-min);
-  border: 2px solid var(--border-strong);
-  transition: all 0.2s ease;
-  letter-spacing: 0.02em;
+  background: transparent;
+  color: var(--brand);
+  border: 2px solid var(--brand);
 }
 
-.btn-secondary:hover {
-  border-color: var(--brand);
-  color: var(--brand);
+.btn-secondary:hover { background: var(--brand-subtle); }
+.btn-secondary:active { transform: scale(0.98); }
+
+.btn-gold {
+  background: var(--accent-gold);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-gold:hover { background: var(--accent-gold-dark); }
+.btn-gold:active { transform: scale(0.98); }
+
+.btn-berry {
+  background: var(--accent-warm);
+  color: var(--text-inverse);
   box-shadow: var(--shadow-sm);
 }
 
-.btn-gold {
+.btn-berry:hover { background: var(--accent-warm-dark); box-shadow: var(--shadow-md); }
+.btn-berry:active { transform: scale(0.98); }
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-gold:disabled,
+.btn-berry:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Text link with arrow */
+.link-arrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  background: var(--accent-gold);
-  color: var(--text-inverse);
-  font-family: var(--font-body);
+  gap: 0.375rem;
+  min-height: var(--touch-min);
   font-size: var(--text-lg);
   font-weight: 600;
-  border-radius: var(--radius-md);
-  min-height: var(--touch-min);
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-gold);
-  letter-spacing: 0.02em;
+  color: var(--accent-gold);
+  transition: color 0.15s ease, gap 0.15s ease;
 }
 
-.btn-gold:hover {
-  background: var(--accent-gold-light);
-  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.2);
-  transform: translateY(-1px);
-}
+.link-arrow:hover { color: var(--accent-gold-dark); gap: 0.625rem; }
 
-/* Elegant card */
+/* ---------------------------------------------------------------- */
+/* Cards & inputs                                                     */
+/* ---------------------------------------------------------------- */
+
 .card {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -134,60 +256,77 @@ body::before {
   border-radius: var(--radius-lg);
 }
 
-/* Input styling */
 .input-elegant {
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 16px;
   background: var(--bg-elevated);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--text-base);
-  border: 2px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-md);
   min-height: var(--touch-min);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input-elegant:focus {
   outline: none;
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-subtle);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px var(--accent-gold-subtle);
 }
 
 .input-elegant::placeholder {
   color: var(--text-muted);
 }
 
-/* Page transitions */
+/* Decorative rule (name is load-bearing — used in game components) */
+.gold-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+}
+
+/* ---------------------------------------------------------------- */
+/* Motion                                                             */
+/* ---------------------------------------------------------------- */
+
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-in {
-  animation: fadeInUp 0.5s ease forwards;
+  animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
+/* Hero load sequence — staggered children */
+.reveal { animation: fadeInUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-1 { animation-delay: 0.05s; }
+.reveal-2 { animation-delay: 0.15s; }
+.reveal-3 { animation-delay: 0.25s; }
+.reveal-4 { animation-delay: 0.35s; }
+
+/* Tile lift on hover — pointer devices only, never load-bearing */
+@media (hover: hover) {
+  .tile-lift { transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease; }
+  .tile-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-card);
+@media (prefers-reduced-motion: reduce) {
+  .animate-in, .reveal, .reveal-1, .reveal-2, .reveal-3, .reveal-4 {
+    animation: none;
+  }
+  .tile-lift, .tile-lift:hover { transition: none; transform: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 4px;
-}
+/* ---------------------------------------------------------------- */
+/* Scrollbar                                                          */
+/* ---------------------------------------------------------------- */
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-card); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
