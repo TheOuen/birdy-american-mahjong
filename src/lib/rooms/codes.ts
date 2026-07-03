@@ -7,9 +7,14 @@ export const ROOM_CODE_LENGTH = 6
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 export function generateRoomCode(): string {
+  // Codes gate room entry, so draw from a CSPRNG (Web Crypto - available in
+  // Node 18+, edge runtimes, and browsers), never Math.random(). The 32-char
+  // alphabet divides 256 evenly, so the modulo introduces no bias.
+  const bytes = new Uint8Array(ROOM_CODE_LENGTH)
+  globalThis.crypto.getRandomValues(bytes)
   let code = ''
-  for (let i = 0; i < ROOM_CODE_LENGTH; i++) {
-    code += ROOM_CODE_ALPHABET[Math.floor(Math.random() * ROOM_CODE_ALPHABET.length)]
+  for (const b of bytes) {
+    code += ROOM_CODE_ALPHABET[b % ROOM_CODE_ALPHABET.length]
   }
   return code
 }
