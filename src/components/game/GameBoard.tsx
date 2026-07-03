@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import type { TileId } from '@/lib/tiles/constants'
-import type { ClaimType, GameMode } from '@/lib/game-engine/types'
+import type { BotDifficulty, ClaimType, GameMode } from '@/lib/game-engine/types'
 import {
   createDemoGame,
   createGameForMode,
@@ -12,14 +12,20 @@ import {
   botTurn,
   isGameOver,
   rotateDealerForNextRound,
+  chooseBotDiscard,
+  collectAndResolveClaims,
+  winByDiscard,
+  extractMatch,
 } from '@/lib/game-engine/engine'
 import type { DemoGameState } from '@/lib/game-engine/engine'
 import {
   getValidClaims,
   getClaimTileIds,
   executeClaim,
-  evaluateBotClaim,
 } from '@/lib/game-engine/claims'
+import { findJokerSwaps, executeJokerSwap } from '@/lib/game-engine/jokerSwap'
+import { JokerSwapDialog } from './JokerSwapDialog'
+import type { JokerSwapOption } from './JokerSwapDialog'
 import { PlayerHand } from './PlayerHand'
 import { DiscardPile } from './DiscardPile'
 import { OpponentRow } from './OpponentRow'
@@ -44,7 +50,7 @@ type ClaimPhase = {
   validClaims: ClaimType[]
 } | null
 
-const TURN_TIMER_SEC = 60
+const DEFAULT_TIMER_SEC = 60
 
 export type GameBoardProps = {
   /**
@@ -52,9 +58,18 @@ export type GameBoardProps = {
    * Charleston). Variants skip Charleston and follow DRAFT GUIDE alternate rules.
    */
   mode?: GameMode
+  /** Seconds per turn. 0 = relaxed play, no timer. Defaults to 60. */
+  timerSec?: number
+  /** How the bots play. 'easy' (default) is random; 'clever' builds hands. */
+  botDifficulty?: BotDifficulty
+  /** Table size for the 'short' variant (2 or 3 players). */
+  playerCount?: 2 | 3
 }
 
-export function GameBoard({ mode }: GameBoardProps = {}) {
+export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBoardProps = {}) {
+  const timerLimit = timerSec ?? DEFAULT_TIMER_SEC
+  const timerEnabled = timerLimit > 0
+  const difficulty: BotDifficulty = botDifficulty ?? 'easy'
   const [game, setGame] = useState<DemoGameState | null>(null)
   const [selectedTile, setSelectedTile] = useState<TileId | null>(null)
   const [message, setMessage] = useState('')
@@ -64,9 +79,10 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
   const [showCard, setShowCard] = useState(false)
   const [charleston, setCharleston] = useState<CharlestonState | null>(null)
   const [canDeclareMahjong, setCanDeclareMahjong] = useState(false)
+  const [swapDialogOpen, setSwapDialogOpen] = useState(false)
 
   // Turn timer state
-  const [turnTimer, setTurnTimer] = useState(TURN_TIMER_SEC)
+  const [turnTimer, setTurnTimer] = useState(timerLimit)
   const gameRef = useRef<DemoGameState | null>(null)
   const hasDrawnRef = useRef(false)
 
@@ -85,14 +101,14 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
     const newGame =
       resolvedMode === 'standard'
         ? createDemoGame()
-        : createGameForMode(resolvedMode)
+        : createGameForMode(resolvedMode, { playerCount })
 
     if (resolvedMode === 'standard') {
       // Standard: open with Charleston.
       newGame.gameState.status = 'charleston' as const
       setGame(newGame)
       setCharleston(createCharlestonState())
-      setMessage('The Charleston — select 3 tiles to pass.')
+      setMessage('The Charleston - select 3 tiles to pass.')
       setHasDrawn(false)
     } else {
       // Variants skip Charleston; dealer opens play holding 14 tiles.
@@ -101,11 +117,11 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setHasDrawn(true)
       const opener =
         newGame.gameState.currentTurn === 'player'
-          ? 'Your turn — tap a tile to discard.'
+          ? 'Your turn - tap a tile to discard.'
           : `${newGame.gameState.players.find((p) => p.id === newGame.gameState.currentTurn)?.displayName ?? 'Dealer'} opens play…`
       setMessage(opener)
     }
-  }, [mode])
+  }, [mode, playerCount])
 
   // Reset turn timer when it becomes the player's turn during playing phase
   useEffect(() => {
@@ -113,13 +129,14 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       game?.gameState.currentTurn === 'player' &&
       game?.gameState.status === 'playing'
     ) {
-      setTurnTimer(TURN_TIMER_SEC)
+      setTurnTimer(timerLimit)
     }
   }, [game?.gameState.currentTurn, game?.gameState.status])
 
-  // Countdown timer — ticks every second only when it's the player's turn in playing phase
+  // Countdown timer - ticks every second only when it's the player's turn in playing phase
   useEffect(() => {
     if (
+      !timerEnabled ||
       !game ||
       game.gameState.currentTurn !== 'player' ||
       game.gameState.status !== 'playing' ||
@@ -141,9 +158,9 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
     return () => clearInterval(interval)
   }, [game?.gameState.currentTurn, game?.gameState.status, claimPhase])
 
-  // Auto-play when timer reaches 0 — separate effect so it fires once, not every tick
+  // Auto-play when timer reaches 0 - separate effect so it fires once, not every tick
   useEffect(() => {
-    if (turnTimer !== 0) return
+    if (!timerEnabled || turnTimer !== 0) return
     // Immediately set to -1 to prevent double-fire on re-render
     setTurnTimer(-1)
     if (!gameRef.current) return
@@ -163,7 +180,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
             ? { ...prev, gameState: { ...prev.gameState, status: 'finished' } }
             : null
         )
-        setMessage('No tiles left — wall game!')
+        setMessage('No tiles left - wall game!')
         return
       }
 
@@ -189,9 +206,9 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setGame(discardResult)
       setHasDrawn(false)
       setSelectedTile(null)
-      setMessage('Time ran out — auto-played for you.')
+      setMessage('Time ran out - auto-played for you.')
     } else {
-      // Already drawn — auto-discard a random non-joker tile
+      // Already drawn - auto-discard a random non-joker tile
       const currentPlayer = currentGame.gameState.players.find(
         (p) => p.id === 'player'
       )!
@@ -214,19 +231,19 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setGame(discardResult)
       setHasDrawn(false)
       setSelectedTile(null)
-      setMessage('Time ran out — auto-discarded for you.')
+      setMessage('Time ran out - auto-discarded for you.')
     }
   }, [turnTimer])
 
   // Messages for the current charleston state, used after each pass/vote
   const describeCharleston = useCallback((c: CharlestonState): string => {
     if (c.phase === 'stop_vote') {
-      return 'First Charleston complete — continue to the second, or stop?'
+      return 'First Charleston complete - continue to the second, or stop?'
     }
     if (c.phase === 'courtesy') {
-      return 'Offer 0-3 tiles to the player across — or skip.'
+      return 'Offer 0-3 tiles to the player across - or skip.'
     }
-    return `Pass ${c.step} of 3 — select 3 tiles to pass ${c.direction}.`
+    return `Pass ${c.step} of 3 - select 3 tiles to pass ${c.direction}.`
   }, [])
 
   // Handle charleston pass (standard 3-tile)
@@ -280,7 +297,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
             : 'A player voted to stop. One last courtesy pass before play begins.'
         )
       } else {
-        setMessage('Second Charleston — pass 1 of 3. Select 3 tiles to pass left.')
+        setMessage('Second Charleston - pass 1 of 3. Select 3 tiles to pass left.')
       }
     },
     [game, charleston]
@@ -293,7 +310,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       const result = executeCourtesyPass(game, charleston, humanCount, tileIds)
       if (!result) return
 
-      // Courtesy concludes charleston — transition to playing
+      // Courtesy concludes charleston - transition to playing
       const finalGame = {
         ...result.gameState,
         gameState: { ...result.gameState.gameState, status: 'playing' as const },
@@ -303,8 +320,8 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setHasDrawn(true) // East starts with 14 tiles
       setMessage(
         humanCount === 0
-          ? 'Charleston complete! Your turn — tap a tile to discard.'
-          : 'Courtesy pass complete! Your turn — tap a tile to discard.'
+          ? 'Charleston complete! Your turn - tap a tile to discard.'
+          : 'Courtesy pass complete! Your turn - tap a tile to discard.'
       )
     },
     [game, charleston]
@@ -318,7 +335,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
 
     const result = drawTile(game)
     if (!result) {
-      setMessage('No tiles left — wall game!')
+      setMessage('No tiles left - wall game!')
       setGame((prev) =>
         prev ? { ...prev, gameState: { ...prev.gameState, status: 'finished' } } : null
       )
@@ -327,7 +344,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
 
     setGame(result.state)
     setHasDrawn(true)
-    setTurnTimer(TURN_TIMER_SEC)
+    setTurnTimer(timerLimit)
 
     // Check if player now has a winning hand (self-draw Mahjong)
     const playerState = result.state.gameState.players.find((p) => p.id === 'player')!
@@ -338,35 +355,102 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setCanDeclareMahjong(false)
       setMessage('You drew a tile. Tap a tile to discard.')
     }
-  }, [game, isPlayerTurn, hasDrawn])
+  }, [game, isPlayerTurn, hasDrawn, timerLimit])
 
-  // Handle declaring Mahjong
-  const handleDeclareMahjong = useCallback(
-    (method: 'self_draw' | 'discard', discarderId?: string) => {
+  // Handle declaring Mahjong on a self-drawn 14-tile hand.
+  // Picks the best-paying match (jokerless wins double, except Singles & Pairs)
+  // and threads joker usage + any deferred Mahjong-in-Error penalty to scoring.
+  const handleDeclareMahjong = useCallback(() => {
+    if (!game) return
+    const player = game.gameState.players.find((p) => p.id === 'player')!
+    const matches = findMatchingHands(player.hand, player.exposed)
+    if (matches.length === 0) {
+      setMessage('Your hand does not match any NMJL pattern.')
+      setCanDeclareMahjong(false)
+      return
+    }
+    const scored = matches.map((m) => extractMatch(m))
+    const effective = (x: (typeof scored)[number]) =>
+      x.hand.points *
+      (x.jokersUsed === 0 && x.hand.category !== 'singles-and-pairs' ? 2 : 1)
+    const best = scored.sort((a, b) => effective(b) - effective(a))[0]
+
+    const scoreResult = calculateScore(
+      game.gameState,
+      'player',
+      'self_draw',
+      best.hand.points,
+      {
+        jokersUsed: best.jokersUsed,
+        handCategory: best.hand.category,
+        pendingMahjongError: game.gameState.pendingMahjongError ?? null,
+      }
+    )
+    const updatedPlayers = applyScores(game.gameState.players, scoreResult)
+    setGame({
+      ...game,
+      gameState: {
+        ...game.gameState,
+        status: 'finished',
+        winnerId: 'player',
+        winningMethod: 'self_draw',
+        winningHandId: best.hand.id,
+        players: updatedPlayers,
+        pendingMahjongError: null,
+      },
+    })
+    setCanDeclareMahjong(false)
+    const bonus = scoreResult.jokerlessBonus ? ' Jokerless - payments doubled!' : ''
+    setMessage(`Mahjong! You won with "${best.hand.pattern}" for ${best.hand.points} points!${bonus}`)
+  }, [game])
+
+  // Handle winning off a discard (via the claim dialog). winByDiscard moves
+  // the claimed tile into the hand, verifies the 14 tiles, and scores it -
+  // discarder pays double, jokerless bonus applied.
+  const handleWinByDiscard = useCallback(
+    (discardIndex: number) => {
       if (!game) return
-      const player = game.gameState.players.find((p) => p.id === 'player')!
-      const matches = findMatchingHands(player.hand, player.exposed)
-      if (matches.length === 0) {
-        setMessage('Your hand does not match any NMJL pattern.')
-        setCanDeclareMahjong(false)
+      const won = winByDiscard(game, 'player', discardIndex)
+      if (!won) {
+        setMessage('Your hand does not match any NMJL pattern with that tile.')
         return
       }
-      const winningHand = matches[0]
-      const scoreResult = calculateScore(game.gameState, 'player', method, winningHand.points, discarderId)
-      const updatedPlayers = applyScores(game.gameState.players, scoreResult)
-      setGame({
-        ...game,
-        gameState: {
-          ...game.gameState,
-          status: 'finished',
-          winnerId: 'player',
-          winningMethod: method,
-          winningHandId: winningHand.id,
-          players: updatedPlayers,
-        },
-      })
+      setGame(won)
       setCanDeclareMahjong(false)
-      setMessage(`Mahjong! You won with "${winningHand.pattern}" for ${winningHand.points} points!`)
+      const handId = won.gameState.winningHandId
+      setMessage(`Mahjong! You claimed the discard and won${handId ? ` with "${handId}"` : ''}!`)
+    },
+    [game]
+  )
+
+  // Exchange a natural tile for a joker in an exposed group (NMJL joker rule).
+  // The swapped-in joker may complete the hand, so re-check for Mahjong.
+  const handleJokerSwap = useCallback(
+    (swap: JokerSwapOption) => {
+      if (!game) return
+      const result = executeJokerSwap(
+        game,
+        'player',
+        swap.handTileId,
+        swap.targetPlayerId,
+        swap.groupIndex,
+        swap.jokerTileId
+      )
+      if (!result) {
+        setMessage('That swap is no longer available.')
+        setSwapDialogOpen(false)
+        return
+      }
+      setGame(result.state)
+      setSwapDialogOpen(false)
+      setSelectedTile(null)
+      const player = result.state.gameState.players.find((p) => p.id === 'player')!
+      if (hasWinningHand(player.hand, player.exposed)) {
+        setCanDeclareMahjong(true)
+        setMessage('Joker swapped - and you have a winning hand! Declare Mahjong or discard.')
+      } else {
+        setMessage('Joker swapped into your hand. Now discard a tile.')
+      }
     },
     [game]
   )
@@ -396,6 +480,195 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
     []
   )
 
+  // Run bot turns sequentially with delays
+  const runBotTurns = useCallback((startState: DemoGameState) => {
+    if (isGameOver(startState) || startState.gameState.currentTurn === 'player') {
+      setGame(startState)
+      if (isGameOver(startState)) {
+        setMessage('Wall game - no tiles remain! No winner this round.')
+      } else {
+        setHasDrawn(false)
+        setMessage('Your turn - tap Draw to pick up a tile.')
+      }
+      return
+    }
+
+    setBotsProcessing(true)
+
+    const runNext = (state: DemoGameState) => {
+      if (state.gameState.currentTurn === 'player' || isGameOver(state)) {
+        setGame(state)
+        setBotsProcessing(false)
+        if (isGameOver(state)) {
+          setMessage('Wall game - no tiles remain! No winner this round.')
+        } else {
+          // Check if player can claim the last discard
+          if (!checkPlayerClaims(state)) {
+            setHasDrawn(false)
+            setMessage('Your turn - tap Draw to pick up a tile.')
+          }
+        }
+        return
+      }
+
+      setTimeout(() => {
+        const result = botTurn(state, difficulty)
+        if (!result) {
+          setGame(state)
+          setBotsProcessing(false)
+          return
+        }
+
+        setGame(result)
+
+        // After this bot's discard, check if player wants to claim
+        // before continuing to next bot
+        if (result.gameState.currentTurn === 'player') {
+          setBotsProcessing(false)
+          if (!checkPlayerClaims(result)) {
+            setHasDrawn(false)
+            setMessage('Your turn - tap Draw to pick up a tile.')
+          }
+        } else {
+          // Check if player can claim this bot's discard before next bot goes
+          const discardPile = result.gameState.discardPile
+          const discardIndex = discardPile.length - 1
+          const lastDiscard = discardPile[discardIndex]
+          if (lastDiscard && !lastDiscard.claimed && lastDiscard.discardedBy !== 'player') {
+            const player = result.gameState.players.find((p) => p.id === 'player')!
+            const claims = getValidClaims(player, lastDiscard.tile)
+            if (claims.length > 0) {
+              setBotsProcessing(false)
+              setClaimPhase({
+                discardIndex,
+                validClaims: claims,
+              })
+              return
+            }
+
+            // Human passed (no claims) - other bots may claim this discard.
+            const winning = collectAndResolveClaims(result, discardIndex, null)
+            if (winning && winning.claimerId !== lastDiscard.discardedBy) {
+              const claimer = result.gameState.players.find((p) => p.id === winning.claimerId)
+              if (claimer) {
+                if (winning.claimType === 'mahjong') {
+                  const won = winByDiscard(result, claimer.id, discardIndex)
+                  if (won) {
+                    setGame(won)
+                    setBotsProcessing(false)
+                    setMessage(`${claimer.displayName} declared Mahjong!`)
+                    return
+                  }
+                } else {
+                  const claimed = executeClaim(result, claimer.id, discardIndex, winning.claimType, winning.tileIds)
+                  if (claimed) {
+                    setMessage(`${claimer.displayName} claimed a ${winning.claimType}!`)
+                    const claimerState = claimed.gameState.players.find((p) => p.id === claimer.id)!
+                    const tile = chooseBotDiscard(claimerState, difficulty)
+                    if (tile) {
+                      const afterDiscard = discardTile(claimed, claimer.id, tile.id)
+                      if (afterDiscard) {
+                        setGame(afterDiscard)
+                        if (afterDiscard.gameState.currentTurn === 'player') {
+                          setBotsProcessing(false)
+                          if (!checkPlayerClaims(afterDiscard)) {
+                            setHasDrawn(false)
+                            setMessage('Your turn - tap Draw to pick up a tile.')
+                          }
+                          return
+                        }
+                        runNext(afterDiscard)
+                        return
+                      }
+                    }
+                    setGame(claimed)
+                    runNext(claimed)
+                    return
+                  }
+                }
+              }
+            }
+          }
+          runNext(result)
+        }
+      }, 800)
+    }
+
+    runNext(startState)
+  }, [checkPlayerClaims, difficulty])
+
+  // After a discard the human has passed on (or made), give the bots their
+  // window. collectAndResolveClaims polls every live bot and arbitrates by
+  // NMJL priority - a Mahjong claim beats any exposure claim, ties go to the
+  // seat closest after the discarder.
+  const checkBotClaimsAfterDiscard = useCallback(
+    (state: DemoGameState) => {
+      const discardPile = state.gameState.discardPile
+      const discardIndex = discardPile.length - 1
+      const lastDiscard = discardPile[discardIndex]
+      if (!lastDiscard || lastDiscard.claimed) {
+        runBotTurns(state)
+        return
+      }
+
+      const winning = collectAndResolveClaims(state, discardIndex, null)
+      if (!winning) {
+        runBotTurns(state)
+        return
+      }
+
+      const bot = state.gameState.players.find((p) => p.id === winning.claimerId)
+      if (!bot) {
+        runBotTurns(state)
+        return
+      }
+
+      // Bot wins off the discard - scored and finished by the engine.
+      if (winning.claimType === 'mahjong') {
+        const won = winByDiscard(state, bot.id, discardIndex)
+        setBotsProcessing(false)
+        if (won) {
+          setGame(won)
+          setMessage(`${bot.displayName} declared Mahjong!`)
+        } else {
+          runBotTurns(state)
+        }
+        return
+      }
+
+      const result = executeClaim(state, bot.id, discardIndex, winning.claimType, winning.tileIds)
+      if (!result) {
+        runBotTurns(state)
+        return
+      }
+
+      // Bot claimed an exposure - it must now discard.
+      setBotsProcessing(true)
+      setMessage(`${bot.displayName} claimed a ${winning.claimType}!`)
+      setTimeout(() => {
+        setBotsProcessing(false)
+        const botPlayer = result.gameState.players.find((p) => p.id === bot.id)!
+        const tile = chooseBotDiscard(botPlayer, difficulty)
+        if (!tile) return
+        const afterDiscard = discardTile(result, bot.id, tile.id)
+        if (!afterDiscard) return
+
+        setGame(afterDiscard)
+
+        // Check if player can claim this bot's discard
+        if (afterDiscard.gameState.currentTurn === 'player') {
+          if (!checkPlayerClaims(afterDiscard)) {
+            setHasDrawn(false)
+            setMessage('Your turn - tap Draw to pick up a tile.')
+          }
+        } else {
+          runBotTurns(afterDiscard)
+        }
+      }, 1000)
+    },
+    [difficulty, runBotTurns, checkPlayerClaims]
+  )
+
   // Handle player claiming a discard
   const handleClaim = useCallback(
     (claimType: ClaimType) => {
@@ -403,10 +676,10 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
 
       const discard = game.gameState.discardPile[claimPhase.discardIndex]
 
-      // Mahjong claim — declare win from discard
+      // Mahjong claim - win off the discard
       if (claimType === 'mahjong') {
         setClaimPhase(null)
-        handleDeclareMahjong('discard', discard.discardedBy)
+        handleWinByDiscard(claimPhase.discardIndex)
         return
       }
 
@@ -422,25 +695,25 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
       setHasDrawn(true) // player claimed, now needs to discard
       setMessage(`You claimed a ${claimType}! Now discard a tile.`)
     },
-    [game, claimPhase]
+    [game, claimPhase, handleWinByDiscard]
   )
 
-  // Handle player passing on a claim
+  // Handle player passing on a claim - the bots then get their chance at the
+  // same discard (seat-priority arbitrated) before play continues.
   const handlePassClaim = useCallback(() => {
     setClaimPhase(null)
-    // Continue with bot turns
     if (game) {
-      runBotTurns(game)
+      checkBotClaimsAfterDiscard(game)
     }
-  }, [game])
+  }, [game, checkBotClaimsAfterDiscard])
 
-  // Handle tile click — select then discard
+  // Handle tile click - select then discard
   const handleTileClick = useCallback(
     (tileId: TileId) => {
       if (!game || !isPlayerTurn || !hasDrawn || claimPhase) return
 
       if (selectedTile === tileId) {
-        // Check if it's a joker — can't discard jokers
+        // Check if it's a joker - can't discard jokers
         const player = game.gameState.players.find((p) => p.id === 'player')!
         const tile = player.hand.find((t) => t.id === tileId)
         if (tile?.type.kind === 'joker') {
@@ -449,7 +722,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
           return
         }
 
-        // Second click — discard
+        // Second click - discard
         const result = discardTile(game, 'player', tileId)
         if (!result) {
           setMessage('Cannot discard that tile.')
@@ -477,164 +750,8 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
         }
       }
     },
-    [game, isPlayerTurn, selectedTile, hasDrawn, claimPhase]
+    [game, isPlayerTurn, selectedTile, hasDrawn, claimPhase, checkBotClaimsAfterDiscard]
   )
-
-  // Check if any bot wants to claim after player discards
-  const checkBotClaimsAfterDiscard = useCallback(
-    (state: DemoGameState) => {
-      const discardPile = state.gameState.discardPile
-      const lastDiscard = discardPile[discardPile.length - 1]
-      if (!lastDiscard || lastDiscard.claimed) {
-        runBotTurns(state)
-        return
-      }
-
-      // Check bots in turn order priority (next in turn first, then others)
-      const discarderId = lastDiscard.discardedBy
-      const turnOrder = state.gameState.turnOrder
-      const discarderIndex = turnOrder.indexOf(discarderId)
-      const seatCount = turnOrder.length
-      const bots = state.gameState.players
-        .filter((p) => p.isBot && !p.isDead)
-        .sort((a, b) => {
-          // Sort by proximity to discarder in turn order (next player first)
-          const aIdx = (turnOrder.indexOf(a.id) - discarderIndex + seatCount) % seatCount
-          const bIdx = (turnOrder.indexOf(b.id) - discarderIndex + seatCount) % seatCount
-          return aIdx - bIdx
-        })
-      for (const bot of bots) {
-        const claim = evaluateBotClaim(bot, lastDiscard.tile)
-        if (claim) {
-          const tileIds = getClaimTileIds(bot.hand, lastDiscard.tile, claim)
-          if (tileIds) {
-            const result = executeClaim(
-              state,
-              bot.id,
-              discardPile.length - 1,
-              claim,
-              tileIds
-            )
-            if (result) {
-              // Bot claimed Mahjong — end the game
-              if (claim === 'mahjong') {
-                setBotsProcessing(false)
-                setGame(result)
-                setMessage(`${bot.displayName} declared Mahjong!`)
-                return
-              }
-
-              // Bot claimed — they need to discard
-              setBotsProcessing(true)
-              setMessage(`${bot.displayName} claimed a ${claim}!`)
-              setTimeout(() => {
-                setBotsProcessing(false)
-                // Bot auto-discards after claiming
-                const botPlayer = result.gameState.players.find((p) => p.id === bot.id)!
-                const nonJokers = botPlayer.hand.filter((t) => t.type.kind !== 'joker')
-                const candidates = nonJokers.length > 0 ? nonJokers : botPlayer.hand
-                if (candidates.length === 0) return
-                const tile = candidates[Math.floor(Math.random() * candidates.length)]
-                const afterDiscard = discardTile(result, bot.id, tile.id)
-                if (!afterDiscard) return
-
-                setGame(afterDiscard)
-
-                // Check if player can claim this bot's discard
-                if (afterDiscard.gameState.currentTurn === 'player') {
-                  if (!checkPlayerClaims(afterDiscard)) {
-                    setHasDrawn(false)
-                    setMessage('Your turn — tap Draw to pick up a tile.')
-                  }
-                } else {
-                  // Continue bot turns
-                  runBotTurns(afterDiscard)
-                }
-              }, 1000)
-              return
-            }
-          }
-        }
-      }
-
-      // No bot claimed — continue normal bot turns
-      runBotTurns(state)
-    },
-    []
-  )
-
-  // Run bot turns sequentially with delays
-  const runBotTurns = useCallback((startState: DemoGameState) => {
-    if (isGameOver(startState) || startState.gameState.currentTurn === 'player') {
-      setGame(startState)
-      if (isGameOver(startState)) {
-        setMessage('Wall game — no tiles remain! No winner this round.')
-      } else {
-        setHasDrawn(false)
-        setMessage('Your turn — tap Draw to pick up a tile.')
-      }
-      return
-    }
-
-    setBotsProcessing(true)
-
-    const runNext = (state: DemoGameState) => {
-      if (state.gameState.currentTurn === 'player' || isGameOver(state)) {
-        setGame(state)
-        setBotsProcessing(false)
-        if (isGameOver(state)) {
-          setMessage('Wall game — no tiles remain! No winner this round.')
-        } else {
-          // Check if player can claim the last discard
-          if (!checkPlayerClaims(state)) {
-            setHasDrawn(false)
-            setMessage('Your turn — tap Draw to pick up a tile.')
-          }
-        }
-        return
-      }
-
-      setTimeout(() => {
-        const result = botTurn(state)
-        if (!result) {
-          setGame(state)
-          setBotsProcessing(false)
-          return
-        }
-
-        setGame(result)
-
-        // After this bot's discard, check if player wants to claim
-        // before continuing to next bot
-        if (result.gameState.currentTurn === 'player') {
-          setBotsProcessing(false)
-          if (!checkPlayerClaims(result)) {
-            setHasDrawn(false)
-            setMessage('Your turn — tap Draw to pick up a tile.')
-          }
-        } else {
-          // Check if player can claim this bot's discard before next bot goes
-          const discardPile = result.gameState.discardPile
-          const lastDiscard = discardPile[discardPile.length - 1]
-          if (lastDiscard && !lastDiscard.claimed && lastDiscard.discardedBy !== 'player') {
-            const player = result.gameState.players.find((p) => p.id === 'player')!
-            const claims = getValidClaims(player, lastDiscard.tile)
-            if (claims.length > 0) {
-              setBotsProcessing(false)
-              setClaimPhase({
-                discardIndex: discardPile.length - 1,
-                validClaims: claims,
-              })
-              return
-            }
-          }
-          runNext(result)
-        }
-      }, 800)
-    }
-
-    runNext(startState)
-  }, [checkPlayerClaims])
 
   // Run bot turns when it's not the player's turn
   useEffect(() => {
@@ -677,14 +794,21 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
 
   // Show timer only during playing phase when it's the player's turn
   const showTimer =
+    timerEnabled &&
     isPlayerTurn &&
     game.gameState.status === 'playing' &&
     !gameOver &&
     !claimPhase
 
+  // Legal joker exchanges, offered once the player has drawn (14 tiles in hand)
+  const jokerSwaps =
+    isPlayerTurn && hasDrawn && game.gameState.status === 'playing' && !gameOver
+      ? findJokerSwaps(player, game.gameState.players)
+      : []
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
-      {/* Game Header — dark, elegant */}
+      {/* Game Header - dark, elegant */}
       <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
         <div className="flex items-center gap-3 text-[#A09888]">
           <span className="text-xs sm:text-sm font-medium">
@@ -714,7 +838,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
         </div>
       </header>
 
-      {/* Opponents — on the felt */}
+      {/* Opponents - on the felt */}
       <div className="flex justify-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-5 flex-wrap">
         {opponents.map((opp) => (
           <OpponentRow
@@ -725,7 +849,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
         ))}
       </div>
 
-      {/* Center — Discard pile + status */}
+      {/* Center - Discard pile + status */}
       <div className="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-5 px-3 sm:px-6">
         <DiscardPile discards={game.gameState.discardPile} />
 
@@ -748,7 +872,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
                     : 'text-[var(--text-muted)]'
                 }`}
               >
-                — {turnTimer}s
+                - {turnTimer}s
               </span>
             )}
           </p>
@@ -775,9 +899,18 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
                 Discard Selected
               </button>
             )}
+            {jokerSwaps.length > 0 && (
+              <button
+                onClick={() => setSwapDialogOpen(true)}
+                className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
+                style={{ background: 'var(--bg-elevated)' }}
+              >
+                Swap for joker
+              </button>
+            )}
             {canDeclareMahjong && (
               <button
-                onClick={() => handleDeclareMahjong('self_draw')}
+                onClick={handleDeclareMahjong}
                 className="btn-gold text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 animate-pulse"
               >
                 Declare Mahjong!
@@ -801,24 +934,24 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
               const ng =
                 resolvedMode === 'standard'
                   ? createDemoGame(newDealerIndex)
-                  : createGameForMode(resolvedMode, { dealerIndex: newDealerIndex })
+                  : createGameForMode(resolvedMode, { dealerIndex: newDealerIndex, playerCount })
               ng.gameState.round = game.gameState.round + 1
               setGame(ng)
               setSelectedTile(null)
               setClaimPhase(null)
               setBotsProcessing(false)
-              setTurnTimer(TURN_TIMER_SEC)
+              setTurnTimer(timerLimit)
               if (resolvedMode === 'standard') {
                 ng.gameState.status = 'charleston' as const
                 setHasDrawn(false)
                 setCharleston(createCharlestonState())
-                setMessage('The Charleston — select 3 tiles to pass.')
+                setMessage('The Charleston - select 3 tiles to pass.')
               } else {
                 setHasDrawn(true)
                 setCharleston(null)
                 setMessage(
                   ng.gameState.currentTurn === 'player'
-                    ? 'Your turn — tap a tile to discard.'
+                    ? 'Your turn - tap a tile to discard.'
                     : 'Dealer opens play…',
                 )
               }
@@ -834,7 +967,7 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
         </div>
       )}
 
-      {/* Player hand — warm elevated tray */}
+      {/* Player hand - warm elevated tray */}
       <div
         className="px-2 sm:px-6 py-3 sm:py-5 border-t"
         style={{
@@ -858,6 +991,17 @@ export function GameBoard({ mode }: GameBoardProps = {}) {
           validClaims={claimPhase.validClaims}
           onClaim={handleClaim}
           onPass={handlePassClaim}
+        />
+      )}
+
+      {/* Joker swap dialog */}
+      {swapDialogOpen && jokerSwaps.length > 0 && (
+        <JokerSwapDialog
+          swaps={jokerSwaps}
+          players={game.gameState.players}
+          hand={player.hand}
+          onSwap={handleJokerSwap}
+          onClose={() => setSwapDialogOpen(false)}
         />
       )}
 

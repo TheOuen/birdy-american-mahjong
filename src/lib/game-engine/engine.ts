@@ -1,6 +1,6 @@
-// Game engine — pure TypeScript, runs client-side for demo, server-side for multiplayer
+// Game engine - pure TypeScript, runs client-side for demo, server-side for multiplayer
 
-import { createTileSet } from '../tiles/constants'
+import { createTileSet, tilesMatch } from '../tiles/constants'
 import type { Tile, TileId } from '../tiles/constants'
 import { hasWinningHand, findMatchingHands } from '../nmjl/matcher'
 import type { NmjlHand } from '../nmjl/types'
@@ -13,6 +13,7 @@ import {
 } from './claims'
 import type { PendingClaim } from './claims'
 import type {
+  BotDifficulty,
   GameMode,
   GameState,
   GameStatus,
@@ -24,17 +25,25 @@ import { createMessyGame } from './variants/messyMahjong'
 import { createShortPlayerGame } from './variants/shortPlayerGame'
 import { createBlanksGame } from './variants/blanks'
 
-// The matcher is being refactored in parallel (Agent 1) to return joker
-// usage alongside the matching NmjlHand. For now findMatchingHands may return
-// either shape; this helper normalises both.
-type MatcherResult = NmjlHand | { hand: NmjlHand; jokersUsed: number }
+// The matcher returns flat MatchResult objects (NmjlHand & { jokersUsed }).
+// Older call sites may still hand us a bare NmjlHand or a wrapped
+// { hand, jokersUsed } pair; normalise all three shapes.
+type MatcherResult =
+  | NmjlHand
+  | (NmjlHand & { jokersUsed: number })
+  | { hand: NmjlHand; jokersUsed: number }
 
-function extractMatch(m: MatcherResult): { hand: NmjlHand; jokersUsed: number } {
+export function extractMatch(m: MatcherResult): { hand: NmjlHand; jokersUsed: number } {
   if ('hand' in m && 'jokersUsed' in m) {
     return { hand: m.hand, jokersUsed: m.jokersUsed }
   }
-  // TODO: pending matcher refactor — joker count unknown, skip jokerless bonus.
-  return { hand: m as NmjlHand, jokersUsed: -1 }
+  if ('jokersUsed' in m) {
+    // Flat MatchResult from the current matcher.
+    const { jokersUsed, ...hand } = m
+    return { hand: hand as NmjlHand, jokersUsed }
+  }
+  // Unknown joker count - scoring skips the jokerless bonus.
+  return { hand: m, jokersUsed: -1 }
 }
 
 // Fisher-Yates shuffle
@@ -126,7 +135,7 @@ export function createDemoGame(dealerIndex = 0): DemoGameState {
  * creator (standard / messy / short / blanks). Kept intentionally thin so the
  * existing standard flow in `createDemoGame` is unchanged for 'standard' mode.
  *
- * For 'short' mode the caller may pass a playerCount via options — defaults to 2.
+ * For 'short' mode the caller may pass a playerCount via options - defaults to 2.
  */
 export function createGameForMode(
   mode: GameMode,
@@ -183,7 +192,7 @@ export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameSta
   )!
   if (player.isDead) return null
 
-  // NMJL flower rule: flowers are never held in hand and never discarded —
+  // NMJL flower rule: flowers are never held in hand and never discarded -
   // when drawn, set aside face-up next to the player and draw again. We model
   // this by auto-pushing each flower into `exposed` and continuing to pop the
   // wall until we get a non-flower (or the wall empties).
@@ -217,7 +226,7 @@ export function drawTile(state: DemoGameState): { tile: Tile; state: DemoGameSta
   })
 
   // If the wall emptied while only flowers were available, return the last
-  // flower as the "drawn" tile so callers still get a tile reference — but
+  // flower as the "drawn" tile so callers still get a tile reference - but
   // prefer the real non-flower draw when one exists.
   const reportedTile = drawn ?? accumulatedFlowers[accumulatedFlowers.length - 1]
 
@@ -294,15 +303,18 @@ export function discardTile(
       players: updatedPlayers,
       discardPile: [...state.gameState.discardPile, entry],
       currentTurn: nextPlayer,
-      // Clear claim-rearrange window — you only get to rearrange until discard.
+      // Clear claim-rearrange window - you only get to rearrange until discard.
       awaitingDiscardAfterClaim: false,
     },
   }
 }
 
-// Bot AI: draw a tile, check for Mahjong, then discard a random non-joker tile
-export function botTurn(state: DemoGameState): DemoGameState | null {
-  // Skip dead bots — advance turn to next live player.
+// Bot AI: draw a tile, check for Mahjong, then discard (strategy per difficulty)
+export function botTurn(
+  state: DemoGameState,
+  difficulty: BotDifficulty = 'easy'
+): DemoGameState | null {
+  // Skip dead bots - advance turn to next live player.
   const currentBot = state.gameState.players.find(
     (p) => p.id === state.gameState.currentTurn
   )
@@ -327,7 +339,7 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
   // Draw
   const drawResult = drawTile(state)
   if (!drawResult) {
-    // Wall empty — game over
+    // Wall empty - game over
     return {
       ...state,
       gameState: { ...state.gameState, status: 'finished' as GameStatus },
@@ -371,17 +383,128 @@ export function botTurn(state: DemoGameState): DemoGameState | null {
     }
   }
 
-  // Simple strategy: discard a random tile. Jokers and flowers never leave
-  // the hand via discard (flowers should already be auto-exposed on draw,
-  // but filter defensively in case of any legacy state).
-  const discardable = bot.hand.filter(
-    (t) => t.type.kind !== 'joker' && t.type.kind !== 'flower'
-  )
-  if (discardable.length === 0) return current
-  const discard = discardable[Math.floor(Math.random() * discardable.length)]
+  const discard = chooseBotDiscard(bot, difficulty)
+  if (!discard) return current
 
   const result = discardTile(current, botId, discard.id)
   return result ?? current
+}
+
+// Pick which tile a bot should discard.
+// 'easy' throws a random legal tile (the original demo behaviour).
+// 'clever' scores each tile's usefulness - duplicates (pair/pung backbone of
+// NMJL hands) and same-suit near-neighbours (consecutive-run potential) score
+// high - then tosses the least useful, breaking ties at random.
+export function chooseBotDiscard(
+  bot: PlayerState,
+  difficulty: BotDifficulty = 'easy'
+): Tile | null {
+  // Jokers and flowers never leave the hand via discard (flowers should be
+  // auto-exposed on draw, but filter defensively for any legacy state).
+  const discardable = bot.hand.filter(
+    (t) => t.type.kind !== 'joker' && t.type.kind !== 'flower'
+  )
+  if (discardable.length === 0) return null
+
+  if (difficulty === 'easy') {
+    return discardable[Math.floor(Math.random() * discardable.length)]
+  }
+
+  const usefulness = (tile: Tile): number => {
+    const copies = bot.hand.filter((o) => tilesMatch(o.type, tile.type)).length
+    let score = (copies - 1) * 3 // a pair is worth keeping, a pung doubly so
+    if (tile.type.kind === 'suit') {
+      const t = tile.type
+      const neighbours = bot.hand.filter(
+        (o) =>
+          o.id !== tile.id &&
+          o.type.kind === 'suit' &&
+          o.type.suit === t.suit &&
+          o.type.number !== t.number &&
+          Math.abs(o.type.number - t.number) <= 2
+      ).length
+      score += Math.min(neighbours, 2)
+    }
+    return score
+  }
+
+  let minScore = Infinity
+  for (const t of discardable) minScore = Math.min(minScore, usefulness(t))
+  const worst = discardable.filter((t) => usefulness(t) === minScore)
+  return worst[Math.floor(Math.random() * worst.length)]
+}
+
+// Complete a win-by-discard: move the claimed tile into the winner's hand,
+// verify the 14 tiles match the card, score it (discarder pays double,
+// jokerless bonus, deferred Mahjong-in-Error penalties), and finish the game.
+// Returns null if the claimed hand doesn't actually match - callers should
+// treat that as an invalid Mahjong claim.
+//
+// This is the single path for BOTH human and bot discard wins. It fixes two
+// bugs in the old UI flow: bot mahjong claims were never scored, and human
+// mahjong claims matched against 13 tiles (the claimed tile was never added).
+export function winByDiscard(
+  state: DemoGameState,
+  winnerId: string,
+  discardIndex: number
+): DemoGameState | null {
+  const discard = state.gameState.discardPile[discardIndex]
+  if (!discard || discard.claimed) return null
+  if (discard.discardedBy === winnerId) return null
+
+  const winner = state.gameState.players.find((p) => p.id === winnerId)
+  if (!winner || winner.isDead) return null
+
+  const handWithClaim = [...winner.hand, discard.tile]
+  const matches = findMatchingHands(handWithClaim, winner.exposed) as MatcherResult[]
+  if (matches.length === 0) return null
+
+  // Pick the best-paying match: base points, doubled for a jokerless win
+  // (except Singles & Pairs, which never doubles).
+  const best = matches
+    .map(extractMatch)
+    .sort((a, b) => effectivePoints(b) - effectivePoints(a))[0]
+
+  const scoreResult = calculateScore(
+    state.gameState,
+    winnerId,
+    'discard',
+    best.hand.points,
+    {
+      discarderId: discard.discardedBy,
+      jokersUsed: best.jokersUsed,
+      handCategory: best.hand.category,
+      pendingMahjongError: state.gameState.pendingMahjongError ?? null,
+    }
+  )
+
+  const updatedPlayers = applyScores(
+    state.gameState.players.map((p) =>
+      p.id === winnerId ? { ...p, hand: handWithClaim } : p
+    ),
+    scoreResult
+  )
+
+  return {
+    wall: state.wall,
+    gameState: {
+      ...state.gameState,
+      status: 'finished' as GameStatus,
+      winnerId,
+      winningMethod: 'discard',
+      winningHandId: best.hand.id,
+      players: updatedPlayers,
+      discardPile: state.gameState.discardPile.map((entry, i) =>
+        i === discardIndex ? { ...entry, claimed: true } : entry
+      ),
+      pendingMahjongError: null,
+    },
+  }
+}
+
+function effectivePoints(m: { hand: NmjlHand; jokersUsed: number }): number {
+  const jokerless = m.jokersUsed === 0 && m.hand.category !== 'singles-and-pairs'
+  return m.hand.points * (jokerless ? 2 : 1)
 }
 
 // Check if the game is over (wall empty)
@@ -414,7 +537,7 @@ export function handleMahjongInError(
 // For the current demo-mode single-human flow: after a discard, collect
 // pending claims (from the human UI + each live bot's evaluateBotClaim),
 // then run them through resolveClaims to pick the winner per Claim Rules 4-7.
-// The losing claimants are dropped — their claim windows close automatically.
+// The losing claimants are dropped - their claim windows close automatically.
 export function collectAndResolveClaims(
   state: DemoGameState,
   discardIndex: number,
