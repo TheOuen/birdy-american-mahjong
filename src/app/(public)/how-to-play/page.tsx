@@ -3,6 +3,7 @@
 import { TileRenderer } from '@/components/tiles/TileRenderer'
 import type { Tile } from '@/lib/tiles/constants'
 import { Eyebrow } from '@/components/ui/Eyebrow'
+import { TileMotif } from '@/components/ui/TileMotif'
 
 // Helper to make demo tiles for visual examples
 function makeTile(id: string, type: Tile['type']): Tile {
@@ -397,21 +398,21 @@ export default function HowToPlayPage() {
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>Claim Priority</h3>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--accent-warm-subtle)]">
-                  <span className="text-xl">🏆</span>
+                  <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--accent-warm)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>1</span>
                   <div>
                     <p className="font-semibold text-[var(--accent-warm)]">Mahjong — Highest Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">If the tile completes your winning hand, you always get it, no matter whose turn it is.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--brand-subtle)]">
-                  <span className="text-xl">👤</span>
+                  <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--brand)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>2</span>
                   <div>
                     <p className="font-semibold text-[var(--brand)]">Next in Turn — Second Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">The player whose turn comes next has priority for Pung/Kong claims.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--accent-gold-subtle)]">
-                  <span className="text-xl">👥</span>
+                  <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--accent-gold)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>3</span>
                   <div>
                     <p className="font-semibold text-[var(--accent-gold-dark)]">Others — Third Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">If the next player passes, anyone else may claim.</p>
@@ -471,7 +472,10 @@ export default function HowToPlayPage() {
             <div className="card p-6">
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-4">
-                  <span className="text-2xl">✅</span>
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 shrink-0" fill="none" stroke="var(--success)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M7.5 12.5l3 3 6-7" />
+                  </svg>
                   <div>
                     <p className="font-semibold text-[var(--success)]">Can be used in groups of 3 or more</p>
                     <p className="text-[var(--text-secondary)]">Pungs, Kongs, Quints, and Sextets can include Jokers.</p>
@@ -483,7 +487,11 @@ export default function HowToPlayPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <span className="text-2xl">❌</span>
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 shrink-0" fill="none" stroke="var(--error)" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="8" y1="8" x2="16" y2="16" />
+                    <line x1="16" y1="8" x2="8" y2="16" />
+                  </svg>
                   <div>
                     <p className="font-semibold text-[var(--error)]">Cannot be used in pairs or singles</p>
                     <p className="text-[var(--text-secondary)]">A pair must be two real matching tiles — no Jokers allowed.</p>
@@ -616,7 +624,9 @@ export default function HowToPlayPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="card p-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-[var(--brand-subtle)] flex items-center justify-center mx-auto mb-3 text-2xl">🎯</div>
+                <div className="flex justify-center mb-3">
+                  <TileMotif variant="dot" edge="indigo" className="h-14 w-auto" />
+                </div>
                 <h4 className="text-lg font-semibold text-[var(--brand)] mb-2" style={{ fontFamily: 'var(--font-display)' }}>Self-Draw Win</h4>
                 <p className="text-[var(--text-secondary)]">You draw your winning tile from the wall yourself.</p>
                 <div className="mt-3 p-3 rounded-[var(--radius-sm)] bg-[var(--bg-card)]">
@@ -625,7 +635,9 @@ export default function HowToPlayPage() {
               </div>
 
               <div className="card p-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-[var(--accent-warm-subtle)] flex items-center justify-center mx-auto mb-3 text-2xl">🃏</div>
+                <div className="flex justify-center mb-3">
+                  <TileMotif variant="crak" edge="berry" className="h-14 w-auto" />
+                </div>
                 <h4 className="text-lg font-semibold text-[var(--accent-warm)] mb-2" style={{ fontFamily: 'var(--font-display)' }}>Discard Win</h4>
                 <p className="text-[var(--text-secondary)]">Someone else discards the tile you need to win.</p>
                 <div className="mt-3 p-3 rounded-[var(--radius-sm)] bg-[var(--bg-card)]">
@@ -642,18 +654,18 @@ export default function HowToPlayPage() {
           {/* CTA */}
           <div className="text-center py-8">
             <div className="gold-line w-24 mx-auto mb-8" />
-            <h2 className="text-[var(--brand)] mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
+            <h2 className="display-xl text-[var(--text-primary)] mb-4">
               Ready to try?
             </h2>
-            <p className="text-xl text-[var(--text-secondary)] mb-6">
-              Jump into a demo game against bots — the best way to learn is by playing!
+            <p className="lede mx-auto mb-8">
+              Jump into a demo game against bots — the best way to learn is by playing.
             </p>
-            <a href="/lobby" className="btn-primary text-xl px-10 py-4">
-              Start Playing
+            <a href="/lobby" className="btn-berry text-xl px-10">
+              Start playing
             </a>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

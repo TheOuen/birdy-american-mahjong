@@ -26,14 +26,14 @@ export function ContactForm() {
       form.reset()
     } else {
       const body = (await res?.json().catch(() => null)) as { error?: string } | null
-      setErrorMsg(body?.error ?? 'Sorry, we could not send your message. Please email us directly.')
+      setErrorMsg(body?.error ?? 'Your message could not be sent. Please email hello@americanmahjonglondon.com directly.')
       setStatus('error')
     }
   }
 
   if (status === 'sent') {
     return (
-      <p role="status" className="rounded-md bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
+      <p role="status" className="rounded-[var(--radius-lg)] bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
         Thank you — your message is on its way. Andrew will get back to you soon.
       </p>
     )
@@ -43,28 +43,25 @@ export function ContactForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
         Your name
-        <input name="name" required maxLength={200}
-          className="h-12 rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 text-lg text-[var(--text-primary)]" />
+        <input name="name" required maxLength={200} autoComplete="name" className="input-elegant" />
       </label>
       <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
         Your email
-        <input name="email" type="email" required maxLength={320}
-          className="h-12 rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 text-lg text-[var(--text-primary)]" />
+        <input name="email" type="email" required maxLength={320} autoComplete="email" className="input-elegant" />
       </label>
       <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
         Message
-        <textarea name="message" required maxLength={5000} rows={6}
-          className="rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-3 text-lg text-[var(--text-primary)]" />
+        <textarea name="message" required maxLength={5000} rows={6} className="input-elegant" />
       </label>
       {/* Honeypot — hidden from humans, catnip for bots */}
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       {status === 'error' && (
-        <p role="alert" className="rounded-md bg-[var(--error-light)] text-[var(--error)] px-4 py-3 text-lg">{errorMsg}</p>
+        <p role="alert" className="rounded-[var(--radius-lg)] bg-[var(--error-light)] text-[var(--error)] px-4 py-3 text-lg">
+          {errorMsg}
+        </p>
       )}
-      <button type="submit" disabled={status === 'sending'}
-        className="h-14 rounded-md text-xl font-bold bg-[var(--brand)] text-[var(--text-inverse)]
-          hover:bg-[var(--brand-light)] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none transition-all duration-150">
-        {status === 'sending' ? 'Sending…' : 'Send Message'}
+      <button type="submit" disabled={status === 'sending'} className="btn-berry text-xl h-14">
+        {status === 'sending' ? 'Sending…' : 'Send message'}
       </button>
     </form>
   )

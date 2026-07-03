@@ -19,24 +19,33 @@ export function NewsletterForm() {
 
   if (status === 'done') {
     return (
-      <p role="status" className="rounded-md bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
-        You&apos;re on the list — welcome!
+      <p role="status" className="rounded-[var(--radius-lg)] bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
+        You&apos;re on the list — welcome to the table!
       </p>
     )
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-      <label className="sr-only" htmlFor="newsletter-email">Email address</label>
-      <input id="newsletter-email" name="email" type="email" required placeholder="you@example.com"
-        className="h-12 flex-1 rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 text-lg text-[var(--text-primary)]" />
-      <button type="submit" disabled={status === 'sending'}
-        className="h-12 px-6 rounded-md text-lg font-bold bg-[var(--accent-warm)] text-[var(--text-inverse)]
-          hover:bg-[var(--accent-warm-light)] active:scale-[0.97] disabled:opacity-60 transition-all duration-150">
+      <label className="sr-only" htmlFor="newsletter-email">
+        Email address
+      </label>
+      <input
+        id="newsletter-email"
+        name="email"
+        type="email"
+        required
+        placeholder="you@example.com"
+        autoComplete="email"
+        className="input-elegant flex-1"
+      />
+      <button type="submit" disabled={status === 'sending'} className="btn-berry px-6 whitespace-nowrap">
         {status === 'sending' ? 'Joining…' : 'Subscribe'}
       </button>
       {status === 'error' && (
-        <p role="alert" className="text-[var(--error)] text-lg sm:self-center">Please try again.</p>
+        <p role="alert" className="text-[var(--error)] text-lg sm:self-center">
+          That didn&apos;t go through — please try again.
+        </p>
       )}
     </form>
   )

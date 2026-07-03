@@ -25,15 +25,11 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     setTimeout(() => setAdded(false), 2000)
   }
 
+  const label = product.type === 'lesson' ? 'Book this lesson' : 'Add to cart'
+
   return (
-    <button
-      onClick={handleAdd}
-      className="px-6 h-12 rounded-md text-lg font-semibold tracking-wide
-        bg-[var(--brand)] text-[var(--text-inverse)]
-        hover:bg-[var(--brand-light)] active:bg-[var(--brand-dark)] active:scale-[0.97]
-        transition-all duration-150"
-    >
-      {added ? 'Added ✓' : 'Add to Cart'}
+    <button onClick={handleAdd} className="btn-berry text-xl px-8 h-14" aria-live="polite">
+      {added ? 'Added to cart' : label}
     </button>
   )
 }

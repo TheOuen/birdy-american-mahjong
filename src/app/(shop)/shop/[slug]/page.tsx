@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/shop/products'
 import { formatGbp } from '@/lib/shop/cart'
 import { AddToCartButton } from '@/components/shop/AddToCartButton'
-import { AmlMark } from '@/components/layout/AmlMark'
+import { TileFrame } from '@/components/ui/TileFrame'
+import { TileMotif } from '@/components/ui/TileMotif'
 
 export const revalidate = 300
 
@@ -14,38 +15,59 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) notFound()
 
   return (
-    <div className="max-w-6xl mx-auto px-5 sm:px-6 py-10 sm:py-14">
-      <Link href="/shop" className="text-lg text-[var(--accent-gold)] hover:text-[var(--accent-gold-dark)] transition-colors">
-        &larr; Back to Shop
+    <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
+      <Link href="/shop" className="link-arrow text-base">
+        <span aria-hidden="true">&larr;</span> Back to shop
       </Link>
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-10">
-        {product.type === 'lesson' ? (
-          <div className="relative aspect-square rounded-md overflow-hidden bg-[var(--accent-blush)] flex flex-col items-center justify-center gap-5">
-            <AmlMark className="h-32 w-auto" />
-            <span
-              className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--text-secondary)]"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              Lesson with Andrew
-            </span>
-          </div>
-        ) : (
-          <div className="relative aspect-square rounded-md overflow-hidden bg-[var(--accent-blush)]">
-            <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" priority />
-          </div>
-        )}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 items-start">
+        <TileFrame
+          edge={product.type === 'lesson' ? 'berry' : 'indigo'}
+          className="max-w-lg w-full mx-auto md:mx-0"
+        >
+          {product.type === 'lesson' ? (
+            <div className="relative aspect-square bg-[var(--accent-blush)] flex flex-col items-center justify-center gap-6">
+              <div className="flex gap-3">
+                <TileMotif variant="dot" className="h-24 w-auto -rotate-3" />
+                <TileMotif variant="bam" className="h-24 w-auto" />
+                <TileMotif variant="crak" className="h-24 w-auto rotate-3" />
+              </div>
+              <span className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--accent-warm)]">
+                Lesson with Andrew
+              </span>
+            </div>
+          ) : (
+            <div className="relative aspect-square bg-[var(--bg-card)]">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            </div>
+          )}
+        </TileFrame>
+
         <div className="flex flex-col gap-5">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            {product.name}
-          </h1>
-          <p className="text-3xl font-bold text-[var(--accent-warm)]">{formatGbp(product.price_pence)}</p>
-          <p className="text-lg leading-relaxed text-[var(--text-secondary)]">{product.description}</p>
+          <p className="eyebrow">
+            {product.type === 'lesson' ? 'Private lesson' : 'Equipment'}
+          </p>
+          <h1 className="display-xl text-[var(--text-primary)]">{product.name}</h1>
+          <p className="text-3xl font-bold text-[var(--accent-warm)]">
+            {formatGbp(product.price_pence)}
+          </p>
+          <p className="text-lg leading-relaxed text-[var(--text-secondary)]">
+            {product.description}
+          </p>
           {product.type === 'lesson' && (
-            <p className="text-base text-[var(--text-muted)]">
-              After purchase, Andrew will contact you by email to arrange a time that suits you.
+            <p className="rounded-[var(--radius-lg)] bg-[var(--accent-jade-subtle)] px-5 py-4 text-base text-[var(--accent-jade-dark)]">
+              After booking, Andrew emails you to arrange a time that suits you.
             </p>
           )}
-          <div className="mt-2"><AddToCartButton product={product} /></div>
+          <div className="mt-2">
+            <AddToCartButton product={product} />
+          </div>
         </div>
       </div>
     </div>

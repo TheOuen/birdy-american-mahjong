@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from './CartProvider'
 import { cartTotalPence, formatGbp } from '@/lib/shop/cart'
+import { TileMotif } from '@/components/ui/TileMotif'
 
 export function CartContents() {
   const { cart, dispatch } = useCart()
@@ -31,10 +32,19 @@ export function CartContents() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-6 py-16 text-center">
-        <p className="text-xl text-[var(--text-secondary)]">Your cart is empty.</p>
-        <Link href="/shop" className="px-6 h-12 inline-flex items-center rounded-md text-lg font-semibold bg-[var(--brand)] text-[var(--text-inverse)] hover:bg-[var(--brand-light)] active:scale-[0.97] transition-all duration-150">
-          Browse the Shop
+      <div className="card rounded-[var(--radius-tile)] flex flex-col items-center gap-6 py-16 px-6 text-center">
+        <div className="flex gap-2 opacity-70" aria-hidden="true">
+          <TileMotif variant="dot" className="h-12 w-auto -rotate-6" />
+          <TileMotif variant="bam" className="h-12 w-auto rotate-6" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="display-md text-[var(--text-primary)]">Your cart is empty</p>
+          <p className="text-lg text-[var(--text-secondary)]">
+            Lessons, the official NMJL card, and scorecards are waiting.
+          </p>
+        </div>
+        <Link href="/shop" className="btn-primary">
+          Browse the shop
         </Link>
       </div>
     )
@@ -44,18 +54,36 @@ export function CartContents() {
     <div className="flex flex-col gap-6">
       <ul className="flex flex-col divide-y divide-[var(--border)]">
         {cart.items.map((item) => (
-          <li key={item.slug} className="py-5 flex items-center gap-4">
-            <div className="relative w-20 h-20 rounded-md overflow-hidden bg-[var(--accent-blush)] shrink-0">
-              <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
-            </div>
-            <div className="flex-1 min-w-0">
+          <li key={item.slug} className="py-5 flex flex-wrap items-center gap-4">
+            {item.type === 'lesson' ? (
+              <div className="w-20 h-20 rounded-md bg-[var(--accent-blush)] border border-[var(--border)] shrink-0 flex items-center justify-center">
+                <TileMotif variant="dot" className="h-11 w-auto" />
+              </div>
+            ) : (
+              <div className="relative w-20 h-20 rounded-md overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shrink-0">
+                <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
+              </div>
+            )}
+            <div className="flex-1 min-w-40">
               <p className="text-lg font-semibold text-[var(--text-primary)]">{item.name}</p>
               <p className="text-base text-[var(--text-secondary)]">{formatGbp(item.price_pence)} each</p>
             </div>
             <div className="flex items-center gap-2">
-              <QuantityButton label={`Decrease quantity of ${item.name}`} onClick={() => dispatch({ type: 'setQuantity', slug: item.slug, quantity: item.quantity - 1 })}>−</QuantityButton>
-              <span className="w-8 text-center text-lg font-semibold text-[var(--text-primary)]">{item.quantity}</span>
-              <QuantityButton label={`Increase quantity of ${item.name}`} onClick={() => dispatch({ type: 'setQuantity', slug: item.slug, quantity: item.quantity + 1 })}>+</QuantityButton>
+              <QuantityButton
+                label={`Decrease quantity of ${item.name}`}
+                onClick={() => dispatch({ type: 'setQuantity', slug: item.slug, quantity: item.quantity - 1 })}
+              >
+                &minus;
+              </QuantityButton>
+              <span className="w-8 text-center text-lg font-semibold text-[var(--text-primary)]">
+                {item.quantity}
+              </span>
+              <QuantityButton
+                label={`Increase quantity of ${item.name}`}
+                onClick={() => dispatch({ type: 'setQuantity', slug: item.slug, quantity: item.quantity + 1 })}
+              >
+                +
+              </QuantityButton>
             </div>
             <button
               onClick={() => dispatch({ type: 'remove', slug: item.slug })}
@@ -67,23 +95,19 @@ export function CartContents() {
         ))}
       </ul>
 
-      <div className="flex items-center justify-between border-t border-[var(--border-strong)] pt-5">
-        <p className="text-xl font-bold text-[var(--text-primary)]">Total</p>
+      <div className="flex items-center justify-between border-t-2 border-[var(--brand)] pt-5">
+        <p className="display-md text-[var(--text-primary)]">Total</p>
         <p className="text-2xl font-bold text-[var(--accent-warm)]">{formatGbp(cartTotalPence(cart))}</p>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-md bg-[var(--error-light)] text-[var(--error)] px-4 py-3 text-lg">{error}</p>
+        <p role="alert" className="rounded-md bg-[var(--error-light)] text-[var(--error)] px-4 py-3 text-lg">
+          {error}
+        </p>
       )}
 
-      <button
-        onClick={handleCheckout}
-        disabled={submitting}
-        className="h-14 rounded-md text-xl font-bold tracking-wide bg-[var(--brand)] text-[var(--text-inverse)]
-          hover:bg-[var(--brand-light)] active:bg-[var(--brand-dark)] active:scale-[0.98]
-          disabled:opacity-60 disabled:pointer-events-none transition-all duration-150"
-      >
-        {submitting ? 'Taking you to secure checkout…' : 'Checkout Securely'}
+      <button onClick={handleCheckout} disabled={submitting} className="btn-berry text-xl h-14 w-full">
+        {submitting ? 'Taking you to secure checkout…' : 'Checkout securely'}
       </button>
       <p className="text-base text-[var(--text-muted)] text-center">
         Payments are processed securely by Stripe. Lessons: Andrew will email you to schedule.
@@ -97,7 +121,7 @@ function QuantityButton({ children, label, onClick }: { children: React.ReactNod
     <button
       onClick={onClick}
       aria-label={label}
-      className="w-12 h-12 rounded-md border border-[var(--border-strong)] text-xl font-bold text-[var(--text-primary)]
+      className="w-12 h-12 rounded-md border-[1.5px] border-[var(--border-strong)] text-xl font-bold text-[var(--text-primary)]
         hover:bg-[var(--bg-card)] active:bg-[var(--border)] active:scale-[0.95] transition-all duration-150"
     >
       {children}
