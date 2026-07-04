@@ -33,6 +33,7 @@ export function Footer() {
               <FooterLink href="/shop">Shop</FooterLink>
               <FooterLink href="/how-to-play">How to play</FooterLink>
               <FooterLink href="/discover">Discover</FooterLink>
+              <FooterLink href="/blog">Blog</FooterLink>
               <FooterLink href="/london-local">London local</FooterLink>
             </div>
 

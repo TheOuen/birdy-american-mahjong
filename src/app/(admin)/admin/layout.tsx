@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createAuthedServerClient } from '@/lib/supabase/server'
 import { AmlMark } from '@/components/layout/AmlMark'
 
-function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' }) {
+function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' }) {
   const iconProps = {
     width: 22,
     height: 22,
@@ -50,6 +50,37 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders'
           <path d="M12 13v8" />
         </svg>
       )
+    case 'bookings':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="17" rx="2" />
+          <path d="M8 2v4M16 2v4M3 9h18" />
+          <path d="M9 14l2 2 4-4" />
+        </svg>
+      )
+    case 'products':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <path d="M6 6h15l-1.5 9h-12L6 6Z" />
+          <path d="M6 6L5 3H2" />
+          <circle cx="9" cy="20" r="1.5" />
+          <circle cx="17" cy="20" r="1.5" />
+        </svg>
+      )
+    case 'posts':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      )
+    case 'messages':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="m2 7 10 6L22 7" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg {...iconProps} viewBox="0 0 24 24">
@@ -63,14 +94,18 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders'
 type NavItem = {
   href: string
   label: string
-  icon: 'dashboard' | 'users' | 'card' | 'orders' | 'settings'
+  icon: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages'
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/admin/users', label: 'Users', icon: 'users' },
-  { href: '/admin/nmjl-card', label: 'NMJL Card', icon: 'card' },
+  { href: '/admin/bookings', label: 'Bookings', icon: 'bookings' },
   { href: '/admin/orders', label: 'Orders', icon: 'orders' },
+  { href: '/admin/products', label: 'Products', icon: 'products' },
+  { href: '/admin/posts', label: 'Posts', icon: 'posts' },
+  { href: '/admin/messages', label: 'Messages', icon: 'messages' },
+  { href: '/admin/users', label: 'Players', icon: 'users' },
+  { href: '/admin/nmjl-card', label: 'NMJL Card', icon: 'card' },
   { href: '/admin/settings', label: 'Settings', icon: 'settings' },
 ]
 
@@ -138,6 +173,22 @@ export default async function AdminLayout({
             </Link>
           ))}
         </nav>
+
+        {/* Google Calendar shortcut */}
+        <a
+          href="https://calendar.google.com/calendar"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mx-3 mb-2 flex items-center gap-3 px-4 py-3 rounded-md text-base transition-colors"
+          style={{
+            minHeight: 'var(--touch-min)',
+            color: 'var(--text-inverse)',
+            background: 'rgba(148, 171, 249, 0.16)',
+          }}
+        >
+          <SidebarIcon name="bookings" />
+          <span>Google Calendar</span>
+        </a>
 
         {/* Footer */}
         <div
