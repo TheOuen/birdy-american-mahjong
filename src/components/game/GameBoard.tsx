@@ -778,6 +778,7 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
       <CharlestonPhase
         hand={playerHand}
         charleston={charleston}
+        players={game.gameState.players}
         onPass={handleCharlestonPass}
         onBlindPass={handleBlindPass}
         onStopVote={handleStopVote}

@@ -19,6 +19,8 @@ import type {
 type CharlestonPhaseProps = {
   hand: Tile[]
   charleston: CharlestonState
+  /** Seat order [you, right, across, left] - used to name pass recipients. */
+  players?: { displayName: string }[]
   onPass: (tileIds: TileId[]) => void
   onBlindPass: (blindTileIds: TileId[], fromHandTileIds: TileId[]) => void
   onStopVote: (stop: boolean) => void
@@ -62,6 +64,7 @@ export function CharlestonPhase(props: CharlestonPhaseProps) {
     charleston={props.charleston}
     onPass={props.onPass}
     onBlindPass={props.onBlindPass}
+    players={props.players}
   />
 }
 
@@ -74,10 +77,19 @@ type PassViewProps = {
   charleston: CharlestonState
   onPass: (tileIds: TileId[]) => void
   onBlindPass: (blindTileIds: TileId[], fromHandTileIds: TileId[]) => void
+  players?: { displayName: string }[]
 }
 
-function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
+const DIRECTION_SEAT: Record<CharlestonDirection, number> = { right: 1, across: 2, left: 3 }
+const DIRECTION_PHRASE: Record<CharlestonDirection, string> = {
+  right: 'to your right',
+  across: 'across the table',
+  left: 'to your left',
+}
+
+function PassView({ hand, charleston, onPass, onBlindPass, players }: PassViewProps) {
   const { direction, step, receivedTileIds, lastReceivedTileIds } = charleston
+  const recipient = players?.[DIRECTION_SEAT[direction]]?.displayName
   const roundLabel = charleston.round === 'first' ? 'First Charleston' : 'Second Charleston'
   const blindEligible = isBlindPassEligible(charleston)
   const sorted = useMemo(() => sortHand(hand), [hand])
@@ -117,7 +129,10 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
 
   function handleConfirmStandard() {
     if (selectedIds.length !== 3) return
-    const validation = validateCharlestonSelection(hand, selectedIds, receivedTileIds)
+    const validation = validateCharlestonSelection(hand, selectedIds, receivedTileIds, {
+      receivedFrom: charleston.receivedFromDirection,
+      current: direction,
+    })
     if (!validation.valid) {
       setError(validation.error ?? 'Invalid selection.')
       return
@@ -197,13 +212,13 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
   const remaining = 3 - totalSelected
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-dark)' }}>
       {/* Header */}
       <div className="px-6 py-6 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)] text-center">
         <h2 className="text-3xl text-[var(--accent-gold)]" style={{ fontFamily: 'var(--font-display)' }}>
           {roundLabel}
         </h2>
-        <p className="text-lg text-[#A09888] mt-2">Pass {step} of 3</p>
+        <p className="text-lg text-[#C7CEED] mt-2">Pass {step} of 3</p>
         <div className="gold-line w-20 mx-auto mt-4" />
       </div>
 
@@ -225,7 +240,9 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
             <p className="text-lg text-[var(--text-secondary)] mt-1">
               {blindMode
                 ? 'Blind pass - forward received tiles unseen'
-                : `Select 3 tiles to pass to the player on your ${direction}`}
+                : recipient
+                  ? `Choose 3 tiles for ${recipient} - ${DIRECTION_PHRASE[direction]}`
+                  : `Choose 3 tiles to pass ${DIRECTION_PHRASE[direction]}`}
             </p>
           </div>
         </div>
@@ -250,7 +267,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
             >
               {blindMode ? 'Cancel blind pass' : 'Blind pass (advanced)'}
             </button>
-            <p className="text-xs text-[#A09888] max-w-md text-center">
+            <p className="text-xs text-[#C7CEED] max-w-md text-center">
               A blind pass forwards tiles you just received without looking at them.
               You can blind-pass 1, 2, or 3 of the tiles you just received and fill the rest from your hand.
             </p>
@@ -260,7 +277,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
         {/* Blind-pass count selector */}
         {blindMode && (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-[#A09888]">Blind tiles:</span>
+            <span className="text-sm text-[#C7CEED]">Blind tiles:</span>
             {[1, 2, 3].map((n) => (
               <button
                 key={n}
@@ -281,7 +298,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
 
         {/* Selected tiles preview */}
         <div className="flex items-center gap-3">
-          <span className="text-[#A09888] font-medium">Passing:</span>
+          <span className="text-[#C7CEED] font-medium">Passing:</span>
           <div className="flex gap-1 min-h-20">
             {/* Blind face-down slots first */}
             {blindMode &&
@@ -445,7 +462,7 @@ function StopVoteView({
 }) {
   const sorted = sortHand(hand)
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-dark)' }}>
       <div className="px-6 py-6 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)] text-center">
         <h2 className="text-3xl text-[var(--accent-gold)]" style={{ fontFamily: 'var(--font-display)' }}>
           First Charleston Complete
@@ -547,12 +564,12 @@ function CourtesyView({
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-dark)' }}>
       <div className="px-6 py-6 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)] text-center">
         <h2 className="text-3xl text-[var(--accent-gold)]" style={{ fontFamily: 'var(--font-display)' }}>
           Courtesy Pass
         </h2>
-        <p className="text-lg text-[#A09888] mt-2">Optional exchange with the player across</p>
+        <p className="text-lg text-[#C7CEED] mt-2">Optional exchange with the player across</p>
         <div className="gold-line w-20 mx-auto mt-4" />
       </div>
 
@@ -573,7 +590,7 @@ function CourtesyView({
 
         {/* Count selector */}
         <div className="flex items-center gap-3">
-          <span className="text-sm text-[#A09888]">Offer:</span>
+          <span className="text-sm text-[#C7CEED]">Offer:</span>
           {[0, 1, 2, 3].map((n) => (
             <button
               key={n}
@@ -592,7 +609,7 @@ function CourtesyView({
         {/* Selected tiles preview */}
         {count > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-[#A09888] font-medium">Passing:</span>
+            <span className="text-[#C7CEED] font-medium">Passing:</span>
             <div className="flex gap-1 min-h-20">
               {selectedIds.map((id) => {
                 const tile = hand.find((t) => t.id === id)

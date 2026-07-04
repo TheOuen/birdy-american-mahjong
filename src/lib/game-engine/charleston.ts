@@ -25,7 +25,12 @@ export type CharlestonState = {
   direction: CharlestonDirection
   phase: CharlestonPhase
   playerSelection: TileId[]
-  receivedTileIds: Set<TileId>       // tiles received in the LAST pass (can't pass back)
+  receivedTileIds: Set<TileId>       // tiles received in the LAST pass
+  // Direction of the pass that delivered receivedTileIds. The pass-back rule
+  // (RULES.md: "never pass back a tile you just received in the same
+  // direction") only bites when the CURRENT pass would return those tiles to
+  // their giver - which needs both directions to decide.
+  receivedFromDirection: CharlestonDirection | null
   lastReceivedTileIds: Set<TileId>   // alias kept for clarity in blind-pass validation
   complete: boolean
   // --- legacy flag kept for backward compat with existing UI wiring ---
@@ -57,6 +62,7 @@ export function createCharlestonState(): CharlestonState {
     phase: 'pass',
     playerSelection: [],
     receivedTileIds: new Set(),
+    receivedFromDirection: null,
     lastReceivedTileIds: new Set(),
     complete: false,
     awaitingSecondVote: false,
@@ -79,11 +85,28 @@ export function isBlindPassEligible(charleston: CharlestonState): boolean {
   return false
 }
 
+// Would a pass in `current` direction hand tiles straight back to the player
+// who sent them via `receivedFrom`? Right and left are opposites; across
+// returns to across. (In the standard R-A-L / L-A-R sequences this never
+// happens - the restriction exists for rule fidelity, not daily play.)
+export function wouldReturnToGiver(
+  receivedFrom: CharlestonDirection | null,
+  current: CharlestonDirection
+): boolean {
+  if (!receivedFrom) return false
+  return (
+    (receivedFrom === 'right' && current === 'left') ||
+    (receivedFrom === 'left' && current === 'right') ||
+    (receivedFrom === 'across' && current === 'across')
+  )
+}
+
 // Validate tiles selected for passing (standard 3-tile pass)
 export function validateCharlestonSelection(
   hand: Tile[],
   selectedIds: TileId[],
-  receivedTileIds: Set<TileId>
+  receivedTileIds: Set<TileId>,
+  directions?: { receivedFrom: CharlestonDirection | null; current: CharlestonDirection }
 ): { valid: boolean; error?: string } {
   if (selectedIds.length !== 3) {
     return { valid: false, error: 'Select exactly 3 tiles to pass.' }
@@ -98,10 +121,17 @@ export function validateCharlestonSelection(
     }
   }
 
-  // Check pass-back restriction: can't pass back tiles received in same direction
-  for (const id of selectedIds) {
-    if (receivedTileIds.has(id)) {
-      return { valid: false, error: 'You cannot pass back a tile you just received.' }
+  // Pass-back restriction: only applies when this pass would return the tile
+  // to the player who just gave it (RULES.md "same direction" rule). Without
+  // direction context the rule cannot bind, so the check is skipped.
+  if (directions && wouldReturnToGiver(directions.receivedFrom, directions.current)) {
+    for (const id of selectedIds) {
+      if (receivedTileIds.has(id)) {
+        return {
+          valid: false,
+          error: 'That tile just came from that player - you cannot pass it straight back.',
+        }
+      }
     }
   }
 
@@ -203,6 +233,7 @@ function advanceAfterPass(
         phase: 'stop_vote',
         playerSelection: [],
         receivedTileIds: humanReceivedIds,
+        receivedFromDirection: charleston.direction,
         lastReceivedTileIds: humanReceivedIds,
         awaitingSecondVote: true,
         stopVotes: [null, null, null, null],
@@ -219,6 +250,7 @@ function advanceAfterPass(
         phase: 'courtesy',
         playerSelection: [],
         receivedTileIds: humanReceivedIds,
+        receivedFromDirection: charleston.direction,
         lastReceivedTileIds: humanReceivedIds,
         awaitingSecondVote: false,
         courtesyOffers: [null, null, null, null],
@@ -238,6 +270,7 @@ function advanceAfterPass(
       phase: 'pass',
       playerSelection: [],
       receivedTileIds: humanReceivedIds,
+      receivedFromDirection: charleston.direction,
       lastReceivedTileIds: humanReceivedIds,
       complete: false,
       awaitingSecondVote: false,
@@ -260,9 +293,15 @@ export function executeCharlestonPass(
   const validation = validateCharlestonSelection(
     humanPlayer.hand,
     playerTileIds,
-    charleston.receivedTileIds
+    charleston.receivedTileIds,
+    { receivedFrom: charleston.receivedFromDirection, current: charleston.direction }
   )
   if (!validation.valid) return null
+
+  const passBackBlocked = wouldReturnToGiver(
+    charleston.receivedFromDirection,
+    charleston.direction
+  )
 
   const players = state.gameState.players.map((p) => ({ ...p, hand: [...p.hand] }))
   const tilesToReceive: Map<number, Tile[]> = new Map()
@@ -275,7 +314,10 @@ export function executeCharlestonPass(
     if (seat === 0) {
       selectedIds = playerTileIds
     } else {
-      selectedIds = pickBotTiles(player, charleston.receivedTileIds)
+      selectedIds = pickBotTiles(
+        player,
+        passBackBlocked ? charleston.receivedTileIds : new Set<TileId>()
+      )
     }
 
     const passingTiles = selectedIds
@@ -333,6 +375,11 @@ export function executeCharlestonBlindPass(
   )
   if (!validation.valid) return null
 
+  const passBackBlocked = wouldReturnToGiver(
+    charleston.receivedFromDirection,
+    charleston.direction
+  )
+
   const players = state.gameState.players.map((p) => ({ ...p, hand: [...p.hand] }))
   const tilesToReceive: Map<number, Tile[]> = new Map()
   for (let seat = 0; seat < 4; seat++) tilesToReceive.set(seat, [])
@@ -344,7 +391,10 @@ export function executeCharlestonBlindPass(
     if (seat === 0) {
       selectedIds = [...blindTileIds, ...fromHandTileIds]
     } else {
-      selectedIds = pickBotTiles(player, charleston.receivedTileIds)
+      selectedIds = pickBotTiles(
+        player,
+        passBackBlocked ? charleston.receivedTileIds : new Set<TileId>()
+      )
     }
 
     const passingTiles = selectedIds
@@ -529,6 +579,7 @@ export function createSecondCharlestonState(): CharlestonState {
     phase: 'pass',
     playerSelection: [],
     receivedTileIds: new Set(),
+    receivedFromDirection: null,
     lastReceivedTileIds: new Set(),
     complete: false,
     awaitingSecondVote: false,
