@@ -13,7 +13,7 @@ export function Footer() {
               <AmlLogo inverse />
               <p className="text-[var(--accent-lavender)] text-base leading-relaxed max-w-xs">
                 Learn it once, love it forever! Lessons, equipment and free online
-                play — American Mahjong in London, with Andrew.
+                play - American Mahjong in London, with Andrew.
               </p>
               <div className="flex gap-2" aria-hidden="true">
                 <TileMotif variant="dot" className="h-9 w-auto" edge="berry" />

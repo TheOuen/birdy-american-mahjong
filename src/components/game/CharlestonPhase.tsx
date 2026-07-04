@@ -147,9 +147,9 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
     setError(null)
     const tile = hand.find((t) => t.id === tileId)
 
-    // Face-down tiles (received in last pass) cannot be hand-picked — user must look at them
+    // Face-down tiles (received in last pass) cannot be hand-picked - user must look at them
     if (lastReceivedTileIds.has(tileId)) {
-      setError('That tile was just passed to you — it stays face-down. Use the "Blind" buttons above.')
+      setError('That tile was just passed to you - it stays face-down. Use the "Blind" buttons above.')
       return
     }
 
@@ -168,7 +168,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
 
   function handleConfirmBlind() {
     if (blindCount === 0) {
-      setError('Choose 1, 2, or 3 blind tiles — or use the standard pass.')
+      setError('Choose 1, 2, or 3 blind tiles - or use the standard pass.')
       return
     }
     if (selectedFromHandIds.length + blindCount !== 3) {
@@ -224,7 +224,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
             </p>
             <p className="text-lg text-[var(--text-secondary)] mt-1">
               {blindMode
-                ? 'Blind pass — forward received tiles unseen'
+                ? 'Blind pass - forward received tiles unseen'
                 : `Select 3 tiles to pass to the player on your ${direction}`}
             </p>
           </div>
@@ -386,7 +386,7 @@ function PassView({ hand, charleston, onPass, onBlindPass }: PassViewProps) {
         <p className="text-center text-xs sm:text-sm text-[var(--text-muted)] mb-2 sm:mb-3">
           {blindMode
             ? 'Tap tiles FROM YOUR HAND to pass. Tiles you just received appear face-down.'
-            : 'Your hand — tap tiles to select for passing'}
+            : 'Your hand - tap tiles to select for passing'}
         </p>
         <div className="flex flex-wrap justify-center gap-0.5 sm:gap-1">
           {sorted.map((tile) => {

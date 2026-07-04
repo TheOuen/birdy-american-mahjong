@@ -38,7 +38,7 @@ export function countMatching(
 // Determine what claims a player can make on a discarded tile
 export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimType[] {
   if (player.isDead) return []
-  // Flowers are never claimable — they're auto-exposed on draw, not passed
+  // Flowers are never claimable - they're auto-exposed on draw, not passed
   // through the discard pile. If one ends up here, surface no claim options.
   if (discardedTile.type.kind === 'flower') return []
   // Jokers likewise cannot be discarded/claimed.
@@ -63,7 +63,7 @@ export function getValidClaims(player: PlayerState, discardedTile: Tile): ClaimT
   // Mahjong: check if this tile would complete a winning hand
   const matchingHand = wouldCompleteHand(player.hand, player.exposed, discardedTile)
   if (matchingHand) {
-    // Add mahjong as an option — player can still choose pung/kong instead
+    // Add mahjong as an option - player can still choose pung/kong instead
     // (unless it's a concealed hand, where only mahjong is valid)
     if (matchingHand.concealed && player.exposed.length === 0) {
       claims.length = 0
@@ -143,7 +143,7 @@ export function executeClaim(
     (t) => !tileIdsFromHand.includes(t.id)
   )
 
-  // Update discard pile — mark as claimed
+  // Update discard pile - mark as claimed
   const updatedDiscardPile = state.gameState.discardPile.map((entry, i) =>
     i === discardIndex ? { ...entry, claimed: true } : entry
   )
@@ -174,8 +174,8 @@ export function executeClaim(
 //
 // After claiming a discard and exposing a group, the claimer may rearrange
 // that group (swap real tile↔joker from hand) until they discard. Examples:
-//   — Swap a joker into the exposure and pull a real tile back to hand
-//   — Swap a joker out, replacing with a real tile they just drew/held
+//   - Swap a joker into the exposure and pull a real tile back to hand
+//   - Swap a joker out, replacing with a real tile they just drew/held
 // Constraints:
 //   - Actor is the current turn holder (the claimer).
 //   - awaitingDiscardAfterClaim is true (not yet discarded).
@@ -240,7 +240,7 @@ export function rearrangeExposure(
     } else if (tilesMatch(t.type, representsType)) {
       realMatches++
     } else {
-      // Non-matching non-joker tile — invalid rearrangement.
+      // Non-matching non-joker tile - invalid rearrangement.
       return null
     }
   }
@@ -278,9 +278,9 @@ export function rearrangeExposure(
 //
 // A player is dead if their tile count is invalid at a turn boundary. Valid
 // counts:
-//   13 — post-discard resting (non-dealer) and pre-draw dealer after first discard
-//   14 — pre-discard resting (dealer before first discard; after-claim during turn)
-//   15 — transient during one's own turn (drew, haven't yet discarded / joker-swapped)
+//   13 - post-discard resting (non-dealer) and pre-draw dealer after first discard
+//   14 - pre-discard resting (dealer before first discard; after-claim during turn)
+//   15 - transient during one's own turn (drew, haven't yet discarded / joker-swapped)
 // Anything else at the next turn boundary => dead.
 export function checkDeadHand(player: PlayerState): boolean {
   const handTiles = player.hand.length
@@ -293,7 +293,7 @@ export function checkDeadHand(player: PlayerState): boolean {
   return false
 }
 
-// Evaluate bot claims — returns the best claim a bot can make, or null
+// Evaluate bot claims - returns the best claim a bot can make, or null
 export function evaluateBotClaim(
   bot: PlayerState,
   discardedTile: Tile
@@ -319,7 +319,7 @@ export function evaluateBotClaim(
 //   1. A Mahjong claim beats any exposure (pung/kong/quint/sextet) claim,
 //      regardless of "who claimed first".
 //   2. Among same-priority claims (all Mahjong OR all exposure), the winner is
-//      the claimer closest to the LEFT of the discarder — i.e. the next seat
+//      the claimer closest to the LEFT of the discarder - i.e. the next seat
 //      in turn order (counter-clockwise). Ties resolved by traversing
 //      turnOrder starting from (discarderIndex + 1) % length.
 //

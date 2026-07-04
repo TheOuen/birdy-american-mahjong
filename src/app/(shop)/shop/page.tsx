@@ -20,7 +20,7 @@ export default async function ShopPage() {
             Everything for the <em className="display-italic">table.</em>
           </h1>
           <p className="lede">
-            The official NMJL card, scorecards, and lessons with Andrew —
+            The official NMJL card, scorecards, and lessons with Andrew -
             everything you need to play American Mahjong.
           </p>
         </div>
@@ -52,7 +52,7 @@ export default async function ShopPage() {
             Free printable scorecards
           </h2>
           <p className="text-lg text-[var(--text-secondary)]">
-            Print at home and keep score the easy way — our gift to your game
+            Print at home and keep score the easy way - our gift to your game
             night.
           </p>
           <div className="flex flex-wrap gap-4 mt-2">

@@ -1,8 +1,8 @@
-/* American Mahjong | London — Design Tokens */
+/* American Mahjong | London - Design Tokens */
 /* Grounded in the real materials of Andrew's table: cream tiles with layered
    coloured sides, a blue gingham mat, the berry-red NMJL card, jade racks.
    Display type (Gluten) approximates the brand's groovy bubble face,
-   Synthemesc — an Adobe-licensed font. --font-display is the single swap
+   Synthemesc - an Adobe-licensed font. --font-display is the single swap
    point if the client supplies a license. */
 
 :root {
@@ -11,8 +11,8 @@
   --font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
 
   /* Background */
-  --bg: #FDFBF6;
-  --bg-card: #F5F0E8;
+  --bg: #F7F8FD;
+  --bg-card: #E5E9FD;
   --bg-elevated: #FFFFFF;
   --bg-deep: #171D3A;
   --bg-table: #1A3A2A;
@@ -24,19 +24,19 @@
   --text-inverse: #FFFCF5;
   --text-gold: #354D9C;
 
-  /* Brand — AML Navy */
+  /* Brand - AML Navy */
   --brand: #171D3A;
   --brand-light: #2A3462;
   --brand-dark: #0F1428;
   --brand-subtle: rgba(23, 29, 58, 0.06);
 
-  /* Accent — Berry (the NMJL card red) */
+  /* Accent - Berry (the NMJL card red) */
   --accent-warm: #9E2057;
   --accent-warm-light: #B94577;
   --accent-warm-dark: #7C1843;
   --accent-warm-subtle: rgba(158, 32, 87, 0.08);
 
-  /* Accent — Indigo */
+  /* Accent - Indigo */
   --accent-gold: #354D9C;
   --accent-gold-light: #94ABF9;
   --accent-gold-dark: #27397A;
@@ -48,7 +48,7 @@
   --accent-periwinkle: #94ABF9;
   --accent-cream: #F5F0E8;
 
-  /* Accent — Jade (the bamboo suit + tile racks) */
+  /* Accent - Jade (the bamboo suit + tile racks) */
   --accent-jade: #2F6D50;
   --accent-jade-dark: #24523D;
   --accent-jade-subtle: #E4EFE8;
@@ -76,8 +76,8 @@
   --warning-light: #FBF4E4;
 
   /* Borders */
-  --border: #E7E3D8;
-  --border-strong: #C9C3B2;
+  --border: #D9DEF2;
+  --border-strong: #B4BDE4;
   --border-gold: rgba(53, 77, 156, 0.3);
 
   /* Spacing */

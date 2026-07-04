@@ -175,13 +175,13 @@ export default function HowToPlayPage() {
           {/* 1. What is American Mahjong? */}
           <Section id="what-is" title="1. What is American Mahjong?">
             <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
-              American Mahjong is a tile game for <strong>4 players</strong>. You use <strong>152 tiles</strong> — drawing and discarding to build a winning hand that matches one of the patterns on an official card published each year by the National Mah Jongg League (NMJL).
+              American Mahjong is a tile game for <strong>4 players</strong>. You use <strong>152 tiles</strong> - drawing and discarding to build a winning hand that matches one of the patterns on an official card published each year by the National Mah Jongg League (NMJL).
             </p>
             <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
               Think of it like a more strategic version of rummy, but played with beautiful tiles instead of cards. It&apos;s social, satisfying, and each year brings fresh challenges with the new card.
             </p>
             <Callout type="tip">
-              <p>Don&apos;t worry if it feels like a lot to learn at first — it all clicks after a few games. The best way to learn is to jump in and play!</p>
+              <p>Don&apos;t worry if it feels like a lot to learn at first - it all clicks after a few games. The best way to learn is to jump in and play!</p>
             </Callout>
           </Section>
 
@@ -194,7 +194,7 @@ export default function HowToPlayPage() {
             {/* Suit tiles */}
             <div className="card p-6">
               <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-                Suit Tiles <span className="text-base font-normal text-[var(--text-muted)]">— 108 tiles (3 suits × 9 numbers × 4 copies)</span>
+                Suit Tiles <span className="text-base font-normal text-[var(--text-muted)]">- 108 tiles (3 suits × 9 numbers × 4 copies)</span>
               </h3>
               <p className="text-[var(--text-secondary)] mb-4">
                 There are three suits. Each suit has tiles numbered 1 through 9, with four copies of each.
@@ -236,7 +236,7 @@ export default function HowToPlayPage() {
             {/* Winds */}
             <div className="card p-6">
               <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-                Wind Tiles <span className="text-base font-normal text-[var(--text-muted)]">— 16 tiles (4 directions × 4 copies)</span>
+                Wind Tiles <span className="text-base font-normal text-[var(--text-muted)]">- 16 tiles (4 directions × 4 copies)</span>
               </h3>
               <div className="flex flex-wrap gap-1">
                 <TileRenderer tile={EXAMPLE_WIND_E} size="md" />
@@ -250,7 +250,7 @@ export default function HowToPlayPage() {
             {/* Dragons */}
             <div className="card p-6">
               <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-                Dragon Tiles <span className="text-base font-normal text-[var(--text-muted)]">— 12 tiles (3 colors × 4 copies)</span>
+                Dragon Tiles <span className="text-base font-normal text-[var(--text-muted)]">- 12 tiles (3 colors × 4 copies)</span>
               </h3>
               <div className="flex flex-wrap gap-2">
                 <TileRenderer tile={EXAMPLE_DRAGON_R} size="md" />
@@ -263,7 +263,7 @@ export default function HowToPlayPage() {
             {/* Flowers */}
             <div className="card p-6">
               <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-                Flower Tiles <span className="text-base font-normal text-[var(--text-muted)]">— 8 tiles (4 designs × 2 copies)</span>
+                Flower Tiles <span className="text-base font-normal text-[var(--text-muted)]">- 8 tiles (4 designs × 2 copies)</span>
               </h3>
               <div className="flex flex-wrap gap-1">
                 <TileRenderer tile={EXAMPLE_FLOWER_1} size="md" />
@@ -277,14 +277,14 @@ export default function HowToPlayPage() {
             {/* Jokers */}
             <div className="card p-6">
               <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--tile-joker)' }}>
-                Joker Tiles <span className="text-base font-normal text-[var(--text-muted)]">— 8 tiles</span>
+                Joker Tiles <span className="text-base font-normal text-[var(--text-muted)]">- 8 tiles</span>
               </h3>
               <div className="flex flex-wrap gap-1">
                 <TileRenderer tile={EXAMPLE_JOKER} size="md" />
                 <TileRenderer tile={EXAMPLE_JOKER_2} size="md" />
               </div>
               <p className="text-[var(--text-secondary)] mt-3">
-                8 Jokers total. Jokers are <strong>wild</strong> — they can substitute for any tile in a group of 3 or more. They <strong>cannot</strong> be used in pairs.
+                8 Jokers total. Jokers are <strong>wild</strong> - they can substitute for any tile in a group of 3 or more. They <strong>cannot</strong> be used in pairs.
               </p>
             </div>
           </Section>
@@ -313,7 +313,7 @@ export default function HowToPlayPage() {
               </div>
             </div>
             <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
-              The remaining tiles form the <strong>wall</strong> — the draw pile. Players draw from the wall during their turns.
+              The remaining tiles form the <strong>wall</strong> - the draw pile. Players draw from the wall during their turns.
             </p>
           </Section>
 
@@ -361,7 +361,7 @@ export default function HowToPlayPage() {
               <div className="card p-6 flex flex-col items-center text-center gap-3">
                 <div className="w-14 h-14 rounded-full bg-[var(--brand)] text-[var(--text-inverse)] flex items-center justify-center text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>1</div>
                 <h4 className="text-lg font-semibold text-[var(--brand)]" style={{ fontFamily: 'var(--font-display)' }}>Draw</h4>
-                <p className="text-[var(--text-secondary)]">Pick up one tile from the wall (or claim a discard — more on that below).</p>
+                <p className="text-[var(--text-secondary)]">Pick up one tile from the wall (or claim a discard - more on that below).</p>
                 <div className="flex gap-1 mt-2">
                   <TileRenderer tile={makeTile('draw-demo', { kind: 'suit', suit: 'bam', number: 7 })} size="md" faceDown />
                   <span className="text-2xl text-[var(--brand)] self-center mx-2">→</span>
@@ -400,21 +400,21 @@ export default function HowToPlayPage() {
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--accent-warm-subtle)]">
                   <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--accent-warm)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>1</span>
                   <div>
-                    <p className="font-semibold text-[var(--accent-warm)]">Mahjong — Highest Priority</p>
+                    <p className="font-semibold text-[var(--accent-warm)]">Mahjong - Highest Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">If the tile completes your winning hand, you always get it, no matter whose turn it is.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--brand-subtle)]">
                   <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--brand)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>2</span>
                   <div>
-                    <p className="font-semibold text-[var(--brand)]">Next in Turn — Second Priority</p>
+                    <p className="font-semibold text-[var(--brand)]">Next in Turn - Second Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">The player whose turn comes next has priority for Pung/Kong claims.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--accent-gold-subtle)]">
                   <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--accent-gold)] text-[var(--text-inverse)] flex items-center justify-center font-bold" style={{ fontFamily: 'var(--font-display)' }}>3</span>
                   <div>
-                    <p className="font-semibold text-[var(--accent-gold-dark)]">Others — Third Priority</p>
+                    <p className="font-semibold text-[var(--accent-gold-dark)]">Others - Third Priority</p>
                     <p className="text-sm text-[var(--text-secondary)]">If the next player passes, anyone else may claim.</p>
                   </div>
                 </div>
@@ -457,7 +457,7 @@ export default function HowToPlayPage() {
               {/* Quint */}
               <div className="card p-6">
                 <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Quint</h4>
-                <p className="text-sm text-[var(--text-muted)] mb-3">5 identical tiles — only possible with jokers.</p>
+                <p className="text-sm text-[var(--text-muted)] mb-3">5 identical tiles - only possible with jokers.</p>
                 <TileGroup tiles={QUINT_TILES} label="4 × 7 Crak + 1 Joker" />
               </div>
             </div>
@@ -494,7 +494,7 @@ export default function HowToPlayPage() {
                   </svg>
                   <div>
                     <p className="font-semibold text-[var(--error)]">Cannot be used in pairs or singles</p>
-                    <p className="text-[var(--text-secondary)]">A pair must be two real matching tiles — no Jokers allowed.</p>
+                    <p className="text-[var(--text-secondary)]">A pair must be two real matching tiles - no Jokers allowed.</p>
                     <div className="flex gap-1 mt-2 opacity-50">
                       <TileRenderer tile={makeTile('j-bad-1', { kind: 'wind', direction: 'east' })} size="sm" />
                       <TileRenderer tile={makeTile('j-bad-j', { kind: 'joker' })} size="sm" />
@@ -572,7 +572,7 @@ export default function HowToPlayPage() {
             </div>
 
             <Callout type="example">
-              <p>The pattern <strong>FF 222 000 222 555</strong> means: 2 Flowers, a Pung of 2s, a Kong of a matching number, another Pung of 2s, and a Quint of 5s — in any 3 suits.</p>
+              <p>The pattern <strong>FF 222 000 222 555</strong> means: 2 Flowers, a Pung of 2s, a Kong of a matching number, another Pung of 2s, and a Quint of 5s - in any 3 suits.</p>
             </Callout>
 
             <div className="flex flex-col gap-3">
@@ -582,7 +582,7 @@ export default function HowToPlayPage() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="px-3 py-1 rounded-[var(--radius-sm)] text-sm font-bold text-[var(--text-inverse)]" style={{ background: 'var(--error)' }}>Concealed</span>
-                <span className="text-[var(--text-secondary)]">You must draw all tiles from the wall — no claiming allowed.</span>
+                <span className="text-[var(--text-secondary)]">You must draw all tiles from the wall - no claiming allowed.</span>
               </div>
             </div>
 
@@ -641,7 +641,7 @@ export default function HowToPlayPage() {
                 <h4 className="text-lg font-semibold text-[var(--accent-warm)] mb-2" style={{ fontFamily: 'var(--font-display)' }}>Discard Win</h4>
                 <p className="text-[var(--text-secondary)]">Someone else discards the tile you need to win.</p>
                 <div className="mt-3 p-3 rounded-[var(--radius-sm)] bg-[var(--bg-card)]">
-                  <p className="font-semibold text-[var(--accent-warm)]">Only the discarder pays — at double value</p>
+                  <p className="font-semibold text-[var(--accent-warm)]">Only the discarder pays - at double value</p>
                 </div>
               </div>
             </div>
@@ -658,7 +658,7 @@ export default function HowToPlayPage() {
               Ready to try?
             </h2>
             <p className="lede mx-auto mb-8">
-              Jump into a demo game against bots — the best way to learn is by playing.
+              Jump into a demo game against bots - the best way to learn is by playing.
             </p>
             <a href="/lobby" className="btn-berry text-xl px-10">
               Start playing

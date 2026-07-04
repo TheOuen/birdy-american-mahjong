@@ -7,7 +7,7 @@ type EyebrowProps = {
 }
 
 // Section label: a small brand tile beside a tracked small-caps word.
-// The tile variant loosely codes the topic — dot for the brand/lessons,
+// The tile variant loosely codes the topic - dot for the brand/lessons,
 // bam for growth/community, bird for Birdy, flower for warmth.
 export function Eyebrow({ children, tile = 'dot', className }: EyebrowProps) {
   return (

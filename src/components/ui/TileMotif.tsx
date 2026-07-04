@@ -15,7 +15,7 @@ const EDGE_COLORS = {
 } as const
 
 // The brand imagery system: a family of hand-drawn mahjong tiles in the AML
-// palette. Used as eyebrow chips, lesson-card art, and decorative garnish —
+// palette. Used as eyebrow chips, lesson-card art, and decorative garnish -
 // one cohesive alternative to stock photos and clip-art.
 export function TileMotif({ variant, className, edge }: TileMotifProps) {
   const edgeColor = edge ? EDGE_COLORS[edge] : undefined
@@ -76,7 +76,7 @@ export function TileMotif({ variant, className, edge }: TileMotifProps) {
       )}
       {variant === 'bird' && (
         <>
-          {/* The 1 Bam bird — Birdy's namesake */}
+          {/* The 1 Bam bird - Birdy's namesake */}
           <path d="M12 24 L5 18.5 L8.5 27 Z" fill="var(--accent-jade)" />
           <circle cx="19" cy="26" r="8.2" fill="var(--accent-jade)" />
           <circle cx="27" cy="18.5" r="4.8" fill="var(--accent-jade)" />

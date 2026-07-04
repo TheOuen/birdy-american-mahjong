@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero — split: groovy type left, the brand's arch right */}
+      {/* Hero - split: groovy type left, the brand's arch right */}
       <section className="relative overflow-hidden bg-[var(--accent-lavender)]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 md:gap-10 items-center">
           <div className="flex flex-col items-start text-left">
@@ -35,7 +35,7 @@ export default async function HomePage() {
               with Andrew
             </p>
             <p className="lede mt-6 reveal reveal-3">
-              Private lessons across London — the tiles, the Charleston, and the
+              Private lessons across London - the tiles, the Charleston, and the
               official NMJL card, taught at your own table. Between lessons, keep
               playing with Birdy, our free online game.
             </p>
@@ -119,7 +119,7 @@ export default async function HomePage() {
             tile="bird"
             edge="jade"
             title="Play Birdy, free"
-            copy="Our online game plays real NMJL rules — Charleston, jokers and all. Practise any evening, with friends or friendly bots."
+            copy="Our online game plays real NMJL rules - Charleston, jokers and all. Practise any evening, with friends or friendly bots."
             href="/lobby"
             linkLabel="Play online now"
           />
@@ -135,14 +135,14 @@ export default async function HomePage() {
       </Section>
 
       {/* Lessons */}
-      <Section tone="cream" id="lessons">
+      <Section tone="periwinkle" id="lessons">
         <div className="flex flex-col gap-4 mb-10 max-w-2xl">
           <Eyebrow tile="crak">Private lessons</Eyebrow>
           <h2 className="display-xl text-[var(--text-primary)]">
             From first tile to first <em className="display-italic">mahjong!</em>
           </h2>
           <p className="lede">
-            One to one or with friends — every session ends with you playing
+            One to one or with friends - every session ends with you playing
             real hands. After booking, Andrew emails you to arrange a time that
             suits you.
           </p>
@@ -176,7 +176,7 @@ export default async function HomePage() {
             <p className="lede">
               Andrew discovered American Mahjong while travelling across the
               United States and fell for it completely. He founded American
-              Mahjong | London to share the game he loves — patiently, properly,
+              Mahjong | London to share the game he loves - patiently, properly,
               and always over a good pot of tea.
             </p>
             <Link href="/about" className="link-arrow">
@@ -195,11 +195,11 @@ export default async function HomePage() {
             <TileMotif variant="dot" className="h-12 w-auto rotate-6" edge="indigo" />
           </div>
           <h2 className="display-xl max-w-2xl">
-            Play tonight — free, with <em className="display-italic" style={{ color: 'var(--accent-periwinkle)' }}>Birdy</em>
+            Play tonight - free, with <em className="display-italic" style={{ color: 'var(--accent-periwinkle)' }}>Birdy</em>
           </h2>
           <p className="text-xl leading-relaxed text-[var(--accent-lavender)] max-w-xl" style={{ textWrap: 'pretty' }}>
             Birdy is our online American Mahjong game. Real NMJL rules, the
-            Charleston, jokers and all — with friends or against friendly bots,
+            Charleston, jokers and all - with friends or against friendly bots,
             any time.
           </p>
           <Link href="/lobby" className="btn-gold text-xl px-8 h-14">
@@ -217,7 +217,7 @@ export default async function HomePage() {
               152 tiles, one card, endless good evenings.
             </h2>
             <p className="lede">
-              American Mahjong grew from the Shanghai game into its own — with
+              American Mahjong grew from the Shanghai game into its own - with
               jokers, the Charleston, and a card of winning hands published every
               April by the National Mah Jongg League, founded in 1937. Our
               visual guide covers everything you need to sit down and play.
@@ -241,7 +241,7 @@ export default async function HomePage() {
         <div className="max-w-2xl mx-auto flex flex-col gap-4 text-center items-center">
           <h2 className="display-lg text-[var(--text-primary)]">Stay at the table</h2>
           <p className="lede">
-            Events, new products and mahjong news from London — a short email,
+            Events, new products and mahjong news from London - a short email,
             now and then. No spam.
           </p>
           <div className="w-full max-w-md">

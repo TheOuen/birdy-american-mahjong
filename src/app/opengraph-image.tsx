@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-export const alt = 'American Mahjong | London — Learn it once, love it forever'
+export const alt = 'American Mahjong | London - Learn it once, love it forever'
 
 // Brand palette (hardcoded: this runs in an isolated image runtime, no CSS vars).
 const NAVY = '#171D3A'
@@ -76,7 +76,7 @@ export default function OpengraphImage() {
 
         {/* Tagline */}
         <div style={{ fontSize: 32, color: BLUSH }}>
-          Learn it once, love it forever — lessons, equipment &amp; free online play.
+          Learn it once, love it forever - lessons, equipment &amp; free online play.
         </div>
       </div>
     ),

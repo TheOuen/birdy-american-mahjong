@@ -37,7 +37,7 @@ export default function LondonLocalPage() {
             Mahjong is better <em className="display-italic">together.</em>
           </h1>
           <p className="lede">
-            These London clubs and communities are well worth a visit —
+            These London clubs and communities are well worth a visit -
             different styles, same joy.
           </p>
         </div>

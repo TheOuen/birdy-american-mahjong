@@ -9,9 +9,9 @@ export const metadata = { title: 'Private lessons' }
 export const revalidate = 300
 
 const INCLUDED = [
-  'Andrew comes to you, anywhere in London — tiles, racks and cards included',
+  'Andrew comes to you, anywhere in London - tiles, racks and cards included',
   'A complete written guide to keep and return to anytime',
-  'Real hands from your first session — you learn by playing',
+  'Real hands from your first session - you learn by playing',
   'A time that suits you: after booking, Andrew emails to arrange it',
 ] as const
 
@@ -27,7 +27,7 @@ export default async function PrivateLessonsPage() {
             Learn at your own table, <em className="display-italic">at your own pace.</em>
           </h1>
           <p className="lede">
-            One to one or with friends — Andrew teaches American Mahjong the way
+            One to one or with friends - Andrew teaches American Mahjong the way
             it should be learned: hands on the tiles, from the very first
             session.
           </p>
@@ -68,7 +68,7 @@ export default async function PrivateLessonsPage() {
             <div className="flex items-center gap-3">
               <TileMotif variant="bird" edge="jade" className="h-10 w-auto" />
               <h2 className="display-lg text-[var(--text-primary)]">
-                Practise between lessons — free
+                Practise between lessons - free
               </h2>
             </div>
             <p className="lede">

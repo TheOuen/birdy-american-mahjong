@@ -1,7 +1,7 @@
 import { createAuthedServerClient } from '@/lib/supabase/server'
 import { formatGbp } from '@/lib/shop/cart'
 
-export const metadata = { title: 'Orders — Admin' }
+export const metadata = { title: 'Orders - Admin' }
 export const dynamic = 'force-dynamic'
 
 type OrderListItem = {
@@ -18,7 +18,7 @@ type OrderListItem = {
 export default async function AdminOrdersPage() {
   // The (admin) layout already gates on the admin role. Use the authenticated
   // client (not the service client) so RLS "admins read all orders" is a second
-  // line of defense — a non-admin session simply gets no rows, never PII.
+  // line of defense - a non-admin session simply gets no rows, never PII.
   const supabase = await createAuthedServerClient()
   const { data, error } = await supabase
     .from('orders')
@@ -52,11 +52,11 @@ export default async function AdminOrdersPage() {
               {orders.map((o) => (
                 <tr key={o.id}>
                   <td className="px-4 py-3 whitespace-nowrap">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
-                  <td className="px-4 py-3">{o.customer_name ?? '—'}<br /><span className="text-[var(--text-muted)]">{o.customer_email}</span></td>
+                  <td className="px-4 py-3">{o.customer_name ?? '-'}<br /><span className="text-[var(--text-muted)]">{o.customer_email}</span></td>
                   <td className="px-4 py-3">{o.items.map((i) => `${i.slug} × ${i.quantity}`).join(', ')}</td>
                   <td className="px-4 py-3 font-semibold">{formatGbp(o.total_pence)}</td>
                   <td className="px-4 py-3 text-[var(--text-secondary)]">
-                    {o.shipping_address ? Object.values(o.shipping_address).filter(Boolean).join(', ') : '—'}
+                    {o.shipping_address ? Object.values(o.shipping_address).filter(Boolean).join(', ') : '-'}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-sm text-sm font-semibold ${

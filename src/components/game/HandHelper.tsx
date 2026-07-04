@@ -28,13 +28,13 @@ type Suggestion = {
 // is a deliberately naive best-match count: we take the player's current tiles
 // (hand + exposed) and, for each pattern, count the maximum number of tokens
 // the current tiles can supply across every plausible suit assignment. This is
-// lightweight and correct enough to surface the top few targets — not a full
+// lightweight and correct enough to surface the top few targets - not a full
 // matcher run.
 //
 // The real NMJL matcher enforces consecutive / parity / dragon-colour rules; we
 // intentionally skip those here so "suggestions" remain permissive. A player
 // wants to see "you're 3 tiles away from 13579-8" even if their current suit
-// spread doesn't yet line up — worst case the ranking is a little off.
+// spread doesn't yet line up - worst case the ranking is a little off.
 export function suggestClosestHands(
   hand: Tile[],
   exposed: ExposedGroup[],
@@ -86,7 +86,7 @@ export function suggestClosestHands(
     const windLeft = new Map(windCounts)
     const dragonLeft = new Map(dragonCounts)
 
-    // For variable number slots, try 1–9 and pick the value that yields the
+    // For variable number slots, try 1-9 and pick the value that yields the
     // most matches. We do this greedy-per-slot rather than exhaustively to
     // keep cost manageable for the full card. Good enough for ranking.
     const slotBestNumber = new Map<number, number>()
@@ -108,7 +108,7 @@ export function suggestClosestHands(
         slotBestNumber.set(slotId, fixed)
         continue
       }
-      // Try 1–9 and pick the number with the highest total available count
+      // Try 1-9 and pick the number with the highest total available count
       // across any single suit (summed over all groups sharing this slot).
       let bestNum = 1
       let bestScore = -1
@@ -142,7 +142,7 @@ export function suggestClosestHands(
         windLeft.set(g.windDirection, available - take)
         have += take
       } else if (g.kind === 'dragon') {
-        // Try any dragon, even if the pattern specifies one — this helper is
+        // Try any dragon, even if the pattern specifies one - this helper is
         // intentionally forgiving so "close" hands surface.
         let best = 0
         let bestColor: 'red' | 'green' | 'white' | null = null
@@ -213,7 +213,7 @@ export function suggestClosestHands(
 }
 
 // Collapsible on-board panel that shows the top three hands the player is
-// closest to. Rendered only during main play — Charleston already has its own
+// closest to. Rendered only during main play - Charleston already has its own
 // coaching flow, and during that phase suggestions tend to mislead (the hand
 // will change three more times).
 export function HandHelper({ hand, exposed, jokersInHand }: HandHelperProps) {
@@ -251,7 +251,7 @@ export function HandHelper({ hand, exposed, jokersInHand }: HandHelperProps) {
       {open && (
         <div className="px-4 pb-3 flex flex-col gap-2">
           {suggestions.length === 0 && (
-            <p className="text-sm text-[var(--text-muted)]">No suggestions yet — keep drawing.</p>
+            <p className="text-sm text-[var(--text-muted)]">No suggestions yet - keep drawing.</p>
           )}
           {suggestions.map((s) => (
             <div
@@ -265,7 +265,7 @@ export function HandHelper({ hand, exposed, jokersInHand }: HandHelperProps) {
                   </p>
                   <p className="text-xs text-[var(--text-muted)]">
                     {CATEGORY_LABELS[s.hand.category]}
-                    {s.hand.suitsRule ? ` — ${s.hand.suitsRule}` : ''}
+                    {s.hand.suitsRule ? ` - ${s.hand.suitsRule}` : ''}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">

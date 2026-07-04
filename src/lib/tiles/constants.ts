@@ -10,7 +10,7 @@ export type TileType =
   | { kind: 'dragon'; color: DragonColor }
   | { kind: 'flower'; number: number }
   | { kind: 'joker' }
-  // Blanks variant only — wild tile that can be exchanged for any DEAD discard.
+  // Blanks variant only - wild tile that can be exchanged for any DEAD discard.
   // Never allowed in exposures, cannot mahjong on a blank, cannot be passed in Charleston.
   | { kind: 'blank' }
 

@@ -42,6 +42,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: e.message }, { status: 400 })
     }
     console.error('checkout failed', e)
-    return NextResponse.json({ error: 'Checkout failed — please try again.' }, { status: 500 })
+    return NextResponse.json({ error: 'Checkout failed - please try again.' }, { status: 500 })
   }
 }

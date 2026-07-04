@@ -1,4 +1,4 @@
-// Charleston phase — pre-game tile exchange
+// Charleston phase - pre-game tile exchange
 // First Charleston (mandatory): Right → Across → Left
 // Stop vote after first Left: any player saying "stop" ends Charleston (courtesy still offered)
 // Second Charleston (optional): Left → Across → Right
@@ -108,7 +108,7 @@ export function validateCharlestonSelection(
   return { valid: true }
 }
 
-// Validate a blind pass — some tiles forwarded unseen from the just-received bundle,
+// Validate a blind pass - some tiles forwarded unseen from the just-received bundle,
 // the rest selected from the player's own hand. Total must be exactly 3.
 export function validateBlindPass(
   hand: Tile[],
@@ -313,7 +313,7 @@ export function executeCharlestonPass(
   }
 }
 
-// Blind pass — forward 1/2/3 tiles unseen from the just-received bundle,
+// Blind pass - forward 1/2/3 tiles unseen from the just-received bundle,
 // pad with from-hand tiles (no jokers) to reach 3 total. Other players pass normally.
 export function executeCharlestonBlindPass(
   state: DemoGameState,
@@ -451,7 +451,7 @@ export function executeCourtesyPass(
   const human = players[0]
   const partner = players[2]
 
-  // Bot (partner) randomly agrees to 0-3 — skewed toward agreement with however many human offered
+  // Bot (partner) randomly agrees to 0-3 - skewed toward agreement with however many human offered
   const botCount = Math.floor(Math.random() * 4) // 0..3
   const actualCount = Math.min(humanCount, botCount)
 
@@ -471,7 +471,7 @@ export function executeCourtesyPass(
     const shuffled = [...botCandidates].sort(() => Math.random() - 0.5)
     const botSendingIds = shuffled.slice(0, actualCount).map((t) => t.id)
     if (botSendingIds.length < actualCount) {
-      // Not enough non-jokers — abandon courtesy gracefully
+      // Not enough non-jokers - abandon courtesy gracefully
       return {
         gameState: {
           wall: state.wall,

@@ -25,7 +25,7 @@ export function CartContents() {
       if (!res.ok || !data.url) throw new Error(data.error ?? 'Checkout failed')
       window.location.href = data.url
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong — please try again.')
+      setError(e instanceof Error ? e.message : 'Something went wrong - please try again.')
       setSubmitting(false)
     }
   }

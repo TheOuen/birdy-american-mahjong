@@ -9,7 +9,7 @@ const FEATURES: Article[] = [
   {
     title: 'The Benefits of Mahjong',
     source: 'Martha Stewart',
-    blurb: 'Why mahjong is having a moment — brain health, healthy aging, and connection.',
+    blurb: 'Why mahjong is having a moment - brain health, healthy aging, and connection.',
     href: 'https://www.marthastewart.com/benefits-of-mahjong-11871810',
   },
   {
@@ -75,7 +75,7 @@ export default function DiscoverPage() {
             Everything <em className="display-italic">mahjong.</em>
           </h1>
           <p className="lede">
-            Reading, watching, and rabbit holes — our favourite mahjong
+            Reading, watching, and rabbit holes - our favourite mahjong
             resources from around the web.
           </p>
         </div>

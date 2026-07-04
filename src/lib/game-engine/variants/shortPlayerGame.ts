@@ -6,7 +6,7 @@
 // - Turn order is still counter-clockwise, but only across the seats that are present.
 //
 // The engine's existing turn math uses `(i + 1) % turnOrder.length`, which already
-// generalises — we just need turnOrder.length to be 2 or 3 here.
+// generalises - we just need turnOrder.length to be 2 or 3 here.
 
 import { createTileSet } from '../../tiles/constants'
 import type { Tile } from '../../tiles/constants'
@@ -31,7 +31,7 @@ function grabRandomly(pile: Tile[], count: number): Tile[] {
   return grabbed
 }
 
-// Bot names — reuse a subset so 3-player still has a named opponent.
+// Bot names - reuse a subset so 3-player still has a named opponent.
 const BOT_NAMES_BY_COUNT: Record<2 | 3, string[]> = {
   2: ['Margaret'],
   3: ['Margaret', 'Ruth'],

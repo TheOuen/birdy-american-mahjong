@@ -14,7 +14,7 @@ export default function CheckoutSuccessPage() {
         <TileMotif variant="bam" edge="jade" className="h-14 w-auto rotate-6" />
       </div>
       <h1 className="display-hero text-[var(--text-primary)]">
-        Thank you — <em className="display-italic">order confirmed.</em>
+        Thank you - <em className="display-italic">order confirmed.</em>
       </h1>
       <p className="lede mx-auto">
         A receipt is on its way to your email. If your order includes a lesson,

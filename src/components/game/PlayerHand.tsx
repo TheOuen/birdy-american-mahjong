@@ -30,7 +30,7 @@ export function PlayerHand({ tiles, selectedTileId, onTileClick, canDiscard }: P
       </div>
       <p className="text-[var(--text-muted)] text-xs sm:text-sm">
         {tiles.length} tiles
-        {canDiscard && ' — tap to discard'}
+        {canDiscard && ' - tap to discard'}
       </p>
     </div>
   )

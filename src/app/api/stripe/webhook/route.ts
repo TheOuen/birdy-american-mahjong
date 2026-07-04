@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   try {
     await sendEmail({
       to: NOTIFY_EMAIL,
-      subject: `New order ${formatGbp(row.total_pence)} — ${row.customer_email}`,
+      subject: `New order ${formatGbp(row.total_pence)} - ${row.customer_email}`,
       text: `New order from ${row.customer_name ?? row.customer_email} (${row.customer_email})\n\n${itemLines}\n\nTotal: ${formatGbp(row.total_pence)}${shipping}\n\nStripe session: ${row.stripe_session_id}`,
       replyTo: row.customer_email,
     })
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     if (hasLesson) {
       await sendEmail({
         to: row.customer_email,
-        subject: 'Your American Mahjong lesson — next steps',
+        subject: 'Your American Mahjong lesson - next steps',
         text: `Thank you for booking a lesson with American Mahjong | London!\n\nAndrew will email you shortly to arrange a time that suits you.\n\nQuestions in the meantime? Just reply to this email.\n\nLearn it once, love it forever!`,
         replyTo: NOTIFY_EMAIL,
       })

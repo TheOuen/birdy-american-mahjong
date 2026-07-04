@@ -2,7 +2,7 @@
 //
 // - Skip the formal wall build and ritual deal.
 // - Dealer grabs 14 tiles at random from the shuffled pile; everyone else grabs 13.
-// - Charleston is skipped — gameplay resumes normally with the dealer's first discard.
+// - Charleston is skipped - gameplay resumes normally with the dealer's first discard.
 //
 // Intended for travel sets, rushed games, or when nobody has the patience to build a wall.
 
@@ -11,7 +11,7 @@ import type { Tile } from '../../tiles/constants'
 import type { DemoGameState } from '../engine'
 import type { GameState, GameStatus, PlayerState, Seat } from '../types'
 
-// Fisher-Yates shuffle (local copy — avoids importing from engine.ts internals).
+// Fisher-Yates shuffle (local copy - avoids importing from engine.ts internals).
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -35,13 +35,13 @@ function grabRandomly(pile: Tile[], count: number): Tile[] {
 const BOT_NAMES = ['Margaret', 'Ruth', 'Florence']
 
 export function createMessyGame(dealerIndex = 0): DemoGameState {
-  // Same 152-tile standard set — only the deal procedure changes.
+  // Same 152-tile standard set - only the deal procedure changes.
   const pile = shuffle(createTileSet())
 
   const turnOrder = ['player', 'bot-1', 'bot-2', 'bot-3']
   const dealerId = turnOrder[dealerIndex]
 
-  // Deal by "random grab" — splice from random indices rather than pop from the end.
+  // Deal by "random grab" - splice from random indices rather than pop from the end.
   const hands: Tile[][] = [[], [], [], []]
   for (let seat = 0; seat < 4; seat++) {
     const count = seat === dealerIndex ? 14 : 13

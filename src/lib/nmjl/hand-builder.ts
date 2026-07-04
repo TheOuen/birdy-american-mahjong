@@ -1,6 +1,6 @@
 // Helper used by hands-2025.ts and hands-2026.ts to build NmjlHand entries
 // from concise row definitions. Keeping this in its own file keeps the data
-// files readable as "table rows" — the alternative (inlining everything)
+// files readable as "table rows" - the alternative (inlining everything)
 // produces ~200 lines of `{ id: ..., category: ..., pattern: ..., ... }`.
 //
 // The builder:
@@ -31,7 +31,7 @@ export type HandRow = {
 }
 
 // Auto-derive colour groups from the pattern. This is a best-effort
-// heuristic — see HandRow.colours for manual overrides.
+// heuristic - see HandRow.colours for manual overrides.
 function autoColours(pattern: string): Record<number, 'blue' | 'red' | 'green'> {
   const groups = parsePattern(pattern)
   const labels: Array<'blue' | 'red' | 'green'> = ['blue', 'red', 'green']

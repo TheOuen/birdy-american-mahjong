@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 // localStorage key for the "speak discards aloud" preference. Default is true
-// — our primary audience (elderly players) benefits from hearing each discard
+// - our primary audience (elderly players) benefits from hearing each discard
 // named, matching real-table etiquette where every discard is spoken.
 const STORAGE_KEY = 'birdy.speech.enabled'
 
@@ -27,7 +27,7 @@ function writeValue(value: boolean) {
   try {
     window.localStorage.setItem(STORAGE_KEY, String(value))
   } catch {
-    // ignore — localStorage may be blocked
+    // ignore - localStorage may be blocked
   }
 }
 
@@ -45,7 +45,7 @@ function pickVoice(): SpeechSynthesisVoice | null {
   return english ?? voices[0] ?? null
 }
 
-// useSpeech — SSR-safe hook that exposes a stable `speak(text)` callback plus
+// useSpeech - SSR-safe hook that exposes a stable `speak(text)` callback plus
 // the current enabled flag and a setter. Consumers don't need to worry about
 // feature detection; speak() becomes a no-op when unavailable or disabled.
 export function useSpeech(): {
@@ -101,7 +101,7 @@ export function useSpeech(): {
         if (voice) utterance.voice = voice
         window.speechSynthesis.speak(utterance)
       } catch {
-        // Browsers can throw on rapid speak calls — swallow silently.
+        // Browsers can throw on rapid speak calls - swallow silently.
       }
     },
     [enabled]

@@ -11,7 +11,7 @@ export function createServerClient() {
 
 // Cookie-aware client that carries the signed-in user's session, so RLS
 // policies (and auth.getUser) work in Server Components and Route Handlers.
-// Use this — never the service client — for any authenticated/gated view.
+// Use this - never the service client - for any authenticated/gated view.
 export async function createAuthedServerClient() {
   const cookieStore = await cookies();
   return createSSRClient(
@@ -28,7 +28,7 @@ export async function createAuthedServerClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Called from a Server Component render — cookies are read-only here.
+            // Called from a Server Component render - cookies are read-only here.
             // Session refresh is handled where a mutable cookie store is available.
           }
         },

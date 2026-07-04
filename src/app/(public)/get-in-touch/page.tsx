@@ -32,7 +32,7 @@ export default function GetInTouchPage() {
           <div className="mt-2 rounded-[var(--radius-tile)] bg-[var(--accent-blush)] p-6 sm:p-8 flex flex-col gap-3">
             <h2 className="display-lg text-[var(--text-primary)]">Join the newsletter</h2>
             <p className="text-lg text-[var(--text-secondary)]">
-              Events, new products, and mahjong news — no spam.
+              Events, new products, and mahjong news - no spam.
             </p>
             <NewsletterForm />
           </div>

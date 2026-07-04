@@ -1,6 +1,6 @@
 type TileFrameProps = {
   children: React.ReactNode
-  /** Colour of the tile's "side edge" — the layered stripe under the face. */
+  /** Colour of the tile's "side edge" - the layered stripe under the face. */
   edge?: 'berry' | 'jade' | 'indigo' | 'periwinkle'
   /** Slight tabletop tilt, like a tile just placed. */
   tilt?: 'left' | 'right'
@@ -19,7 +19,7 @@ const TILT_STYLES = {
   right: { transform: 'rotate(1.5deg)' },
 } as const
 
-// The signature device: content framed as an oversized mahjong tile —
+// The signature device: content framed as an oversized mahjong tile -
 // cream face, navy keyline, and a coloured side edge below, echoing the
 // layered acrylic tiles in Andrew's set.
 export function TileFrame({ children, edge = 'berry', tilt, className }: TileFrameProps) {

@@ -15,7 +15,7 @@ type NmjlCardViewerProps = {
 }
 
 // Card categories in the printed order. '2025' only appears on the 2025 card,
-// '2026' only on the 2026 card — the viewer filters to whichever the year has.
+// '2026' only on the 2026 card - the viewer filters to whichever the year has.
 const CATEGORY_ORDER: HandCategory[] = [
   '2025', '2026', '2468', 'any-like-numbers', 'quints', 'consecutive-run',
   '13579', 'winds-dragons', '369', 'singles-and-pairs',
@@ -112,7 +112,7 @@ export function NmjlCardViewer({ isOpen, onClose, year }: NmjlCardViewerProps) {
           </button>
         </div>
 
-        {/* Colour legend — explains what the blue/red/green text means */}
+        {/* Colour legend - explains what the blue/red/green text means */}
         <div className="px-6 py-2 border-b border-[var(--border)] bg-[var(--bg-card)] text-xs text-[var(--text-muted)] flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>Colour marks suit-matching groups:</span>
           <span><span style={{ color: COLOUR_CSS.blue }} className="font-bold">blue</span> = suit A</span>

@@ -1,4 +1,4 @@
-// NMJL card registry — exposes both the 2025 and 2026 datasets and defaults
+// NMJL card registry - exposes both the 2025 and 2026 datasets and defaults
 // the active card to 2026 (the card that's live on physical tables today).
 //
 // Callers that need to pin to a specific year (e.g. tests, or a "practice

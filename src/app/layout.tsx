@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "American Mahjong | London — Learn it once, love it forever",
-    template: "%s — American Mahjong | London",
+    default: "American Mahjong | London - Learn it once, love it forever",
+    template: "%s - American Mahjong | London",
   },
   description:
-    "American Mahjong lessons in London with Andrew — private sessions, official NMJL cards and scorecards, and Birdy, our free online game. Learn it once, love it forever!",
+    "American Mahjong lessons in London with Andrew - private sessions, official NMJL cards and scorecards, and Birdy, our free online game. Learn it once, love it forever!",
 };
 
 export default function RootLayout({

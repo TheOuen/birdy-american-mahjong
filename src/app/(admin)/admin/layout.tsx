@@ -80,7 +80,7 @@ export default async function AdminLayout({
   children: React.ReactNode
 }>) {
   // Gate the entire admin panel: only signed-in users whose server-set
-  // app_metadata.role is 'admin' may proceed. Fail closed — any auth error
+  // app_metadata.role is 'admin' may proceed. Fail closed - any auth error
   // or missing/insufficient role redirects to login.
   const supabase = await createAuthedServerClient()
   const {

@@ -24,7 +24,7 @@ function getTileColor(type: TileType): string {
     case 'joker':
       return 'var(--tile-joker)'
     case 'blank':
-      // Blanks variant only — subdued neutral so it reads as "empty"
+      // Blanks variant only - subdued neutral so it reads as "empty"
       return 'var(--text-muted)'
   }
 }

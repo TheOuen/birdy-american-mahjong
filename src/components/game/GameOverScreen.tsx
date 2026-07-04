@@ -42,7 +42,7 @@ export function GameOverScreen({ gameState, onPlayAgain }: GameOverScreenProps) 
               Wall Game
             </p>
             <p className="text-base sm:text-lg text-[var(--text-muted)] mt-2">
-              No tiles remain — no winner this round. No points exchanged.
+              No tiles remain - no winner this round. No points exchanged.
             </p>
           </>
         )}

@@ -33,7 +33,7 @@ export default function AboutPage() {
             <p className="lede">
               Andrew Robson grew up in South Africa, where he studied PPE, before
               moving to London to study Law. He discovered American Mahjong while
-              travelling across the United States — and fell for the game
+              travelling across the United States - and fell for the game
               completely.
             </p>
             <p className="lede">
@@ -58,7 +58,7 @@ export default function AboutPage() {
             </h2>
             <p className="lede">
               Mahjong began in Shanghai in the 1800s and spread into distinct
-              regional styles — Hong Kong, Japanese riichi, and American among
+              regional styles - Hong Kong, Japanese riichi, and American among
               them. American Mahjong is played with 152 tiles including jokers,
               and a standardised card of winning hands published every April by
               the{' '}
@@ -96,7 +96,7 @@ export default function AboutPage() {
           <TileMotif variant="bird" edge="jade" className="h-14 w-auto" />
           <h2 className="display-xl max-w-2xl">Play online with Birdy</h2>
           <p className="text-xl leading-relaxed text-[var(--accent-lavender)] max-w-xl" style={{ textWrap: 'pretty' }}>
-            Birdy is our free online American Mahjong game — real NMJL rules,
+            Birdy is our free online American Mahjong game - real NMJL rules,
             the Charleston, jokers and all. Play with friends or against
             friendly bots, any time.
           </p>

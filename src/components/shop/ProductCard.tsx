@@ -6,7 +6,7 @@ import type { Product } from '@/lib/shop/types'
 type ProductCardProps = { product: Product }
 
 // Every card reads as a mahjong tile: cream face, navy keyline, coloured side
-// edge. Photography is the brand's own gingham-mat shots — the same images the
+// edge. Photography is the brand's own gingham-mat shots - the same images the
 // live site uses for its lesson cards.
 const EDGES = ['tile-edge-berry', 'tile-edge-jade', 'tile-edge-indigo'] as const
 

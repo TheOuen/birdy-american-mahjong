@@ -20,7 +20,7 @@ export function NewsletterForm() {
   if (status === 'done') {
     return (
       <p role="status" className="rounded-[var(--radius-lg)] bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
-        You&apos;re on the list — welcome to the table!
+        You&apos;re on the list - welcome to the table!
       </p>
     )
   }
@@ -44,7 +44,7 @@ export function NewsletterForm() {
       </button>
       {status === 'error' && (
         <p role="alert" className="text-[var(--error)] text-lg sm:self-center">
-          That didn&apos;t go through — please try again.
+          That didn&apos;t go through - please try again.
         </p>
       )}
     </form>

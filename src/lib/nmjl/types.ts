@@ -14,21 +14,21 @@ export type HandCategory =
 // preserved so teaching-UI and admin tools can show the exact card wording.
 //
 // Meanings:
-//   suitCount        — number of distinct suits (Bam/Crak/Dot) the hand uses.
+//   suitCount        - number of distinct suits (Bam/Crak/Dot) the hand uses.
 //                      String forms ('1 or 2', '2 or 3', '1 or 3', 'any')
 //                      mirror the card's language directly.
-//   matchingDragon   — dragons in the hand must match the suit they're paired
+//   matchingDragon   - dragons in the hand must match the suit they're paired
 //                      with via colourGroups: Bam↔Green, Crak↔Red, Dot↔White.
-//   oppositeDragon   — a single dragon group must NOT match the colour of the
+//   oppositeDragon   - a single dragon group must NOT match the colour of the
 //                      suit group(s) it's paired with.
-//   oppositeDragons  — multiple dragon groups, each opposite of its paired
+//   oppositeDragons  - multiple dragon groups, each opposite of its paired
 //                      suit (plural form used by the physical card).
-//   consecutive      — the variable-number slots must form a consecutive run.
-//   like             — every variable-number slot must share a single value.
-//   parity           — every variable-number slot must be all-even or all-odd.
-//   windsOnly        — only these winds may appear in the hand's wind groups.
-//   pairsSameSuit    — the hand's pair groups must share a single suit.
-//   raw              — verbatim text from the card, for display.
+//   consecutive      - the variable-number slots must form a consecutive run.
+//   like             - every variable-number slot must share a single value.
+//   parity           - every variable-number slot must be all-even or all-odd.
+//   windsOnly        - only these winds may appear in the hand's wind groups.
+//   pairsSameSuit    - the hand's pair groups must share a single suit.
+//   raw              - verbatim text from the card, for display.
 export type SuitsConstraint = {
   suitCount?: 1 | 2 | 3 | '1 or 2' | '2 or 3' | '1 or 3' | 'any'
   matchingDragon?: boolean

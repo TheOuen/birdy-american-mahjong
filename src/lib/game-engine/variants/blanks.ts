@@ -10,15 +10,15 @@
 //     • You cannot declare mahjong ON a blank (the 14th tile can't BE a blank).
 //     • If you drew a blank as your 14th for mahjong, you may exchange it on your
 //       turn as a special case (handled at declaration time).
-//     • Exchanged discreetly between turns — NOT on your own turn except the
+//     • Exchanged discreetly between turns - NOT on your own turn except the
 //       mahjong exception above.
-//     • Once discarded, blanks are dead — cannot be claimed.
+//     • Once discarded, blanks are dead - cannot be claimed.
 //     • Cannot be passed in Charleston (like jokers). Blanks-variant games skip
 //       Charleston entirely in this implementation, so the Charleston validator
 //       never sees a blank.
 //
 // Validation that blanks may not appear in exposures / may not be claimed lives in
-// `claims.ts` and `jokerSwap.ts` (owned by P2 agent) — see TODO comments below.
+// `claims.ts` and `jokerSwap.ts` (owned by P2 agent) - see TODO comments below.
 
 import { createBlanksVariantTileSet } from '../../tiles/constants'
 import type { Tile, TileId } from '../../tiles/constants'
@@ -37,7 +37,7 @@ function shuffle<T>(arr: T[]): T[] {
 const BOT_NAMES = ['Margaret', 'Ruth', 'Florence']
 
 export function createBlanksGame(dealerIndex = 0): DemoGameState {
-  // 160 tiles — 6 blanks + 10 jokers in addition to the standard 144 non-joker tiles.
+  // 160 tiles - 6 blanks + 10 jokers in addition to the standard 144 non-joker tiles.
   const tiles = shuffle(createBlanksVariantTileSet())
   const wall = [...tiles]
 
@@ -93,7 +93,7 @@ export function createBlanksGame(dealerIndex = 0): DemoGameState {
     discardPile: [],
     // TODO(P5): the DRAFT GUIDE does not explicitly ban Charleston in this variant,
     // but blanks cannot be passed (like jokers). For simplicity we skip Charleston
-    // here — revisit if real users request it. Charleston validator (charleston.ts)
+    // here - revisit if real users request it. Charleston validator (charleston.ts)
     // is owned by the P3 agent; when they touch it, add a `kind === 'blank'` check
     // alongside the existing `kind === 'joker'` guard.
     charlestonStep: 'done',
@@ -118,16 +118,16 @@ export type ExchangeBlankResult =
  *
  * Dead discard = any discard in the pile that is NOT the most recent one and NOT a joker.
  * (Jokers in the discard pile are always dead per NMJL, but you can't swap a blank for
- * a joker — "never a dead joker.")
+ * a joker - "never a dead joker.")
  *
  * Note: this helper performs the core mechanical swap only. The calling layer is
  * responsible for timing (between turns vs. on-turn mahjong exception) and for any
- * `isMahjongDeclaration` flag — both are surfaced by passing `allowOnOwnTurn`.
+ * `isMahjongDeclaration` flag - both are surfaced by passing `allowOnOwnTurn`.
  *
- * Per DRAFT GUIDE, "the newly retrieved tile is then played to the slope of the rack" —
+ * Per DRAFT GUIDE, "the newly retrieved tile is then played to the slope of the rack" -
  * i.e. the retrieved tile visibly joins the hand. For digital simplicity we place it
  * into the player's hand array (not an exposure), and we remove the blank entirely from
- * play (it is not added to the discard pile — blanks in hand are the only instance;
+ * play (it is not added to the discard pile - blanks in hand are the only instance;
  * once exchanged, the blank is retired per the rulebook's "discreet exchange" intent).
  */
 export function exchangeBlank(
@@ -179,7 +179,7 @@ export function exchangeBlank(
     return { success: false, error: 'You may not exchange a blank for a dead joker.' }
   }
 
-  // Already-claimed entries do not represent a dead pile tile anymore — skip them.
+  // Already-claimed entries do not represent a dead pile tile anymore - skip them.
   if (targetEntry.claimed) {
     return { success: false, error: 'That discard was already claimed and is no longer in the pile.' }
   }
@@ -216,5 +216,5 @@ export function exchangeBlank(
 //   1. Blanks are rejected from any exposure (`executeClaim` must filter `kind === 'blank'`).
 //   2. A hand containing blanks cannot declare mahjong (the 14th tile can't be a blank);
 //      `declare_mahjong` validation should reject blanks on the winning-tile position.
-//   3. Discarded blanks cannot be claimed — `getValidClaims` should return [] for any
+//   3. Discarded blanks cannot be claimed - `getValidClaims` should return [] for any
 //      discard whose tile kind is 'blank'.

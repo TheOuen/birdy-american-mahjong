@@ -25,7 +25,7 @@ export function canSwapJokerInGroup(
   // Fallback: check against non-joker tiles in the group
   const nonJokerTile = group.tiles.find((t) => t.type.kind !== 'joker')
   if (!nonJokerTile) {
-    // All jokers with no representsTileType — can't determine what to swap
+    // All jokers with no representsTileType - can't determine what to swap
     return false
   }
 
@@ -73,11 +73,11 @@ export function findJokerSwaps(
   return swaps
 }
 
-// Execute a joker swap — returns new state + the tile ID that cannot be discarded this turn.
+// Execute a joker swap - returns new state + the tile ID that cannot be discarded this turn.
 //
 // NOTE: Per DRAFT GUIDE Joker Rule 6, jokers in a DEAD player's exposed
 // groups remain swappable by other (live) players. So we intentionally do NOT
-// reject swaps where the target player is dead — we only reject if the
+// reject swaps where the target player is dead - we only reject if the
 // ACTOR (the swapping player) is dead or it isn't their turn.
 export function executeJokerSwap(
   state: DemoGameState,
@@ -101,7 +101,7 @@ export function executeJokerSwap(
 
   const target = state.gameState.players.find((p) => p.id === targetPlayerId)
   if (!target) return null
-  // Intentionally do not block target.isDead — see function docblock.
+  // Intentionally do not block target.isDead - see function docblock.
 
   const group = target.exposed[groupIndex]
   if (!group) return null
@@ -120,7 +120,7 @@ export function executeJokerSwap(
   const newHand = player.hand.filter((t) => t.id !== handTileId)
   newHand.push(jokerTile)
 
-  // Update players — handle self-swap case (player swaps their own exposed group)
+  // Update players - handle self-swap case (player swaps their own exposed group)
   const updatedPlayers = state.gameState.players.map((p) => {
     if (p.id === playerId && playerId === targetPlayerId) {
       // Self-swap: update both hand AND exposed on the same player

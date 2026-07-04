@@ -28,7 +28,7 @@ export type CalculateScoreOpts = {
   // the jokerless bonus is skipped (shape-compat for callers that haven't
   // threaded joker counts yet).
   jokersUsed?: number
-  // Hand category from the NMJL card. Used to gate the jokerless bonus —
+  // Hand category from the NMJL card. Used to gate the jokerless bonus -
   // Singles & Pairs hands do NOT get the 2x multiplier.
   handCategory?: string
   // Optional pending Mahjong-in-Error penalty to reconcile at win-time.
@@ -52,7 +52,7 @@ export function calculateScore(
   const { discarderId, jokersUsed, handCategory, pendingMahjongError } = opts
 
   // Jokerless bonus: winner used zero jokers and the hand is not S&P.
-  // jokersUsed === -1 (or undefined) means "unknown" — skip the bonus.
+  // jokersUsed === -1 (or undefined) means "unknown" - skip the bonus.
   const jokerlessBonus =
     typeof jokersUsed === 'number' &&
     jokersUsed === 0 &&
@@ -79,7 +79,7 @@ export function calculateScore(
     payments.set(discarderId, -discardPayment)
     payments.set(winnerId, discardPayment)
 
-    // Other players pay nothing — explicitly zero them out so the payments map
+    // Other players pay nothing - explicitly zero them out so the payments map
     // lists every seat (important for dead-hand audit trails).
     for (const p of gameState.players) {
       if (p.id === winnerId || p.id === discarderId) continue
@@ -104,7 +104,7 @@ export function calculateScore(
 }
 
 // Apply score results to player states.
-// Dead players are included — they still owe losses when someone else wins.
+// Dead players are included - they still owe losses when someone else wins.
 export function applyScores(
   players: PlayerState[],
   scoreResult: ScoreResult

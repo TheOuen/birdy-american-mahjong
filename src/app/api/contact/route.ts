@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { sendEmail, validateContact, NOTIFY_EMAIL } from '@/lib/email/send'
+import { createServiceClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   let body: unknown
@@ -17,6 +18,19 @@ export async function POST(request: Request) {
   const submission = validateContact(body)
   if (!submission) {
     return NextResponse.json({ error: 'Please fill in your name, a valid email, and a message.' }, { status: 400 })
+  }
+
+  // Store in the admin inbox first (best-effort - the email below is the
+  // primary notification; a DB outage must not block the message).
+  try {
+    const supabase = createServiceClient()
+    await supabase.from('contact_messages').insert({
+      name: submission.name,
+      email: submission.email,
+      message: submission.message,
+    })
+  } catch (e) {
+    console.error('contact message store failed', e)
   }
 
   try {

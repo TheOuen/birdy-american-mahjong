@@ -5,13 +5,13 @@
 // `getActiveCard()` from registry.ts; callers may pin to a specific year.
 //
 // This file implements:
-//   * Pattern tokenisation — splits e.g. `222 000 2222 6666` into typed groups.
+//   * Pattern tokenisation - splits e.g. `222 000 2222 6666` into typed groups.
 //     The token `0`/`00`/`000`/`0000` means White Dragon (Soap), NOT a
 //     variable-number suit slot. See parsePattern().
-//   * Structured suits-rule enforcement — parses the English "Any 3 Suits,
+//   * Structured suits-rule enforcement - parses the English "Any 3 Suits,
 //     Like Kongs w Matching Dragons" text into a SuitsConstraint object and
 //     enforces it during matching. See parseSuitsRule() / trySuitAssignment().
-//   * Colour-group enforcement — all tokens sharing a colour on the physical
+//   * Colour-group enforcement - all tokens sharing a colour on the physical
 //     NMJL card must end up in a single suit; the hand's total distinct-suit
 //     count must match the suitsRule.
 //
@@ -52,8 +52,8 @@ export type ParsedGroup = {
 // Parse a pattern string into groups.
 //
 // Key rule: `0`/`00`/`000`/`0000` is ALWAYS White Dragon (Soap). The 2025/2026
-// cards use 0 as both a digit-in-the-year-label (e.g. "2026" — where 0 is a
-// White Dragon single) and as a run of soaps (e.g. "000" — three White
+// cards use 0 as both a digit-in-the-year-label (e.g. "2026" - where 0 is a
+// White Dragon single) and as a run of soaps (e.g. "000" - three White
 // Dragons). We emit a dragon group with dragonColor='white' in both cases.
 export function parsePattern(pattern: string): ParsedGroup[] {
   const groups: ParsedGroup[] = []
@@ -328,13 +328,13 @@ function isSuitCountCompatible(
   return true
 }
 
-// Result type — a matched hand + the number of jokers consumed.
+// Result type - a matched hand + the number of jokers consumed.
 // jokersUsed is load-bearing for the "Jokerless Mahjong" double bonus (Rule 7).
 export type MatchResult = NmjlHand & { jokersUsed: number }
 
 type TryMatchResult = { ok: true; jokersUsed: number } | { ok: false }
 
-// tryMatch — the core constraint-satisfaction loop.
+// tryMatch - the core constraint-satisfaction loop.
 function tryMatch(
   nmjlHand: NmjlHand,
   groups: ParsedGroup[],
@@ -579,7 +579,7 @@ function trySuitAssignment(
       const available = counts.suits.get(key) ?? 0
       if (available >= needed) continue
       const deficit = needed - available
-      // Determine whether any contributing group has count < 3 — if so,
+      // Determine whether any contributing group has count < 3 - if so,
       // the pair/single portion must be real (jokers illegal). We over-
       // approximate by checking ALL groups for this key: if the *minimum*
       // group count for the key is <3, the exact count for that group must
@@ -654,7 +654,7 @@ function trySuitAssignment(
       // (size<3 deficit already rejected above)
     }
 
-    // 7. Enforce pairsSameSuit — all pair-count groups must share one suit.
+    // 7. Enforce pairsSameSuit - all pair-count groups must share one suit.
     if (constraints.pairsSameSuit) {
       const pairSuits = new Set<Suit>()
       for (const g of suitGroups) {

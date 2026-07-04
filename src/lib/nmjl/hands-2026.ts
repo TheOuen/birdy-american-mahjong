@@ -2,7 +2,7 @@
 //
 // Sourced from 2026 NMJL Card Teaching Guide.docx (supplied by the client).
 // Three patterns (marked `patternReconstructed: true`) total 13 tiles as
-// extracted — likely docx-conversion losses. We reconstruct each to the most
+// extracted - likely docx-conversion losses. We reconstruct each to the most
 // plausible 14-tile shape based on category/rule; re-verify against a scan
 // of the physical card before publishing.
 

@@ -33,7 +33,7 @@ export function CartProvider({ children }: CartProviderProps) {
         }
       }
     } catch {
-      // corrupted storage — start with an empty cart
+      // corrupted storage - start with an empty cart
     }
     setHydrated(true)
   }, [])

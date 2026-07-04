@@ -10,7 +10,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     slug: 'beginner-individual-session',
     name: 'Beginner Individual Session (2.5 Hours)',
     description:
-      "New to Mahjong? Our Beginner Session is the perfect place to start. Learn the tiles, the rules, and how to build winning hands — at your own pace. You'll leave with a complete guide to take home and return to anytime.",
+      "New to Mahjong? Our Beginner Session is the perfect place to start. Learn the tiles, the rules, and how to build winning hands - at your own pace. You'll leave with a complete guide to take home and return to anytime.",
     price_pence: 25000,
     type: 'lesson',
     image: '/aml/lesson-beginner.png',
@@ -43,7 +43,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     slug: 'nmjl-card-2026',
     name: '2026 Official NMJL Card (Large Print)',
     description:
-      "The official 2026 National Mah Jongg League card, large print edition, imported from the US. Released every April with the year's official winning hands — required to play American Mahjong.",
+      "The official 2026 National Mah Jongg League card, large print edition, imported from the US. Released every April with the year's official winning hands - required to play American Mahjong.",
     price_pence: 1500,
     type: 'physical',
     image: '/aml/nmjl-card-2026.png',
@@ -70,7 +70,7 @@ function sortedFallback(): Product[] {
 }
 
 // True only when Supabase is actually configured. Without it, the catalog
-// helpers degrade to "no products" instead of throwing — so the marketing
+// helpers degrade to "no products" instead of throwing - so the marketing
 // site (home, shop, lessons) still builds and renders. Wire up Supabase and
 // the catalog populates on the next revalidation.
 function supabaseConfigured(): boolean {

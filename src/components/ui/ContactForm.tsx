@@ -34,7 +34,7 @@ export function ContactForm() {
   if (status === 'sent') {
     return (
       <p role="status" className="rounded-[var(--radius-lg)] bg-[var(--success-light)] text-[var(--success)] px-5 py-4 text-xl">
-        Thank you — your message is on its way. Andrew will get back to you soon.
+        Thank you - your message is on its way. Andrew will get back to you soon.
       </p>
     )
   }
@@ -53,7 +53,7 @@ export function ContactForm() {
         Message
         <textarea name="message" required maxLength={5000} rows={6} className="input-elegant" />
       </label>
-      {/* Honeypot — hidden from humans, catnip for bots */}
+      {/* Honeypot - hidden from humans, catnip for bots */}
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       {status === 'error' && (
         <p role="alert" className="rounded-[var(--radius-lg)] bg-[var(--error-light)] text-[var(--error)] px-4 py-3 text-lg">
