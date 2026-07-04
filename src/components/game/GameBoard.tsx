@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import Image from 'next/image'
 import type { TileId } from '@/lib/tiles/constants'
-import type { BotDifficulty, ClaimType, GameMode } from '@/lib/game-engine/types'
+import type { BotDifficulty, ClaimType, GameMode, PlayerState } from '@/lib/game-engine/types'
 import {
   createDemoGame,
   createGameForMode,
@@ -11,7 +10,6 @@ import {
   discardTile,
   botTurn,
   isGameOver,
-  rotateDealerForNextRound,
   chooseBotDiscard,
   collectAndResolveClaims,
   winByDiscard,
@@ -26,10 +24,9 @@ import {
 import { findJokerSwaps, executeJokerSwap } from '@/lib/game-engine/jokerSwap'
 import { JokerSwapDialog } from './JokerSwapDialog'
 import type { JokerSwapOption } from './JokerSwapDialog'
+import { SeatPlaque } from './SeatPlaque'
 import { PlayerHand } from './PlayerHand'
 import { DiscardPile } from './DiscardPile'
-import { OpponentRow } from './OpponentRow'
-import { ExposedGroups } from './ExposedGroups'
 import { ClaimDialog } from './ClaimDialog'
 import { NmjlCardViewer } from './NmjlCardViewer'
 import { CharlestonPhase } from './CharlestonPhase'
@@ -42,7 +39,7 @@ import {
   submitStopVote,
 } from '@/lib/game-engine/charleston'
 import type { CharlestonState } from '@/lib/game-engine/charleston'
-import { hasWinningHand, findMatchingHands, wouldCompleteHand } from '@/lib/nmjl/matcher'
+import { hasWinningHand, findMatchingHands } from '@/lib/nmjl/matcher'
 import { calculateScore, applyScores } from '@/lib/game-engine/scoring'
 
 type ClaimPhase = {
@@ -789,7 +786,6 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
   }
 
   const player = game.gameState.players.find((p) => p.id === 'player')!
-  const opponents = game.gameState.players.filter((p) => p.id !== 'player')
   const gameOver = isGameOver(game)
 
   // Show timer only during playing phase when it's the player's turn
@@ -806,19 +802,40 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
       ? findJokerSwaps(player, game.gameState.players)
       : []
 
+  // Seats around the table, counter-clockwise from you: next player on your
+  // right, then across, then left - the real-table arrangement.
+  const order = game.gameState.turnOrder
+  const seatCount2 = order.length
+  const meIdx = order.indexOf('player')
+  const seatAt = (rel: number) =>
+    game.gameState.players.find((p) => p.id === order[(meIdx + rel) % seatCount2])
+  const rightSeat = seatCount2 >= 3 ? seatAt(1) : undefined
+  const acrossSeat = seatCount2 === 4 ? seatAt(2) : seatCount2 === 2 ? seatAt(1) : undefined
+  const leftSeat = seatCount2 === 4 ? seatAt(3) : seatCount2 === 3 ? seatAt(2) : undefined
+  const dealerId = order[game.gameState.dealerIndex]
+  const lastEntry = game.gameState.discardPile[game.gameState.discardPile.length - 1]
+  const lastDiscardBy = lastEntry
+    ? game.gameState.players.find((p) => p.id === lastEntry.discardedBy)?.displayName
+    : undefined
+  const renderSeat = (p?: PlayerState) =>
+    p ? (
+      <SeatPlaque
+        player={p}
+        isCurrentTurn={game.gameState.currentTurn === p.id}
+        isDealer={p.id === dealerId}
+      />
+    ) : null
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-table)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-dark)' }}>
       {/* Game Header - dark, elegant */}
       <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-        <div className="flex items-center gap-3 text-[#A09888]">
-          <span className="text-xs sm:text-sm font-medium">
-            Wall: <span className="text-[var(--accent-gold)]">{game.gameState.tilesRemaining}</span>
-          </span>
-          <span className="text-[rgba(255,255,255,0.15)] hidden sm:inline">|</span>
-          <span className="text-xs sm:text-sm font-medium hidden sm:inline">
-            Round <span className="text-[var(--accent-gold)]">{game.gameState.round}</span>
-          </span>
-        </div>
+        <p
+          className="text-sm sm:text-base font-bold tracking-wide"
+          style={{ color: 'var(--accent-periwinkle)', fontFamily: 'var(--font-display)' }}
+        >
+          Birdy
+        </p>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCard(true)}
@@ -838,20 +855,46 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
         </div>
       </header>
 
-      {/* Opponents - on the felt */}
-      <div className="flex justify-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-5 flex-wrap">
-        {opponents.map((opp) => (
-          <OpponentRow
-            key={opp.id}
-            player={opp}
-            isCurrentTurn={game.gameState.currentTurn === opp.id}
-          />
-        ))}
-      </div>
+      {/* The table - seats arranged around a felt centre */}
+      <div className="flex-1 w-full max-w-5xl mx-auto flex flex-col gap-2 sm:gap-3 px-2 sm:px-6 py-3 sm:py-4">
+        {/* Seat across the table */}
+        <div className="flex justify-center">{renderSeat(acrossSeat)}</div>
 
-      {/* Center - Discard pile + status */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-5 px-3 sm:px-6">
-        <DiscardPile discards={game.gameState.discardPile} />
+        {/* Small screens: side seats sit above the felt */}
+        <div className="flex md:hidden justify-center gap-2 flex-wrap">
+          {renderSeat(leftSeat)}
+          {renderSeat(rightSeat)}
+        </div>
+
+        <div className="flex items-center justify-center gap-3 sm:gap-5">
+          <div className="hidden md:flex flex-col justify-center min-w-[170px]">
+            {renderSeat(leftSeat)}
+          </div>
+
+          {/* The felt */}
+          <div
+            className="flex-1 max-w-2xl min-h-[240px] sm:min-h-[300px] rounded-[36px] flex flex-col items-center justify-center gap-2.5 p-4 sm:p-6"
+            style={{
+              background: 'radial-gradient(ellipse at center, #205138 0%, var(--bg-table) 75%)',
+              border: '6px solid rgba(15, 20, 40, 0.9)',
+              boxShadow: 'inset 0 2px 28px rgba(0,0,0,0.45), 0 12px 32px rgba(0,0,0,0.35)',
+            }}
+          >
+            <p
+              className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em]"
+              style={{ color: 'rgba(229, 233, 253, 0.55)' }}
+            >
+              Wall {game.gameState.tilesRemaining} &middot; Round {game.gameState.round}
+            </p>
+            <DiscardPile discards={game.gameState.discardPile} lastDiscardBy={lastDiscardBy} />
+          </div>
+
+          <div className="hidden md:flex flex-col justify-center min-w-[170px] items-end">
+            {renderSeat(rightSeat)}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 px-1">
 
         {/* Status message with turn timer */}
         <div
@@ -864,17 +907,6 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
         >
           <p className="text-[var(--text-primary)] text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-body)' }}>
             {message}
-            {showTimer && (
-              <span
-                className={`ml-2 font-bold ${
-                  turnTimer <= 15
-                    ? 'text-[var(--accent-warm)]'
-                    : 'text-[var(--text-muted)]'
-                }`}
-              >
-                - {turnTimer}s
-              </span>
-            )}
           </p>
         </div>
 
@@ -958,14 +990,19 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
             }}
           />
         )}
-      </div>
-
-      {/* Player exposed groups */}
-      {player.exposed.length > 0 && (
-        <div className="px-6 py-3 flex justify-center">
-          <ExposedGroups groups={player.exposed} />
         </div>
-      )}
+
+        {/* Your seat - clock lives here, chess.com style */}
+        <div className="flex justify-center">
+          <SeatPlaque
+            player={player}
+            isCurrentTurn={isPlayerTurn}
+            isDealer={player.id === dealerId}
+            clockSec={showTimer ? turnTimer : null}
+            variant="you"
+          />
+        </div>
+      </div>
 
       {/* Player hand - warm elevated tray */}
       <div
