@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import type { TileId } from '@/lib/tiles/constants'
 import type { BotDifficulty, ClaimType, GameMode, PlayerState } from '@/lib/game-engine/types'
 import {
@@ -830,12 +831,17 @@ export function GameBoard({ mode, timerSec, botDifficulty, playerCount }: GameBo
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-dark)' }}>
       {/* Game Header - dark, elegant */}
       <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[var(--bg-deep)] border-b border-[rgba(255,255,255,0.08)]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-        <p
-          className="text-sm sm:text-base font-bold tracking-wide"
-          style={{ color: 'var(--accent-periwinkle)', fontFamily: 'var(--font-display)' }}
-        >
-          Birdy
-        </p>
+        {/* The Birdy peacock lives on game surfaces (brand rule) */}
+        <span className="inline-flex items-center rounded-full bg-[var(--accent-cream)] px-3 py-1.5">
+          <Image
+            src="/logo.png"
+            alt="Birdy American Mahjong"
+            width={150}
+            height={30}
+            priority
+            className="w-[120px] sm:w-[150px] h-auto"
+          />
+        </span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCard(true)}

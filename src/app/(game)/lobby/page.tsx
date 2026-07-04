@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { GameModeSelector } from '@/components/game/GameModeSelector'
@@ -72,6 +73,14 @@ export default function LobbyPage() {
         {/* Hero */}
         <section className="bg-[var(--accent-lavender)]">
           <div className="max-w-4xl mx-auto px-5 sm:px-8 py-12 sm:py-16 flex flex-col items-center gap-4 text-center">
+            <Image
+              src="/logo.png"
+              alt="Birdy American Mahjong"
+              width={260}
+              height={52}
+              priority
+              className="h-auto w-[220px] sm:w-[260px]"
+            />
             <h1 className="display-xl text-[var(--accent-gold)]">The Game Lobby</h1>
             <p className="text-xl text-[var(--text-secondary)] max-w-lg">
               Set up your table and play Birdy - free, any time, with friendly
