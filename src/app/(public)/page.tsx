@@ -5,7 +5,6 @@ import { ProductCard } from '@/components/shop/ProductCard'
 import { Section } from '@/components/ui/Section'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { TileFrame } from '@/components/ui/TileFrame'
-import { TileMotif } from '@/components/ui/TileMotif'
 import { NewsletterForm } from '@/components/ui/NewsletterForm'
 
 export const revalidate = 300
@@ -116,7 +115,6 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <DoorCard
             tile="crak"
-            edge="berry"
             title="Learn at your table"
             copy="Andrew comes to you with tiles, racks and cards, and teaches at your pace. You keep a complete written guide."
             href="/private-lessons"
@@ -124,7 +122,6 @@ export default async function HomePage() {
           />
           <DoorCard
             tile="bird"
-            edge="jade"
             title="Play Birdy, free"
             copy="Our online game plays real NMJL rules - Charleston, jokers and all. Practise any evening, with friends or friendly bots."
             href="/lobby"
@@ -132,7 +129,6 @@ export default async function HomePage() {
           />
           <DoorCard
             tile="dot"
-            edge="indigo"
             title="Get the equipment"
             copy="The official 2026 NMJL card in large print, scorecard notepads, and free printable scorecards."
             href="/shop"
@@ -281,25 +277,38 @@ export default async function HomePage() {
 
 function DoorCard({
   tile,
-  edge,
   title,
   copy,
   href,
   linkLabel,
 }: {
   tile: 'dot' | 'bam' | 'crak' | 'wind' | 'flower' | 'bird'
-  edge: 'berry' | 'jade' | 'indigo' | 'periwinkle'
   title: string
   copy: string
   href: string
   linkLabel: string
 }) {
+  // Real tiles from our commissioned set, one per card family.
+  const tileArt: Record<typeof tile, string> = {
+    dot: 'dot-1',
+    bam: 'bam-5',
+    crak: 'crak-3',
+    wind: 'wind-east',
+    flower: 'flower-2',
+    bird: 'bam-1',
+  }
   return (
     <Link
       href={href}
       className="group card tile-lift p-7 flex flex-col gap-4 rounded-[var(--radius-tile)]"
     >
-      <TileMotif variant={tile} className="h-14 w-auto" edge={edge} />
+      <Image
+        src={`/tiles/stacks/${tileArt[tile]}.png`}
+        alt=""
+        width={240}
+        height={305}
+        className="h-20 w-auto self-start transition-transform group-hover:-rotate-3"
+      />
       <h2 className="display-md text-[var(--text-primary)]">{title}</h2>
       <p className="text-base leading-relaxed text-[var(--text-secondary)] flex-1">{copy}</p>
       <span className="link-arrow text-base">
