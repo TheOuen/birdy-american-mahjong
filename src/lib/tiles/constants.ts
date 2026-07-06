@@ -145,6 +145,27 @@ export function getTileShortLabel(type: TileType): string {
   }
 }
 
+// Commissioned tile artwork (Design by Design, Pr1 proofs) lives in /public/tiles/faces.
+// Returns the asset key for a tile face, or null where no artwork exists yet:
+// joker, white dragon (soap) and blanks are still awaiting designs.
+export function getTileAssetKey(type: TileType): string | null {
+  switch (type.kind) {
+    case 'suit':
+      return `${type.suit}-${type.number}`
+    case 'wind':
+      return `wind-${type.direction}`
+    case 'dragon':
+      return type.color === 'white' ? null : `dragon-${type.color}`
+    case 'flower':
+      // Only 3 of 4 flower designs are drawn; flowers are interchangeable per
+      // NMJL rules, so flower 4 reuses the first design until its art arrives.
+      return `flower-${type.number <= 3 ? type.number : 1}`
+    case 'joker':
+    case 'blank':
+      return null
+  }
+}
+
 // Check if two tile types are the same (ignoring copy index)
 export function tilesMatch(a: TileType, b: TileType): boolean {
   if (a.kind !== b.kind) return false

@@ -10,7 +10,7 @@ export function Footer() {
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div className="flex flex-col gap-5">
-              <AmlLogo inverse />
+              <AmlLogo inverse icon="tile" />
               <p className="text-[var(--accent-lavender)] text-base leading-relaxed max-w-xs">
                 Learn it once, love it forever! Lessons, equipment and free online
                 play - American Mahjong in London, with Andrew.

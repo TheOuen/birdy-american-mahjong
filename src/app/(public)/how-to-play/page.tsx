@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { TileRenderer } from '@/components/tiles/TileRenderer'
 import type { Tile } from '@/lib/tiles/constants'
 import { Eyebrow } from '@/components/ui/Eyebrow'
@@ -141,6 +142,12 @@ export default function HowToPlayPage() {
       <div className="bg-[var(--bg-card)] border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-6 py-14 sm:py-16 flex flex-col items-center text-center gap-5">
           <Eyebrow tile="wind">The guide</Eyebrow>
+          {/* A hand of tiles from our commissioned set */}
+          <div className="flex items-end justify-center gap-3" aria-hidden="true">
+            <Image src="/tiles/stacks/dot-1.png" alt="" width={240} height={305} className="h-16 w-auto -rotate-6" />
+            <Image src="/tiles/stacks/bam-1.png" alt="" width={240} height={305} className="h-20 w-auto -rotate-1" />
+            <Image src="/tiles/stacks/crak-3.png" alt="" width={240} height={305} className="h-16 w-auto rotate-6" />
+          </div>
           <h1 className="display-hero text-[var(--text-primary)]">
             How to <em className="display-italic">play.</em>
           </h1>

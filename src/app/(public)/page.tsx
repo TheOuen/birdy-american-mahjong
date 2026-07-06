@@ -54,7 +54,7 @@ export default async function HomePage() {
 
           {/* The arch, with the brand's word-art and 3D tiles floating beside it */}
           <div className="relative w-full max-w-md mx-auto md:mx-0 reveal reveal-3">
-            {/* Word-art stickers, left of the arch */}
+            {/* Word-art stickers, left of the arch - all three suit names */}
             <Image
               src="/aml/tiles-1.png"
               alt=""
@@ -63,26 +63,33 @@ export default async function HomePage() {
               className="sticker sticker-bob hidden lg:block -left-24 top-10 w-28 -rotate-6"
             />
             <Image
+              src="/aml/tiles-4.png"
+              alt=""
+              width={159}
+              height={124}
+              className="sticker sticker-bob-late hidden lg:block -left-28 top-1/2 -mt-10 w-24 rotate-3"
+            />
+            <Image
               src="/aml/tiles-5.png"
               alt=""
               width={194}
               height={118}
-              className="sticker sticker-bob-late hidden lg:block -left-20 bottom-16 w-24 -rotate-3"
+              className="sticker sticker-bob hidden lg:block -left-20 bottom-16 w-24 -rotate-3"
             />
-            {/* 3D tile stickers, right of the arch */}
+            {/* Tiles from our commissioned set, right of the arch */}
             <Image
-              src="/aml/tiles-3.png"
+              src="/tiles/stacks/bam-1.png"
               alt=""
-              width={120}
-              height={180}
+              width={240}
+              height={305}
               className="sticker sticker-bob hidden lg:block -right-14 top-16 w-20 rotate-12"
             />
             <Image
-              src="/aml/how-it-works.png"
+              src="/tiles/stacks/flower-3.png"
               alt=""
-              width={140}
-              height={156}
-              className="sticker sticker-bob-late hidden lg:block -right-16 bottom-10 w-24 -rotate-6"
+              width={240}
+              height={305}
+              className="sticker sticker-bob-late hidden lg:block -right-16 bottom-10 w-20 -rotate-6"
             />
             <div className="arch-ring">
               <div className="arch-ring-inner">
@@ -189,10 +196,28 @@ export default async function HomePage() {
       {/* Birdy band */}
       <Section tone="navy">
         <div className="flex flex-col items-center text-center gap-6">
-          <div className="flex gap-2" aria-hidden="true">
-            <TileMotif variant="bam" className="h-12 w-auto -rotate-6" edge="jade" />
-            <TileMotif variant="bird" className="h-14 w-auto" edge="berry" />
-            <TileMotif variant="dot" className="h-12 w-auto rotate-6" edge="indigo" />
+          <div className="flex items-end gap-3" aria-hidden="true">
+            <Image
+              src="/tiles/stacks/dragon-green.png"
+              alt=""
+              width={240}
+              height={305}
+              className="h-16 w-auto -rotate-6"
+            />
+            <Image
+              src="/tiles/stacks/bam-1.png"
+              alt=""
+              width={240}
+              height={305}
+              className="h-20 w-auto"
+            />
+            <Image
+              src="/tiles/stacks/dragon-red.png"
+              alt=""
+              width={240}
+              height={305}
+              className="h-16 w-auto rotate-6"
+            />
           </div>
           <h2 className="display-xl max-w-2xl">
             Play tonight - free, with <em className="display-italic" style={{ color: 'var(--accent-periwinkle)' }}>Birdy</em>
@@ -226,12 +251,13 @@ export default async function HomePage() {
               Read how to play <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
+          {/* Our commissioned tile set - one of each family */}
           <div className="flex flex-wrap justify-center gap-3" aria-hidden="true">
-            <TileMotif variant="dot" className="h-20 w-auto -rotate-3" edge="berry" />
-            <TileMotif variant="bam" className="h-20 w-auto rotate-2" edge="jade" />
-            <TileMotif variant="crak" className="h-20 w-auto -rotate-2" edge="indigo" />
-            <TileMotif variant="wind" className="h-20 w-auto rotate-3" edge="periwinkle" />
-            <TileMotif variant="flower" className="h-20 w-auto -rotate-1" edge="berry" />
+            <Image src="/tiles/stacks/dot-1.png" alt="" width={240} height={305} className="h-24 w-auto -rotate-3" />
+            <Image src="/tiles/stacks/bam-5.png" alt="" width={240} height={305} className="h-24 w-auto rotate-2" />
+            <Image src="/tiles/stacks/crak-3.png" alt="" width={240} height={305} className="h-24 w-auto -rotate-2" />
+            <Image src="/tiles/stacks/wind-east.png" alt="" width={240} height={305} className="h-24 w-auto rotate-3" />
+            <Image src="/tiles/stacks/flower-2.png" alt="" width={240} height={305} className="h-24 w-auto -rotate-1" />
           </div>
         </div>
       </Section>

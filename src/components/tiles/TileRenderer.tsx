@@ -1,7 +1,7 @@
 'use client'
 
 import type { Tile, TileType } from '@/lib/tiles/constants'
-import { getTileShortLabel } from '@/lib/tiles/constants'
+import { getTileAssetKey, getTileLabel, getTileShortLabel } from '@/lib/tiles/constants'
 
 type TileRendererProps = {
   tile: Tile
@@ -56,6 +56,7 @@ const sizes = {
 
 export function TileRenderer({ tile, onClick, faceDown, selected, size = 'md' }: TileRendererProps) {
   const s = sizes[size]
+  const assetKey = getTileAssetKey(tile.type)
 
   if (faceDown) {
     return (
@@ -87,17 +88,28 @@ export function TileRenderer({ tile, onClick, faceDown, selected, size = 'md' }:
           ? '0 6px 16px rgba(196, 106, 60, 0.25), 0 2px 4px rgba(0,0,0,0.1)'
           : '0 2px 4px var(--tile-shadow), inset 0 1px 0 rgba(255,255,255,0.8)',
       }}
-      aria-label={getTileShortLabel(tile.type)}
+      aria-label={getTileLabel(tile.type)}
     >
-      <span className={`${s.symbol} leading-none`} style={{ color: getTileColor(tile.type) }}>
-        {getTileSymbol(tile.type)}
-      </span>
-      <span
-        className={`${s.text} font-bold leading-none`}
-        style={{ color: getTileColor(tile.type), fontFamily: 'var(--font-body)' }}
-      >
-        {getTileShortLabel(tile.type)}
-      </span>
+      {assetKey ? (
+        <img
+          src={`/tiles/faces/${assetKey}.png`}
+          alt=""
+          draggable={false}
+          className="h-full w-full rounded-[calc(var(--radius-sm)-2px)] object-cover select-none"
+        />
+      ) : (
+        <>
+          <span className={`${s.symbol} leading-none`} style={{ color: getTileColor(tile.type) }}>
+            {getTileSymbol(tile.type)}
+          </span>
+          <span
+            className={`${s.text} font-bold leading-none`}
+            style={{ color: getTileColor(tile.type), fontFamily: 'var(--font-body)' }}
+          >
+            {getTileShortLabel(tile.type)}
+          </span>
+        </>
+      )}
     </button>
   )
 }
