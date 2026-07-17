@@ -8,6 +8,8 @@
 :root {
   /* Typography */
   --font-display: 'Gluten', 'Poppins', 'Segoe UI', system-ui, sans-serif;
+  /* Admin headings: a warm, readable serif - distinct from the brand bubble face */
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
 
   /* Background */

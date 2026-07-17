@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createAuthedServerClient } from '@/lib/supabase/server'
 import { AmlMark } from '@/components/layout/AmlMark'
 
-function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' }) {
+function SidebarIcon({ name }: { name: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' }) {
   const iconProps = {
     width: 22,
     height: 22,
@@ -22,6 +22,13 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders'
           <rect x="14" y="3" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
           <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+      )
+    case 'overview':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <path d="M12 5c-5 0-8.5 4.5-9.5 7 1 2.5 4.5 7 9.5 7s8.5-4.5 9.5-7c-1-2.5-4.5-7-9.5-7Z" />
+          <circle cx="12" cy="12" r="3" />
         </svg>
       )
     case 'users':
@@ -94,11 +101,12 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'users' | 'card' | 'orders'
 type NavItem = {
   href: string
   label: string
-  icon: 'dashboard' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages'
+  icon: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages'
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/admin/overview', label: "Bird's-eye view", icon: 'overview' },
   { href: '/admin/bookings', label: 'Bookings', icon: 'bookings' },
   { href: '/admin/orders', label: 'Orders', icon: 'orders' },
   { href: '/admin/products', label: 'Products', icon: 'products' },
@@ -125,7 +133,12 @@ export default async function AdminLayout({
   if (!user || role !== 'admin') redirect('/login')
 
   return (
-    <div className="flex min-h-screen">
+    // Admin panel uses the serif heading face: every heading in this tree
+    // references --font-display, so one scoped override retypes them all.
+    <div
+      className="flex min-h-screen"
+      style={{ '--font-display': 'var(--font-heading)' } as React.CSSProperties}
+    >
       {/* Sidebar */}
       <aside
         className="flex flex-col w-64 shrink-0"

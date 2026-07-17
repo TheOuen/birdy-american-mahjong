@@ -1,19 +1,99 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import type { User } from '@supabase/supabase-js'
 import { createBrowserClient } from '@/lib/supabase/browser'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AmlMark } from '@/components/layout/AmlMark'
 
-export default function LoginPage() {
+type LoginMethod = 'code' | 'password'
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [method, setMethod] = useState<LoginMethod>('code')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [code, setCode] = useState('')
+  const [codeSent, setCodeSent] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(() =>
+    searchParams.get('message') === 'link-expired'
+      ? 'That sign-in link has expired. Please enter your email below and we will send you a fresh one.'
+      : null
+  )
   const [loading, setLoading] = useState(false)
+
+  function goWhereTheyBelong(user: User | null) {
+    const role = (user?.app_metadata as { role?: string } | undefined)?.role
+    router.push(role === 'admin' ? '/admin' : '/lobby')
+  }
+
+  async function handleSendCode(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    setNotice(null)
+    setLoading(true)
+
+    const supabase = createBrowserClient()
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    })
+
+    setLoading(false)
+    if (otpError) {
+      setError(otpError.message)
+      return
+    }
+
+    setCodeSent(true)
+    setCode('')
+  }
+
+  async function handleVerifyCode(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    const supabase = createBrowserClient()
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: 'email',
+    })
+
+    if (verifyError) {
+      setError('That code was not right. Please check the email and try again, or send a new code.')
+      setLoading(false)
+      return
+    }
+
+    goWhereTheyBelong(data.user)
+  }
+
+  async function handleResendCode() {
+    setError(null)
+    setNotice(null)
+    setLoading(true)
+
+    const supabase = createBrowserClient()
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    })
+
+    setLoading(false)
+    if (otpError) {
+      setError(otpError.message)
+      return
+    }
+    setCode('')
+    setNotice('A new code is on its way to ' + email + '.')
+  }
 
   async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -21,7 +101,7 @@ export default function LoginPage() {
     setLoading(true)
 
     const supabase = createBrowserClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -32,7 +112,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/lobby')
+    goWhereTheyBelong(data.user)
   }
 
   async function handleGoogleLogin() {
@@ -48,6 +128,14 @@ export default function LoginPage() {
     if (oauthError) {
       setError(oauthError.message)
     }
+  }
+
+  function switchMethod(next: LoginMethod) {
+    setMethod(next)
+    setCodeSent(false)
+    setCode('')
+    setError(null)
+    setNotice(null)
   }
 
   return (
@@ -67,6 +155,36 @@ export default function LoginPage() {
               Sign in to play Birdy online
             </p>
 
+            {/* Method toggle */}
+            <div className="grid grid-cols-2 gap-2 mb-8" role="tablist" aria-label="How would you like to sign in?">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={method === 'code'}
+                onClick={() => switchMethod('code')}
+                className={`h-14 rounded-[var(--radius-md)] text-base font-medium border transition-colors ${
+                  method === 'code'
+                    ? 'bg-[var(--brand)] text-[var(--text-inverse)] border-[var(--brand)]'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border-[var(--border-strong)]'
+                }`}
+              >
+                Email me a code
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={method === 'password'}
+                onClick={() => switchMethod('password')}
+                className={`h-14 rounded-[var(--radius-md)] text-base font-medium border transition-colors ${
+                  method === 'password'
+                    ? 'bg-[var(--brand)] text-[var(--text-inverse)] border-[var(--brand)]'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border-[var(--border-strong)]'
+                }`}
+              >
+                Use my password
+              </button>
+            </div>
+
             {error && (
               <div
                 className="rounded-[var(--radius-md)] border border-[var(--error)] bg-[var(--error-light)] px-4 py-3 mb-6"
@@ -76,39 +194,128 @@ export default function LoginPage() {
               </div>
             )}
 
-            <form onSubmit={handleEmailLogin} className="flex flex-col gap-5">
-              <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="email">
-                Email
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="input-elegant"
-                />
-              </label>
+            {notice && (
+              <div
+                className="rounded-[var(--radius-md)] border border-[var(--success)] bg-[var(--success-light)] px-4 py-3 mb-6"
+                role="status"
+              >
+                <p className="text-[var(--success)] text-base">{notice}</p>
+              </div>
+            )}
 
-              <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="password">
-                Password
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Your password"
-                  className="input-elegant"
-                />
-              </label>
+            {method === 'code' && !codeSent && (
+              <form onSubmit={handleSendCode} className="flex flex-col gap-5">
+                <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="email">
+                  Email
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="input-elegant"
+                  />
+                </label>
 
-              <button type="submit" disabled={loading} className="btn-primary text-lg h-14">
-                {loading ? 'Signing in…' : 'Sign in'}
-              </button>
-            </form>
+                <p className="text-[var(--text-secondary)] text-base">
+                  No password needed — we&apos;ll email you a sign-in link and a 6-digit code.
+                </p>
+
+                <button type="submit" disabled={loading} className="btn-primary text-lg h-14">
+                  {loading ? 'Sending…' : 'Email me a code'}
+                </button>
+              </form>
+            )}
+
+            {method === 'code' && codeSent && (
+              <form onSubmit={handleVerifyCode} className="flex flex-col gap-5">
+                <p className="text-[var(--text-secondary)] text-base">
+                  We&apos;ve emailed <strong className="text-[var(--text-primary)]">{email}</strong>.
+                  Click the link in that email, or type the 6-digit code here:
+                </p>
+
+                <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="code">
+                  Your 6-digit code
+                  <input
+                    id="code"
+                    type="text"
+                    required
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    className="input-elegant text-center text-2xl tracking-[0.5em]"
+                  />
+                </label>
+
+                <button type="submit" disabled={loading || code.length !== 6} className="btn-primary text-lg h-14">
+                  {loading ? 'Checking…' : 'Sign in'}
+                </button>
+
+                <div className="flex flex-col gap-1 text-center">
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={loading}
+                    className="text-[var(--accent-gold)] font-medium underline underline-offset-2 py-2 min-h-[var(--touch-min)]"
+                  >
+                    Send a new code
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCodeSent(false)
+                      setCode('')
+                      setNotice(null)
+                    }}
+                    className="text-[var(--text-muted)] underline underline-offset-2 py-2 min-h-[var(--touch-min)]"
+                  >
+                    Use a different email
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {method === 'password' && (
+              <form onSubmit={handleEmailLogin} className="flex flex-col gap-5">
+                <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="email">
+                  Email
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="input-elegant"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="password">
+                  Password
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Your password"
+                    className="input-elegant"
+                  />
+                </label>
+
+                <button type="submit" disabled={loading} className="btn-primary text-lg h-14">
+                  {loading ? 'Signing in…' : 'Sign in'}
+                </button>
+              </form>
+            )}
 
             <div className="flex items-center gap-4 my-6">
               <div className="flex-1 h-px bg-[var(--border)]" />
@@ -156,5 +363,13 @@ export default function LoginPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

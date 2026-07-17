@@ -1,0 +1,65 @@
+<!-- Supabase email template: "Confirm signup"
+     Paste into: Dashboard → Authentication → Emails → Templates → Confirm signup
+     Suggested subject: Welcome! Please confirm your email -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F0E8; padding: 32px 16px; font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; width: 100%; background-color: #FFFFFF; border: 1px solid #D4C9B8; border-radius: 6px; overflow: hidden;">
+
+        <!-- Header -->
+        <tr>
+          <td style="background-color: #171D3A; padding: 28px 40px; text-align: center;">
+            <div style="color: #FFFCF5; font-size: 20px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+              American Mahjong
+            </div>
+            <div style="color: #94ABF9; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; margin-top: 4px;">
+              London
+            </div>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding: 40px 40px 16px 40px;">
+            <h1 style="margin: 0 0 16px 0; color: #171D3A; font-size: 26px; font-weight: bold;">
+              Welcome to the table!
+            </h1>
+            <p style="margin: 0 0 28px 0; color: #3E4460; font-size: 18px; line-height: 1.6;">
+              Thank you for joining American Mahjong&nbsp;|&nbsp;London. Please press
+              the button below to confirm your email address, and you&rsquo;ll be
+              ready to play Birdy online &mdash; completely free.
+            </p>
+
+            <!-- Confirm button -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center">
+                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup"
+                     style="display: inline-block; background-color: #9E2057; color: #FFFCF5; font-size: 18px; font-weight: bold; text-decoration: none; padding: 18px 44px; border-radius: 6px;">
+                    Confirm my email
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin: 32px 0 0 0; color: #5C617A; font-size: 16px; line-height: 1.6;">
+              If you didn&rsquo;t create an account with us, you can safely ignore
+              this email.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding: 24px 40px 32px 40px; border-top: 1px solid #D9DEF2; text-align: center;">
+            <p style="margin: 0; color: #5C617A; font-size: 14px; line-height: 1.6;">
+              American Mahjong | London<br />
+              Lessons, community and free online play
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
