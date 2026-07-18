@@ -4,7 +4,7 @@ import { OfflineBanner } from '@/components/admin/OfflineBanner'
 import { CONTACT_TOPICS, isContactTopic, type ContactTopic } from '@/lib/email/contact'
 import { setMessageStatus } from '../actions'
 
-export const metadata = { title: 'Messages - Admin' }
+export const metadata = { title: 'Inbox - Admin' }
 export const dynamic = 'force-dynamic'
 
 type MessageRow = {
@@ -28,15 +28,44 @@ export default async function AdminMessagesPage({
   const { rows: allMessages, offline } = await adminQuery<MessageRow>((sb) =>
     sb.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(200)
   )
-  const messages = activeTopic ? allMessages.filter((m) => (m.topic ?? 'general') === activeTopic) : allMessages
+  const filtered = activeTopic ? allMessages.filter((m) => (m.topic ?? 'general') === activeTopic) : allMessages
+
+  // Unread first, then read, then replied - newest first within each group.
+  const statusRank = { new: 0, read: 1, replied: 2 } as const
+  const messages = [...filtered].sort((a, b) => statusRank[a.status] - statusRank[b.status])
 
   const topicCount = (t: ContactTopic) => allMessages.filter((m) => (m.topic ?? 'general') === t).length
+  const newCount = allMessages.filter((m) => m.status === 'new').length
+  const repliedCount = allMessages.filter((m) => m.status === 'replied').length
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-        Contact messages
-      </h1>
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
+            Inbox
+          </h1>
+          <p className="text-[var(--text-secondary)] mt-1">
+            Everything sent through the contact form, newest and unread at the top.
+          </p>
+        </div>
+        {allMessages.length > 0 && (
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <span
+              className="rounded-full px-3 py-1.5"
+              style={{
+                backgroundColor: newCount > 0 ? 'var(--warning-light)' : 'var(--bg-card)',
+                color: newCount > 0 ? 'var(--warning)' : 'var(--text-muted)',
+              }}
+            >
+              {newCount} unread
+            </span>
+            <span className="rounded-full px-3 py-1.5 bg-[var(--success-light)] text-[var(--success)]">
+              {repliedCount} replied
+            </span>
+          </div>
+        )}
+      </div>
 
       {offline && <OfflineBanner thing="messages" />}
 

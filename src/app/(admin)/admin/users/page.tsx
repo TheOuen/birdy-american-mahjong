@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { adminQuery } from '@/lib/admin/data'
 import { OfflineBanner } from '@/components/admin/OfflineBanner'
 
@@ -24,9 +25,15 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-        Players
-      </h1>
+      <div>
+        <h1 className="text-3xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
+          Players
+        </h1>
+        <p className="text-[var(--text-secondary)] mt-1">
+          Everyone with a game account and how they&apos;re getting on. Looking for who can
+          manage the site? That&apos;s <Link href="/admin/team" className="underline underline-offset-2 text-[var(--accent-gold)]">Admins</Link>.
+        </p>
+      </div>
 
       {offline && <OfflineBanner thing="players" />}
 
