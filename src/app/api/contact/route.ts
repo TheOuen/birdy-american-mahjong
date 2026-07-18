@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { sendEmail, validateContact, NOTIFY_EMAIL } from '@/lib/email/send'
+import { sendEmail, NOTIFY_EMAIL } from '@/lib/email/send'
+import { validateContact, CONTACT_TOPICS } from '@/lib/email/contact'
 import { createServiceClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
       name: submission.name,
       email: submission.email,
       message: submission.message,
+      topic: submission.topic,
     })
   } catch (e) {
     console.error('contact message store failed', e)
@@ -36,8 +38,8 @@ export async function POST(request: Request) {
   try {
     await sendEmail({
       to: NOTIFY_EMAIL,
-      subject: `Website enquiry from ${submission.name}`,
-      text: `Name: ${submission.name}\nEmail: ${submission.email}\n\n${submission.message}`,
+      subject: `Website enquiry (${CONTACT_TOPICS[submission.topic]}) from ${submission.name}`,
+      text: `Name: ${submission.name}\nEmail: ${submission.email}\nTopic: ${CONTACT_TOPICS[submission.topic]}\n\n${submission.message}`,
       replyTo: submission.email,
     })
   } catch (e) {

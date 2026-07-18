@@ -4,6 +4,18 @@ export class CheckoutError extends Error {}
 
 export type CheckoutRequestItem = { slug: string; quantity: number }
 
+/** An order line as stored on the order row: the client's slug/quantity
+ * enriched server-side with the product type, so bookings are classified
+ * by the catalogue - never by guessing from the slug. */
+export type OrderItem = CheckoutRequestItem & { type?: Product['type'] }
+
+export function withProductTypes(items: CheckoutRequestItem[], products: Product[]): OrderItem[] {
+  return items.map((item) => ({
+    ...item,
+    type: products.find((p) => p.slug === item.slug)?.type,
+  }))
+}
+
 export type LineItem = {
   price_data: {
     currency: 'gbp'
@@ -38,6 +50,13 @@ export function buildLineItems(
     if (!product) throw new CheckoutError('An item in your cart is no longer available.')
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
       throw new CheckoutError('Invalid quantity.')
+    }
+    if (product.stock !== null && item.quantity > product.stock) {
+      throw new CheckoutError(
+        product.stock === 0
+          ? `Sorry, ${product.name} is sold out.`
+          : `Sorry, only ${product.stock} of ${product.name} ${product.stock === 1 ? 'is' : 'are'} left - please reduce the quantity in your cart.`
+      )
     }
     return {
       price_data: {

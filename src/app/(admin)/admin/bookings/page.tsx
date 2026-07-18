@@ -1,6 +1,8 @@
 import { adminQuery } from '@/lib/admin/data'
 import { OfflineBanner } from '@/components/admin/OfflineBanner'
 import { formatGbp } from '@/lib/shop/cart'
+import { lessonItems, orderHasLesson } from '@/lib/shop/orders'
+import type { OrderItem } from '@/lib/shop/checkout'
 import { setOrderStatus } from '../actions'
 
 export const metadata = { title: 'Bookings - Admin' }
@@ -11,7 +13,7 @@ type BookingRow = {
   created_at: string
   customer_email: string
   customer_name: string | null
-  items: { slug: string; quantity: number }[]
+  items: OrderItem[]
   total_pence: number
   status: 'new' | 'scheduled' | 'fulfilled'
 }
@@ -23,7 +25,7 @@ const NEXT_STATUS: Record<BookingRow['status'], { to: string; label: string } | 
 }
 
 function gcalLink(b: BookingRow): string {
-  const lessons = b.items.filter((i) => i.slug.includes('session'))
+  const lessons = lessonItems(b.items)
   const what = lessons.map((i) => `${i.slug.replace(/-/g, ' ')} x${i.quantity}`).join(', ')
   const params = new URLSearchParams({
     action: 'TEMPLATE',
@@ -39,7 +41,7 @@ export default async function AdminBookingsPage() {
     sb.from('orders').select('*').order('created_at', { ascending: false }).limit(200)
   )
   // A booking is any order containing a lesson.
-  const bookings = rows.filter((o) => o.items?.some((i) => i.slug.includes('session')))
+  const bookings = rows.filter((o) => orderHasLesson(o.items))
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,8 +92,7 @@ export default async function AdminBookingsPage() {
                     <span className="text-[var(--text-muted)]">{b.customer_email}</span>
                   </td>
                   <td className="px-4 py-3">
-                    {b.items
-                      .filter((i) => i.slug.includes('session'))
+                    {lessonItems(b.items)
                       .map((i) => `${i.slug.replace(/-/g, ' ')} × ${i.quantity}`)
                       .join(', ')}
                   </td>

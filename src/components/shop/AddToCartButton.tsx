@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { useCart } from './CartProvider'
-import type { Product } from '@/lib/shop/types'
+import { isSoldOut, type Product } from '@/lib/shop/types'
 
 type AddToCartButtonProps = { product: Product }
 
 export function AddToCartButton({ product }: AddToCartButtonProps) {
   const { dispatch } = useCart()
   const [added, setAdded] = useState(false)
+  const soldOut = isSoldOut(product)
 
   function handleAdd() {
     dispatch({
@@ -26,6 +27,14 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   }
 
   const label = product.type === 'lesson' ? 'Book this lesson' : 'Add to cart'
+
+  if (soldOut) {
+    return (
+      <button disabled className="btn-berry text-xl px-8 h-14 opacity-50 cursor-not-allowed">
+        Sold out
+      </button>
+    )
+  }
 
   return (
     <button onClick={handleAdd} className="btn-berry text-xl px-8 h-14" aria-live="polite">

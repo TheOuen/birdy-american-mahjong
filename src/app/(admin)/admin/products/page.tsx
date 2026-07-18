@@ -1,6 +1,7 @@
+import Image from 'next/image'
 import { adminQuery } from '@/lib/admin/data'
 import { OfflineBanner } from '@/components/admin/OfflineBanner'
-import type { Product } from '@/lib/shop/types'
+import { isSoldOut, type Product } from '@/lib/shop/types'
 import { saveProduct, createProduct } from '../actions'
 
 export const metadata = { title: 'Products - Admin' }
@@ -34,9 +35,17 @@ export default async function AdminProductsPage() {
                 <form
                   key={p.id}
                   action={saveProduct}
-                  className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-elevated)] p-5 grid grid-cols-1 md:grid-cols-[2fr_1fr_auto_auto] gap-4 items-end"
+                  className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-elevated)] p-5 grid grid-cols-1 md:grid-cols-[auto_2fr_1fr_1fr_auto_auto] gap-4 items-end"
                 >
                   <input type="hidden" name="id" value={p.id} />
+                  <div className="relative w-20 h-20 rounded-md overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] self-start">
+                    <Image src={p.image} alt={p.name} fill className="object-cover" sizes="80px" />
+                    {isSoldOut(p) && (
+                      <span className="absolute inset-x-0 bottom-0 bg-[var(--error)] text-center text-[10px] font-bold uppercase text-white py-0.5">
+                        Sold out
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-3">
                     <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
                       Name
@@ -45,6 +54,10 @@ export default async function AdminProductsPage() {
                     <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
                       Description
                       <textarea name="description" defaultValue={p.description} rows={2} className="input-elegant" />
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
+                      Image path <span className="font-normal">(a file under /public)</span>
+                      <input name="image" defaultValue={p.image} required className="input-elegant" />
                     </label>
                   </div>
                   <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
@@ -56,6 +69,18 @@ export default async function AdminProductsPage() {
                       min="0"
                       defaultValue={(p.price_pence / 100).toFixed(2)}
                       required
+                      className="input-elegant"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
+                    Stock <span className="font-normal">(blank = always available)</span>
+                    <input
+                      name="stock"
+                      type="number"
+                      min="0"
+                      step="1"
+                      defaultValue={p.stock ?? ''}
+                      placeholder="Not tracked"
                       className="input-elegant"
                     />
                   </label>
@@ -95,6 +120,10 @@ export default async function AdminProductsPage() {
           <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
             Price (£)
             <input name="price" type="number" step="0.01" min="0.01" required className="input-elegant" />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">
+            Stock <span className="font-normal">(blank = always available)</span>
+            <input name="stock" type="number" min="0" step="1" placeholder="Not tracked" className="input-elegant" />
           </label>
         </div>
         <label className="flex flex-col gap-1 text-sm font-medium text-[var(--text-secondary)]">

@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { validateContact } from './send'
+import { validateContact } from './contact'
 
 describe('validateContact', () => {
   it('accepts a valid submission', () => {
-    expect(validateContact({ name: 'Ann', email: 'ann@example.com', message: 'Hello there' }))
-      .toEqual({ name: 'Ann', email: 'ann@example.com', message: 'Hello there' })
+    expect(validateContact({ name: 'Ann', email: 'ann@example.com', message: 'Hello there', topic: 'lessons' }))
+      .toEqual({ name: 'Ann', email: 'ann@example.com', message: 'Hello there', topic: 'lessons' })
+  })
+  it('defaults a missing or unknown topic to general', () => {
+    expect(validateContact({ name: 'Ann', email: 'ann@example.com', message: 'Hi' })?.topic).toBe('general')
+    expect(validateContact({ name: 'Ann', email: 'ann@example.com', message: 'Hi', topic: 'spam' })?.topic).toBe('general')
+    expect(validateContact({ name: 'Ann', email: 'ann@example.com', message: 'Hi', topic: 42 })?.topic).toBe('general')
   })
   it('rejects missing fields', () => {
     expect(validateContact({ name: 'Ann', email: 'ann@example.com' })).toBeNull()
@@ -19,6 +24,6 @@ describe('validateContact', () => {
   })
   it('trims whitespace', () => {
     expect(validateContact({ name: '  Ann ', email: ' ann@example.com ', message: ' Hi there ' }))
-      .toEqual({ name: 'Ann', email: 'ann@example.com', message: 'Hi there' })
+      .toEqual({ name: 'Ann', email: 'ann@example.com', message: 'Hi there', topic: 'general' })
   })
 })

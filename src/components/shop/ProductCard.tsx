@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatGbp } from '@/lib/shop/cart'
-import type { Product } from '@/lib/shop/types'
+import { isSoldOut, type Product } from '@/lib/shop/types'
 
 type ProductCardProps = { product: Product }
 
@@ -18,6 +18,7 @@ function slugHash(slug: string): number {
 
 export function ProductCard({ product }: ProductCardProps) {
   const edge = EDGES[slugHash(product.slug) % EDGES.length]
+  const soldOut = isSoldOut(product)
 
   return (
     <Link
@@ -30,9 +31,14 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover"
+            className={`object-cover${soldOut ? ' opacity-60' : ''}`}
             sizes="(max-width: 640px) 100vw, 33vw"
           />
+          {soldOut && (
+            <span className="absolute right-3 top-3 rounded-full bg-[var(--text-primary)]/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--bg-elevated)]">
+              Sold out
+            </span>
+          )}
           {product.type === 'lesson' && (
             <span className="absolute left-3 top-3 rounded-full bg-[var(--bg-elevated)]/95 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-warm)]">
               Lesson with Andrew

@@ -15,6 +15,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     type: 'lesson',
     image: '/aml/lesson-beginner.png',
     active: true,
+    stock: null,
   },
   {
     id: 'fallback-beginner-group',
@@ -26,6 +27,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     type: 'lesson',
     image: '/aml/lesson-individual.png',
     active: true,
+    stock: null,
   },
   {
     id: 'fallback-private-1-hour',
@@ -37,6 +39,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     type: 'lesson',
     image: '/aml/lesson-1-hour.png',
     active: true,
+    stock: null,
   },
   {
     id: 'fallback-nmjl-card-2026',
@@ -48,6 +51,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     type: 'physical',
     image: '/aml/nmjl-card-2026.png',
     active: true,
+    stock: null,
   },
   {
     id: 'fallback-scorecard-notepad',
@@ -59,6 +63,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     type: 'physical',
     image: '/aml/scorecard-notepad.png',
     active: true,
+    stock: null,
   },
 ]
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
-import { orderRowFromSession, type SessionLike } from '@/lib/shop/orders'
+import { orderRowFromSession, orderHasLesson, type SessionLike } from '@/lib/shop/orders'
 import { sendEmail, NOTIFY_EMAIL } from '@/lib/email/send'
 import { formatGbp } from '@/lib/shop/cart'
 
@@ -48,6 +48,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Order insert failed' }, { status: 500 }) // Stripe will retry
   }
 
+  // Decrement tracked stock. Runs once per order: a duplicate webhook delivery
+  // returns early above. A failure must not 500 (the order is recorded and a
+  // Stripe retry would double-decrement) - it just shows up in the logs.
+  for (const item of row.items) {
+    const { error: stockError } = await supabase.rpc('decrement_stock', {
+      item_slug: item.slug,
+      qty: item.quantity,
+    })
+    if (stockError) console.error(`webhook: stock decrement failed for ${item.slug}`, stockError)
+  }
+
   const itemLines = row.items.map((i) => `- ${i.slug} × ${i.quantity}`).join('\n')
   const shipping = row.shipping_address ? `\nShipping:\n${JSON.stringify(row.shipping_address, null, 2)}` : ''
   try {
@@ -57,8 +68,7 @@ export async function POST(request: Request) {
       text: `New order from ${row.customer_name ?? row.customer_email} (${row.customer_email})\n\n${itemLines}\n\nTotal: ${formatGbp(row.total_pence)}${shipping}\n\nStripe session: ${row.stripe_session_id}`,
       replyTo: row.customer_email,
     })
-    const hasLesson = row.items.some((i) => i.slug.includes('session'))
-    if (hasLesson) {
+    if (orderHasLesson(row.items)) {
       await sendEmail({
         to: row.customer_email,
         subject: 'Your American Mahjong lesson - next steps',

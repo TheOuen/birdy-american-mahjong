@@ -7,6 +7,16 @@ export type Product = {
   type: 'physical' | 'lesson'
   image: string
   active: boolean
+  stock: number | null // null = not tracked (lessons); a number = finite inventory
+}
+
+export function isSoldOut(product: Product): boolean {
+  return product.stock !== null && product.stock <= 0
+}
+
+// "Only N left" territory - low enough to nudge, high enough not to nag.
+export function isLowStock(product: Product): boolean {
+  return product.stock !== null && product.stock > 0 && product.stock <= 5
 }
 
 export type CartItem = {

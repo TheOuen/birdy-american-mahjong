@@ -14,24 +14,41 @@ async function client() {
 
 // ---- Products / lessons -------------------------------------------------
 
+// Blank stock = not tracked (null); otherwise a non-negative whole number.
+function parseStock(formData: FormData): number | null {
+  const raw = String(formData.get('stock') ?? '').trim()
+  if (raw === '') return null
+  const n = Math.round(Number(raw))
+  return Number.isFinite(n) && n >= 0 ? n : null
+}
+
 export async function saveProduct(formData: FormData): Promise<void> {
   const id = String(formData.get('id') ?? '')
   const name = String(formData.get('name') ?? '').trim()
   const description = String(formData.get('description') ?? '').trim()
   const pounds = Number(formData.get('price') ?? 0)
   const active = formData.get('active') === 'on'
+  const image = String(formData.get('image') ?? '').trim()
   if (!id || !name || !Number.isFinite(pounds) || pounds < 0) return
   try {
     const supabase = await client()
     await supabase
       .from('products')
-      .update({ name, description, price_pence: Math.round(pounds * 100), active })
+      .update({
+        name,
+        description,
+        price_pence: Math.round(pounds * 100),
+        active,
+        stock: parseStock(formData),
+        ...(image ? { image } : {}),
+      })
       .eq('id', id)
   } catch (e) {
     console.error('saveProduct failed', e)
   }
   revalidatePath('/admin/products')
   revalidatePath('/shop')
+  revalidatePath('/shop/[slug]', 'page')
   revalidatePath('/')
 }
 
@@ -52,6 +69,7 @@ export async function createProduct(formData: FormData): Promise<void> {
       price_pence: Math.round(pounds * 100),
       image: String(formData.get('image') ?? '/aml/tiles-2.png').trim() || '/aml/tiles-2.png',
       active: true,
+      stock: parseStock(formData),
     })
   } catch (e) {
     console.error('createProduct failed', e)
@@ -74,6 +92,8 @@ export async function setOrderStatus(formData: FormData): Promise<void> {
   }
   revalidatePath('/admin/bookings')
   revalidatePath('/admin/orders')
+  revalidatePath('/admin')
+  revalidatePath('/admin/overview')
 }
 
 // ---- Contact inbox --------------------------------------------------------

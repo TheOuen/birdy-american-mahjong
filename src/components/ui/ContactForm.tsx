@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CONTACT_TOPICS } from '@/lib/email/contact'
 
 export function ContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -17,6 +18,7 @@ export function ContactForm() {
       body: JSON.stringify({
         name: data.get('name'),
         email: data.get('email'),
+        topic: data.get('topic'),
         message: data.get('message'),
         website: data.get('website'),
       }),
@@ -48,6 +50,16 @@ export function ContactForm() {
       <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
         Your email
         <input name="email" type="email" required maxLength={320} autoComplete="email" className="input-elegant" />
+      </label>
+      <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
+        What is it about?
+        <select name="topic" defaultValue="general" className="input-elegant">
+          {Object.entries(CONTACT_TOPICS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-2 text-lg font-medium text-[var(--text-primary)]">
         Message

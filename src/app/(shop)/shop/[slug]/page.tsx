@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/shop/products'
+import { isLowStock, isSoldOut } from '@/lib/shop/types'
 import { formatGbp } from '@/lib/shop/cart'
 import { AddToCartButton } from '@/components/shop/AddToCartButton'
 import { TileFrame } from '@/components/ui/TileFrame'
@@ -54,6 +55,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {product.type === 'lesson' && (
             <p className="rounded-[var(--radius-lg)] bg-[var(--accent-jade-subtle)] px-5 py-4 text-base text-[var(--accent-jade-dark)]">
               After booking, Andrew emails you to arrange a time that suits you.
+            </p>
+          )}
+          {isSoldOut(product) && (
+            <p className="rounded-[var(--radius-lg)] bg-[var(--error-light)] px-5 py-4 text-base text-[var(--error)]">
+              This item is sold out at the moment. Check back soon, or{' '}
+              <Link href="/get-in-touch" className="underline font-semibold">
+                get in touch
+              </Link>{' '}
+              and we&rsquo;ll let you know when it&rsquo;s back.
+            </p>
+          )}
+          {isLowStock(product) && (
+            <p className="text-base font-semibold text-[var(--accent-warm)]">
+              Only {product.stock} left in stock
             </p>
           )}
           <div className="mt-2">

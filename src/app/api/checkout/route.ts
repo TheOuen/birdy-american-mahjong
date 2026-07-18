@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getProducts } from '@/lib/shop/products'
-import { buildLineItems, hasPhysicalItems, parseCheckoutRequest, CheckoutError } from '@/lib/shop/checkout'
+import { buildLineItems, hasPhysicalItems, parseCheckoutRequest, withProductTypes, CheckoutError } from '@/lib/shop/checkout'
 
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       line_items: lineItems,
       success_url: `${siteUrl}/checkout/success`,
       cancel_url: `${siteUrl}/cart`,
-      metadata: { items: JSON.stringify(items) },
+      metadata: { items: JSON.stringify(withProductTypes(items, products)) },
       ...(hasPhysicalItems(items, products)
         ? { shipping_address_collection: { allowed_countries: ['GB'] } }
         : {}),

@@ -1,6 +1,9 @@
 import { adminQuery } from '@/lib/admin/data'
 import { OfflineBanner } from '@/components/admin/OfflineBanner'
 import { InfraMap } from '@/components/admin/InfraMap'
+import { BusinessMap } from '@/components/admin/BusinessMap'
+import { orderHasLesson } from '@/lib/shop/orders'
+import type { OrderItem } from '@/lib/shop/checkout'
 
 export const metadata = { title: "Bird's-eye view - Admin" }
 export const dynamic = 'force-dynamic'
@@ -37,31 +40,30 @@ function StatusPill({ ok, okLabel, pendingLabel }: { ok: boolean; okLabel: strin
   )
 }
 
-function FlowStep({ label, sub, last }: { label: string; sub?: string; last?: boolean }) {
-  return (
-    <>
-      <div className="rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-3 text-center">
-        <div className="font-semibold text-[var(--text-primary)]">{label}</div>
-        {sub && <div className="text-sm text-[var(--text-muted)]">{sub}</div>}
-      </div>
-      {!last && (
-        <div className="text-2xl text-[var(--text-muted)] px-1 self-center" aria-hidden="true">
-          →
-        </div>
-      )}
-    </>
-  )
+type OrderLite = { id: string; status: string; items: OrderItem[] }
+
+function priceRange(items: ProductRow[], suffix: string): string {
+  if (items.length === 0) return 'nothing listed yet'
+  const prices = items.map((p) => p.price_pence)
+  const lo = Math.min(...prices) / 100
+  const hi = Math.max(...prices) / 100
+  return lo === hi ? `£${lo} ${suffix}` : `£${lo} – £${hi} ${suffix}`
 }
 
 export default async function AdminOverviewPage() {
-  const [products, players] = await Promise.all([
+  const [products, players, orders, subscribers] = await Promise.all([
     adminQuery<ProductRow>((sb) => sb.from('products').select('id, name, price_pence, type, active').order('price_pence', { ascending: false })),
     adminQuery<CountRow>((sb) => sb.from('profiles').select('id').limit(1000)),
+    adminQuery<OrderLite>((sb) => sb.from('orders').select('id, status, items').limit(500)),
+    adminQuery<CountRow>((sb) => sb.from('newsletter_subscribers').select('id').limit(2000)),
   ])
 
   const offline = products.offline && players.offline
   const lessons = products.rows.filter((p) => p.type === 'lesson')
   const retail = products.rows.filter((p) => p.type === 'physical')
+
+  const newBookings = orders.rows.filter((o) => o.status === 'new' && orderHasLesson(o.items)).length
+  const newOrders = orders.rows.filter((o) => o.status === 'new').length - newBookings
 
   const systems = [
     {
@@ -123,35 +125,25 @@ export default async function AdminOverviewPage() {
 
       {offline && <OfflineBanner thing="the overview" />}
 
-      {/* Live infrastructure map */}
-      <section className="flex flex-col gap-3">
-        <h2 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-          The map - app &amp; infrastructure
-        </h2>
-        <p className="text-[var(--text-muted)] text-base max-w-2xl">
-          Every service and how they connect. Green dots and moving dashes are live right now;
-          amber means the wiring exists but is waiting on a key. Drag to pan, scroll to zoom.
-        </p>
-        <InfraMap
-          statuses={{
-            db: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && !products.offline,
-            stripe: Boolean(process.env.STRIPE_SECRET_KEY),
-            resend: Boolean(process.env.RESEND_API_KEY),
-          }}
-        />
-      </section>
-
-      {/* How the sides feed each other */}
+      {/* The business, as a living map */}
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
           How the business fits together
         </h2>
-        <div className="flex flex-wrap gap-2 items-stretch">
-          <FlowStep label="Free game & website" sub={`${players.rows.length} players signed up`} />
-          <FlowStep label="Community" sub="newsletter & blog" />
-          <FlowStep label="Lessons" sub="£125 – £600 a booking" />
-          <FlowStep label="Retail" sub="cards & notepads" last />
-        </div>
+        <p className="text-[var(--text-muted)] text-base max-w-2xl">
+          The three pillars and how people and money move between them. The thicker green
+          lines are money; the figures are live from the database. Drag to pan, scroll to zoom.
+        </p>
+        <BusinessMap
+          figures={{
+            players: players.rows.length,
+            subscribers: subscribers.rows.length,
+            newBookings,
+            newOrders,
+            lessonPriceRange: priceRange(lessons, 'a session'),
+            retailPriceRange: priceRange(retail, 'an item'),
+          }}
+        />
         <p className="text-[var(--text-muted)] text-base">
           The game earns nothing on purpose - it is the front door. Players practise between
           lessons, bring friends, and those friends become the next students and shoppers.
@@ -274,6 +266,20 @@ export default async function AdminOverviewPage() {
           Statuses are read live from this server&apos;s configuration - when a missing key is
           added, its card turns green on the next visit.
         </p>
+        <h3 className="text-lg font-bold text-[var(--text-primary)] mt-2" style={{ fontFamily: 'var(--font-display)' }}>
+          The full wiring
+        </h3>
+        <p className="text-[var(--text-muted)] text-base max-w-2xl">
+          The engineer&apos;s view: every service and connection. Green moving dashes are live;
+          amber is waiting on a key; indigo is one step away.
+        </p>
+        <InfraMap
+          statuses={{
+            db: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && !products.offline,
+            stripe: Boolean(process.env.STRIPE_SECRET_KEY),
+            resend: Boolean(process.env.RESEND_API_KEY),
+          }}
+        />
       </section>
     </div>
   )
