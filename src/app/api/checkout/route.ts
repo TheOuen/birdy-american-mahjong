@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { createAuthedServerClient } from '@/lib/supabase/server'
 import { getProducts } from '@/lib/shop/products'
 import { buildLineItems, hasPhysicalItems, parseCheckoutRequest, withProductTypes, CheckoutError } from '@/lib/shop/checkout'
 
@@ -21,6 +22,16 @@ export async function POST(request: Request) {
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
+  // Attach the signed-in buyer (if any) so the webhook records user_id and
+  // the order shows up on their "My lessons" page. Guests stay anonymous.
+  let user: { id: string; email?: string } | null = null
+  try {
+    const supabase = await createAuthedServerClient()
+    user = (await supabase.auth.getUser()).data.user
+  } catch {
+    // Not signed in / auth unavailable - checkout proceeds as a guest.
+  }
+
   try {
     const products = await getProducts()
     const lineItems = buildLineItems(items, products, siteUrl)
@@ -30,7 +41,11 @@ export async function POST(request: Request) {
       line_items: lineItems,
       success_url: `${siteUrl}/checkout/success`,
       cancel_url: `${siteUrl}/cart`,
-      metadata: { items: JSON.stringify(withProductTypes(items, products)) },
+      metadata: {
+        items: JSON.stringify(withProductTypes(items, products)),
+        ...(user ? { user_id: user.id } : {}),
+      },
+      ...(user?.email ? { customer_email: user.email } : {}),
       ...(hasPhysicalItems(items, products)
         ? { shipping_address_collection: { allowed_countries: ['GB'] } }
         : {}),

@@ -8,6 +8,7 @@ import { cartCount } from '@/lib/shop/cart'
 
 const NAV_ITEMS = [
   { href: '/private-lessons', label: 'Lessons' },
+  { href: '/my-lessons', label: 'My lessons' },
   { href: '/shop', label: 'Shop' },
   { href: '/how-to-play', label: 'How to play' },
   { href: '/about', label: 'About' },

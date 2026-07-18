@@ -7,6 +7,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createAuthedServerClient } from '@/lib/supabase/server'
+import { londonInputToDate, formatLondon } from '@/lib/shop/bookings'
+import { sendEmail, NOTIFY_EMAIL } from '@/lib/email/send'
 
 async function client() {
   return createAuthedServerClient()
@@ -94,6 +96,50 @@ export async function setOrderStatus(formData: FormData): Promise<void> {
   revalidatePath('/admin/orders')
   revalidatePath('/admin')
   revalidatePath('/admin/overview')
+}
+
+// Set (or move) a lesson's date, mark it scheduled, and email the customer
+// the confirmed time. The date is typed as London wall-clock time.
+export async function scheduleBooking(formData: FormData): Promise<void> {
+  const id = String(formData.get('id') ?? '')
+  const when = londonInputToDate(String(formData.get('scheduled_at') ?? ''))
+  const note = String(formData.get('note') ?? '').trim()
+  if (!id || !when) return
+  try {
+    const supabase = await client()
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ scheduled_at: when.toISOString(), admin_note: note || null, status: 'scheduled' })
+      .eq('id', id)
+      .select('customer_email, customer_name')
+      .single()
+    if (error || !data) {
+      console.error('scheduleBooking update failed', error)
+      return
+    }
+    try {
+      await sendEmail({
+        to: data.customer_email,
+        subject: `Your mahjong lesson is booked - ${formatLondon(when.toISOString())}`,
+        text:
+          `Dear ${data.customer_name ?? 'mahjong friend'},\n\n` +
+          `Your American Mahjong lesson is confirmed for:\n\n${formatLondon(when.toISOString())}\n\n` +
+          (note ? `${note}\n\n` : '') +
+          `Need to change the time? Just reply to this email.\n\nSee you at the table!\nAndrew\nAmerican Mahjong | London`,
+        replyTo: NOTIFY_EMAIL,
+      })
+    } catch (e) {
+      // The booking is saved; a failed email just means Andrew follows up by hand.
+      console.error('scheduleBooking email failed', e)
+    }
+  } catch (e) {
+    console.error('scheduleBooking failed', e)
+  }
+  revalidatePath('/admin/bookings')
+  revalidatePath('/admin/orders')
+  revalidatePath('/admin')
+  revalidatePath('/admin/overview')
+  revalidatePath('/my-lessons')
 }
 
 // ---- Contact inbox --------------------------------------------------------
