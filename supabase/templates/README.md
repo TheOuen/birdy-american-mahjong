@@ -2,7 +2,7 @@
 
 Branded (AML navy / berry / cream) email templates for Supabase Auth. Each
 email contains a **sign-in button** (magic link) and, for the magic-link
-email, a **6-digit code** the user can type instead — both are the same
+email, a **one-time code** the user can type instead — both are the same
 one-time credential, so whichever they use first wins.
 
 ## How to install
@@ -27,7 +27,8 @@ must be right:
    - **Redirect URLs**: add the production URL and `http://localhost:3000/**`.
 2. **Authentication → Sign In / Providers → Email**
    - Email provider **enabled**.
-   - **Email OTP length**: 6 (the login page expects 6 digits).
+   - **Email OTP length**: 6–8 digits (the login page accepts either; the
+     project is currently set to 8).
    - **Email OTP expiry**: 3600 seconds (the emails say "one hour" — keep in sync).
 
 Note: Supabase's built-in email sender is fine for testing but is
@@ -39,7 +40,7 @@ already uses for contact emails.
 
 - The login page (`src/app/(auth)/login/page.tsx`) calls
   `signInWithOtp({ email })`, which sends the Magic Link email. The user
-  either types the 6-digit `{{ .Token }}` code (verified client-side with
+  either types the `{{ .Token }}` code (verified client-side with
   `verifyOtp`) or clicks the button.
 - The button links to `/auth/confirm?token_hash={{ .TokenHash }}&type=...`,
   handled by `src/app/auth/confirm/route.ts`, which verifies the token

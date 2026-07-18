@@ -220,7 +220,7 @@ function LoginForm() {
                 </label>
 
                 <p className="text-[var(--text-secondary)] text-base">
-                  No password needed — we&apos;ll email you a sign-in link and a 6-digit code.
+                  No password needed — we&apos;ll email you a sign-in link and a one-time code.
                 </p>
 
                 <button type="submit" disabled={loading} className="btn-primary text-lg h-14">
@@ -233,27 +233,27 @@ function LoginForm() {
               <form onSubmit={handleVerifyCode} className="flex flex-col gap-5">
                 <p className="text-[var(--text-secondary)] text-base">
                   We&apos;ve emailed <strong className="text-[var(--text-primary)]">{email}</strong>.
-                  Click the link in that email, or type the 6-digit code here:
+                  Click the link in that email, or type the code from the email here:
                 </p>
 
                 <label className="flex flex-col gap-2 text-base font-medium text-[var(--text-primary)]" htmlFor="code">
-                  Your 6-digit code
+                  Your code
                   <input
                     id="code"
                     type="text"
                     required
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    pattern="[0-9]{6}"
-                    maxLength={6}
+                    pattern="[0-9]{6,8}"
+                    maxLength={8}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123456"
-                    className="input-elegant text-center text-2xl tracking-[0.5em]"
+                    placeholder="12345678"
+                    className="input-elegant text-center text-2xl tracking-[0.35em]"
                   />
                 </label>
 
-                <button type="submit" disabled={loading || code.length !== 6} className="btn-primary text-lg h-14">
+                <button type="submit" disabled={loading || code.length < 6} className="btn-primary text-lg h-14">
                   {loading ? 'Checking…' : 'Sign in'}
                 </button>
 
