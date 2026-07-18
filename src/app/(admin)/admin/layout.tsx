@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createAuthedServerClient } from '@/lib/supabase/server'
 import { AmlMark } from '@/components/layout/AmlMark'
 
-function SidebarIcon({ name }: { name: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' }) {
+function SidebarIcon({ name }: { name: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' | 'newsletter' }) {
   const iconProps = {
     width: 22,
     height: 22,
@@ -88,6 +88,13 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'overview' | 'users' | 'car
           <path d="m2 7 10 6L22 7" />
         </svg>
       )
+    case 'newsletter':
+      return (
+        <svg {...iconProps} viewBox="0 0 24 24">
+          <path d="M22 2 11 13" />
+          <path d="M22 2 15 22l-4-9-9-4Z" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg {...iconProps} viewBox="0 0 24 24">
@@ -101,7 +108,7 @@ function SidebarIcon({ name }: { name: 'dashboard' | 'overview' | 'users' | 'car
 type NavItem = {
   href: string
   label: string
-  icon: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages'
+  icon: 'dashboard' | 'overview' | 'users' | 'card' | 'orders' | 'settings' | 'bookings' | 'products' | 'posts' | 'messages' | 'newsletter'
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -112,6 +119,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/products', label: 'Products', icon: 'products' },
   { href: '/admin/posts', label: 'Posts', icon: 'posts' },
   { href: '/admin/messages', label: 'Messages', icon: 'messages' },
+  { href: '/admin/newsletter', label: 'Newsletter', icon: 'newsletter' },
   { href: '/admin/users', label: 'Players', icon: 'users' },
   { href: '/admin/nmjl-card', label: 'NMJL Card', icon: 'card' },
   { href: '/admin/settings', label: 'Settings', icon: 'settings' },
