@@ -1,6 +1,8 @@
 export const NOTIFY_EMAIL = process.env.ORDER_NOTIFY_EMAIL ?? 'hello@americanmahjonglondon.com'
 
-const FROM = 'American Mahjong London <onboarding@resend.dev>'
+// Falls back to Resend's sandbox sender, which only delivers to the Resend
+// account owner. Set EMAIL_FROM once mail.americanmahjonglondon.com verifies.
+const FROM = process.env.EMAIL_FROM ?? 'American Mahjong London <onboarding@resend.dev>'
 
 type SendEmailOptions = { to: string; subject: string; text: string; replyTo?: string }
 
